@@ -10,16 +10,17 @@ module.exports = {
       colors: {
         'brodeo-red': '#DC2626',
         'brodeo-black': '#000000',
-        'brodeo-gray': {
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          400: '#9CA3AF',
-          500: '#6B7280',
-          600: '#4B5563',
-          700: '#374151',
-          800: '#1F2937',
-          900: '#111827'
+        'gray': {
+          50: '#FAFAFA',
+          100: '#F4F4F5',
+          200: '#E4E4E7',
+          300: '#D4D4D8',
+          400: '#A1A1AA',
+          500: '#71717A',
+          600: '#52525B',
+          700: '#3F3F46',
+          800: '#1A1A1A',  // Pure black instead of blue-tinted
+          900: '#000000'   // Pure black
         }
       },
       fontFamily: {

@@ -30,3 +30,4 @@ instance/
 # Firebase
 .firebase/
 firebase-debug.log
+.vercel
