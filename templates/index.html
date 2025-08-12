@@ -3,484 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brodeo - YouTube Planning Studio</title>
-    <link href="{{ url_for('static', filename='output.css') }}" rel="stylesheet">
-    <!-- Fallback CDN CSS for Tailwind basics -->
+    <title>Brodeo - YouTube Planning Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
+        .mohave { font-family: 'Mohave', sans-serif; }
+    </style>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        'brodeo-red': '#DC2626',
-                        'brodeo-black': '#000000',
-                        // Pure black dark mode colors
-                        'gray': {
-                            50: '#FAFAFA',
-                            100: '#F4F4F5',
-                            200: '#E4E4E7',
-                            300: '#D4D4D8',
-                            400: '#A1A1AA',
-                            500: '#71717A',
-                            600: '#52525B',
-                            700: '#3F3F46',
-                            800: '#1A1A1A',  // Changed from blue-tinted to pure black
-                            900: '#000000'   // Pure black
-                        }
-                    },
-                    fontFamily: {
-                        'mohave': ['Mohave', 'sans-serif'],
-                        'inter': ['Inter', 'sans-serif']
+                        primary: '#DC2626',
+                        dark: '#000000',
                     }
                 }
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
-<body class="bg-black text-white font-inter">
-    <!-- Header -->
-    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-8">
-                    <h1 class="text-2xl font-mohave font-bold text-brodeo-red">BRODEO</h1>
-                    <nav class="flex space-x-6">
-                        <button onclick="showView('calendar')" class="nav-btn text-sm hover:text-brodeo-red transition-colors">Calendar</button>
-                        <button onclick="showView('backlog')" class="nav-btn text-sm hover:text-brodeo-red transition-colors">Backlog</button>
-                        <button onclick="showView('editor')" class="nav-btn text-sm hover:text-brodeo-red transition-colors">Editor</button>
-                        <button onclick="showView('schedule')" class="nav-btn text-sm hover:text-brodeo-red transition-colors">Schedule</button>
-                        <button onclick="showView('settings')" class="nav-btn text-sm hover:text-brodeo-red transition-colors">Settings</button>
-                    </nav>
+<body class="bg-black text-white min-h-screen">
+    <!-- Top Bar -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
+                <nav class="flex space-x-4">
+                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
+                    <a href="/calendar" class="text-sm hover:text-red-500 transition"><i class="fas fa-calendar mr-1"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm hover:text-red-500 transition"><i class="fas fa-tasks mr-1"></i> Backlog</a>
+                    <a href="/editor" class="text-sm hover:text-red-500 transition"><i class="fas fa-edit mr-1"></i> Editor</a>
+                    <a href="/schedule" class="text-sm hover:text-red-500 transition"><i class="fas fa-clock mr-1"></i> Schedule</a>
+                    <a href="/settings" class="text-sm hover:text-red-500 transition"><i class="fas fa-cog mr-1"></i> Settings</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm">
+                    <span class="text-zinc-400">Next Due:</span>
+                    <span class="text-red-500 font-semibold ml-1" id="nextDue">--:--</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-sm">
-                        <span class="text-gray-400">Next Due:</span>
-                        <span id="next-due" class="text-brodeo-red font-semibold ml-2">--:--:--</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-brodeo-red" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"/>
-                        </svg>
-                        <span id="streak-counter" class="text-xl font-mohave font-bold">0</span>
-                    </div>
+                <div class="text-sm">
+                    <span class="text-zinc-400">Streak:</span>
+                    <span class="text-green-500 font-semibold ml-1" id="streak">0</span>
+                    <i class="fas fa-fire text-orange-500 ml-1"></i>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-6">
-        <!-- Calendar View -->
-        <div id="calendar-view" class="view">
-            <div class="mb-6 flex justify-between items-center">
-                <h2 class="text-2xl font-mohave font-semibold">Content Calendar</h2>
-                <div class="flex space-x-2">
-                    <button onclick="calendarView('month')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">Month</button>
-                    <button onclick="calendarView('week')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">Week</button>
-                    <button onclick="calendarView('day')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">Day</button>
-                </div>
-            </div>
-            <div id="calendar-container" class="bg-gray-900 rounded-lg p-4">
-                <!-- Calendar will be rendered here -->
-            </div>
-        </div>
-
-        <!-- Backlog View -->
-        <div id="backlog-view" class="view hidden">
-            <div class="mb-6">
-                <h2 class="text-2xl font-mohave font-semibold">Content Backlog</h2>
-            </div>
-            <div class="grid grid-cols-6 gap-4">
-                <div class="kanban-column bg-gray-900 rounded-lg p-4">
-                    <h3 class="text-sm font-mohave font-semibold mb-3 text-gray-400">IDEA</h3>
-                    <div id="col-idea" class="space-y-2 min-h-[400px]"></div>
-                </div>
-                <div class="kanban-column bg-gray-900 rounded-lg p-4">
-                    <h3 class="text-sm font-mohave font-semibold mb-3 text-yellow-500">DRAFTING</h3>
-                    <div id="col-drafting" class="space-y-2 min-h-[400px]"></div>
-                </div>
-                <div class="kanban-column bg-gray-900 rounded-lg p-4">
-                    <h3 class="text-sm font-mohave font-semibold mb-3 text-blue-500">EDITING</h3>
-                    <div id="col-editing" class="space-y-2 min-h-[400px]"></div>
-                </div>
-                <div class="kanban-column bg-gray-900 rounded-lg p-4">
-                    <h3 class="text-sm font-mohave font-semibold mb-3 text-green-500">READY</h3>
-                    <div id="col-ready" class="space-y-2 min-h-[400px]"></div>
-                </div>
-                <div class="kanban-column bg-gray-900 rounded-lg p-4">
-                    <h3 class="text-sm font-mohave font-semibold mb-3 text-purple-500">SCHEDULED</h3>
-                    <div id="col-scheduled" class="space-y-2 min-h-[400px]"></div>
-                </div>
-                <div class="kanban-column bg-gray-900 rounded-lg p-4">
-                    <h3 class="text-sm font-mohave font-semibold mb-3 text-brodeo-red">PUBLISHED</h3>
-                    <div id="col-published" class="space-y-2 min-h-[400px]"></div>
-                </div>
-            </div>
-            <button onclick="addNewIdea()" class="mt-4 px-4 py-2 bg-brodeo-red hover:bg-red-700 rounded text-sm font-semibold">+ New Idea</button>
-        </div>
-
-        <!-- Editor View -->
-        <div id="editor-view" class="view hidden">
-            <div class="grid grid-cols-2 gap-6">
-                <!-- Left Panel - Content Editor -->
-                <div class="space-y-6">
-                    <div class="bg-gray-900 rounded-lg p-6">
-                        <h2 class="text-xl font-mohave font-semibold mb-4">Content Details</h2>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Topic</label>
-                                <input type="text" id="topic-input" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Target Audience</label>
-                                <input type="text" id="audience-input" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Key Points</label>
-                                <textarea id="keypoints-input" rows="4" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm"></textarea>
-                            </div>
-                        </div>
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Quick Stats Card -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Quick Stats</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-zinc-400">Ideas in Backlog</span>
+                        <span class="text-lg font-semibold" id="ideasCount">0</span>
                     </div>
-
-                    <div class="bg-gray-900 rounded-lg p-6">
-                        <h3 class="text-lg font-mohave font-semibold mb-4">AI Suggestions</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="text-sm font-medium">Title Options</label>
-                                    <button onclick="generateTitles()" class="text-xs px-3 py-1 bg-brodeo-red hover:bg-red-700 rounded">Generate</button>
-                                </div>
-                                <div id="title-suggestions" class="space-y-2"></div>
-                            </div>
-                            
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="text-sm font-medium">Description</label>
-                                    <button onclick="generateDescription()" class="text-xs px-3 py-1 bg-brodeo-red hover:bg-red-700 rounded">Generate</button>
-                                </div>
-                                <textarea id="description-output" rows="6" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm"></textarea>
-                            </div>
-                        </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-zinc-400">Ready to Publish</span>
+                        <span class="text-lg font-semibold text-green-500" id="readyCount">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-zinc-400">This Week's Videos</span>
+                        <span class="text-lg font-semibold" id="weekCount">0</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Right Panel - Thumbnail Studio -->
-                <div class="bg-gray-900 rounded-lg p-6">
-                    <h2 class="text-xl font-mohave font-semibold mb-4">Thumbnail Studio</h2>
-                    
-                    <div class="space-y-4">
-                        <!-- Template Selection -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Template</label>
-                            <select id="template-select" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                                <option value="text_only">Text Only</option>
-                                <option value="text_over_image">Text Over Image</option>
-                                <option value="text_behind_subject">Text Behind Subject</option>
-                                <option value="image_only">Image Only</option>
-                            </select>
-                        </div>
+            <!-- Quick Actions Card -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Quick Actions</h2>
+                <div class="space-y-3">
+                    <button onclick="window.location.href='/editor'" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-plus mr-2"></i>New Video Idea
+                    </button>
+                    <button onclick="window.location.href='/calendar'" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-calendar-plus mr-2"></i>Schedule Video
+                    </button>
+                    <button onclick="window.location.href='/backlog'" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-list mr-2"></i>View Backlog
+                    </button>
+                </div>
+            </div>
 
-                        <!-- Aspect Ratio -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Aspect Ratio</label>
-                            <div class="grid grid-cols-4 gap-2">
-                                <button onclick="setAspectRatio('16:9')" class="aspect-btn px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs">16:9</button>
-                                <button onclick="setAspectRatio('4:3')" class="aspect-btn px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs">4:3</button>
-                                <button onclick="setAspectRatio('1:1')" class="aspect-btn px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs">1:1</button>
-                                <button onclick="setAspectRatio('9:16')" class="aspect-btn px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs">9:16</button>
-                            </div>
-                        </div>
-
-                        <!-- Thumbnail Text -->
-                        <div>
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="text-sm font-medium">Thumbnail Text</label>
-                                <button onclick="generateThumbnailText()" class="text-xs px-3 py-1 bg-brodeo-red hover:bg-red-700 rounded">AI Suggest</button>
-                            </div>
-                            <input type="text" id="thumbnail-text" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                        </div>
-
-                        <!-- Font Settings -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Font</label>
-                                <select id="font-select" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                                    <option value="Mohave">Mohave</option>
-                                    <option value="Inter">Inter</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Size</label>
-                                <input type="range" id="font-size" min="24" max="120" value="48" class="w-full">
-                            </div>
-                        </div>
-
-                        <!-- Colors -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Text Color</label>
-                                <input type="color" id="text-color" value="#FFFFFF" class="w-full h-10 bg-gray-800 border border-gray-700 rounded">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Background</label>
-                                <input type="color" id="bg-color" value="#DC2626" class="w-full h-10 bg-gray-800 border border-gray-700 rounded">
-                            </div>
-                        </div>
-
-                        <!-- Reference Faces Selection -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Include Faces</label>
-                            <div id="face-selector" class="grid grid-cols-3 gap-2">
-                                <!-- Face options will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Preview -->
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Preview</label>
-                            <div class="bg-gray-800 rounded-lg p-4">
-                                <div id="thumbnail-preview" class="relative bg-gradient-to-br from-brodeo-red to-red-900 rounded aspect-video flex items-center justify-center">
-                                    <span class="text-4xl font-mohave font-bold text-white">THUMBNAIL</span>
-                                </div>
-                            </div>
-                            <div class="flex justify-between mt-2">
-                                <button onclick="previewMode('light')" class="text-xs px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded">Light Mode</button>
-                                <button onclick="previewMode('dark')" class="text-xs px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded">Dark Mode</button>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="space-y-2">
-                            <button onclick="generateAIThumbnail()" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm font-semibold">Generate AI Thumbnail</button>
-                            <div class="flex space-x-2">
-                                <button onclick="saveThumbnail()" class="flex-1 px-4 py-2 bg-brodeo-red hover:bg-red-700 rounded text-sm font-semibold">Save</button>
-                                <button onclick="downloadThumbnail()" class="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm font-semibold">Download</button>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Next Video Card -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Next Video</h2>
+                <div id="nextVideoInfo" class="space-y-3">
+                    <p class="text-sm text-zinc-400">No videos scheduled</p>
                 </div>
             </div>
         </div>
 
-        <!-- Schedule View -->
-        <div id="schedule-view" class="view hidden">
-            <div class="grid grid-cols-2 gap-6">
-                <div class="bg-gray-900 rounded-lg p-6">
-                    <h2 class="text-xl font-mohave font-semibold mb-4">Upload Schedule</h2>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Cadence</label>
-                            <select id="cadence-select" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                                <option value="daily">Daily</option>
-                                <option value="custom">Custom Days</option>
-                            </select>
-                        </div>
-                        
-                        <div id="custom-days" class="hidden">
-                            <label class="block text-sm font-medium mb-2">Select Days</label>
-                            <div class="grid grid-cols-7 gap-2">
-                                <label class="flex items-center space-x-1">
-                                    <input type="checkbox" value="sun" class="day-checkbox">
-                                    <span class="text-xs">Sun</span>
-                                </label>
-                                <label class="flex items-center space-x-1">
-                                    <input type="checkbox" value="mon" class="day-checkbox">
-                                    <span class="text-xs">Mon</span>
-                                </label>
-                                <label class="flex items-center space-x-1">
-                                    <input type="checkbox" value="tue" class="day-checkbox">
-                                    <span class="text-xs">Tue</span>
-                                </label>
-                                <label class="flex items-center space-x-1">
-                                    <input type="checkbox" value="wed" class="day-checkbox">
-                                    <span class="text-xs">Wed</span>
-                                </label>
-                                <label class="flex items-center space-x-1">
-                                    <input type="checkbox" value="thu" class="day-checkbox">
-                                    <span class="text-xs">Thu</span>
-                                </label>
-                                <label class="flex items-center space-x-1">
-                                    <input type="checkbox" value="fri" class="day-checkbox">
-                                    <span class="text-xs">Fri</span>
-                                </label>
-                                <label class="flex items-center space-x-1">
-                                    <input type="checkbox" value="sat" class="day-checkbox">
-                                    <span class="text-xs">Sat</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Deadline Time</label>
-                            <input type="time" id="deadline-time" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Reminders</label>
-                            <div class="space-y-2">
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="reminder-60" checked>
-                                    <span class="text-sm">60 minutes before deadline</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" id="reminder-10" checked>
-                                    <span class="text-sm">10 minutes before deadline</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <button onclick="saveSchedule()" class="w-full px-4 py-2 bg-brodeo-red hover:bg-red-700 rounded text-sm font-semibold">Save Schedule</button>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-900 rounded-lg p-6">
-                    <h2 class="text-xl font-mohave font-semibold mb-4">Streak Stats</h2>
-                    
-                    <div class="space-y-6">
-                        <div class="text-center">
-                            <div class="text-6xl font-mohave font-bold text-brodeo-red mb-2">
-                                <span id="current-streak">0</span>
-                            </div>
-                            <p class="text-sm text-gray-400">Current Streak</p>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-gray-800 rounded p-4 text-center">
-                                <div class="text-2xl font-mohave font-bold mb-1">
-                                    <span id="best-streak">0</span>
-                                </div>
-                                <p class="text-xs text-gray-400">Best Streak</p>
-                            </div>
-                            <div class="bg-gray-800 rounded p-4 text-center">
-                                <div class="text-2xl font-mohave font-bold mb-1">
-                                    <span id="last-publish">Never</span>
-                                </div>
-                                <p class="text-xs text-gray-400">Last Publish</p>
-                            </div>
-                        </div>
-                        
-                        <div class="pt-4 border-t border-gray-800">
-                            <h3 class="text-sm font-semibold mb-3">Upcoming Deadlines</h3>
-                            <div id="upcoming-deadlines" class="space-y-2"></div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Recent Ideas -->
+        <div class="mt-8 bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+            <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Recent Ideas</h2>
+            <div id="recentIdeas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-sm text-zinc-400">No recent ideas</p>
             </div>
         </div>
+    </div>
 
-        <!-- Settings View -->
-        <div id="settings-view" class="view hidden">
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-gray-900 rounded-lg p-6">
-                    <h2 class="text-xl font-mohave font-semibold mb-4">Channel Settings</h2>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Channel Name</label>
-                            <input type="text" id="channel-name" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Channel Description</label>
-                            <textarea id="channel-description" rows="3" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm"></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Default Font</label>
-                            <select id="default-font" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                                <option value="Mohave">Mohave</option>
-                                <option value="Inter">Inter</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Default Thumbnail Template</label>
-                            <select id="default-template" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-brodeo-red focus:outline-none text-sm">
-                                <option value="text_only">Text Only</option>
-                                <option value="text_over_image">Text Over Image</option>
-                                <option value="text_behind_subject">Text Behind Subject</option>
-                                <option value="image_only">Image Only</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Default Colors</label>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-xs text-gray-400 mb-1">Primary</label>
-                                    <input type="color" id="primary-color" value="#DC2626" class="w-full h-10 bg-gray-800 border border-gray-700 rounded">
-                                </div>
-                                <div>
-                                    <label class="text-xs text-gray-400 mb-1">Secondary</label>
-                                    <input type="color" id="secondary-color" value="#000000" class="w-full h-10 bg-gray-800 border border-gray-700 rounded">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button onclick="saveSettings()" class="w-full px-4 py-2 bg-brodeo-red hover:bg-red-700 rounded text-sm font-semibold">Save Settings</button>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-900 rounded-lg p-6 mt-6">
-                    <h2 class="text-xl font-mohave font-semibold mb-4">Reference Faces</h2>
-                    <p class="text-sm text-gray-400 mb-4">Upload reference photos of faces to use in AI-generated thumbnails</p>
-                    
-                    <div class="space-y-4">
-                        <div class="border-2 border-dashed border-gray-700 rounded-lg p-6">
-                            <div class="text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <div class="mt-4">
-                                    <label for="face-upload" class="cursor-pointer">
-                                        <span class="px-4 py-2 bg-brodeo-red hover:bg-red-700 rounded text-sm font-semibold inline-block">
-                                            Upload Face Photo
-                                        </span>
-                                        <input id="face-upload" type="file" accept="image/*" class="hidden" onchange="uploadReferenceFace(this)">
-                                    </label>
-                                </div>
-                                <p class="text-xs text-gray-400 mt-2">PNG, JPG, GIF up to 16MB</p>
-                            </div>
-                        </div>
-                        
-                        <div id="reference-faces-list" class="grid grid-cols-3 gap-4">
-                            <!-- Reference faces will be displayed here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
+    <script src="/static/app.js"></script>
     <script>
-        // Inline critical JavaScript to ensure basic functionality works
-        function showView(view) {
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.getElementById(`${view}-view`).classList.remove('hidden');
-            
-            // Update nav buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-brodeo-red');
-                if (btn.textContent.toLowerCase() === view) {
-                    btn.classList.add('text-brodeo-red');
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Load ideas
+                const ideasRes = await fetch('/api/ideas');
+                const ideas = await ideasRes.json();
+                
+                // Update counts
+                document.getElementById('ideasCount').textContent = ideas.filter(i => i.status === 'Idea').length;
+                document.getElementById('readyCount').textContent = ideas.filter(i => i.status === 'Ready').length;
+                
+                // Load streak
+                const streakRes = await fetch('/api/streak');
+                const streak = await streakRes.json();
+                document.getElementById('streak').textContent = streak.count || 0;
+                
+                // Display recent ideas
+                const recentIdeasDiv = document.getElementById('recentIdeas');
+                const recentIdeas = ideas.slice(0, 6);
+                
+                if (recentIdeas.length > 0) {
+                    recentIdeasDiv.innerHTML = recentIdeas.map(idea => `
+                        <div class="bg-zinc-800 rounded-lg p-4 hover:bg-zinc-700 transition cursor-pointer" onclick="window.location.href='/editor?id=${idea.id}'">
+                            <h3 class="font-semibold text-sm mb-2">${idea.title || 'Untitled'}</h3>
+                            <p class="text-xs text-zinc-400 line-clamp-2">${idea.description || 'No description'}</p>
+                            <div class="mt-2">
+                                <span class="inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(idea.status)}">
+                                    ${idea.status}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
                 }
-            });
+                
+                // Calculate next due
+                const scheduleRes = await fetch('/api/schedule');
+                const schedule = await scheduleRes.json();
+                updateNextDue(schedule.post_by_time);
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
         }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            showView('calendar');
-        });
+        
+        function getStatusColor(status) {
+            const colors = {
+                'Idea': 'bg-blue-600 text-blue-100',
+                'Drafting': 'bg-yellow-600 text-yellow-100',
+                'Editing': 'bg-orange-600 text-orange-100',
+                'Ready': 'bg-green-600 text-green-100',
+                'Scheduled': 'bg-purple-600 text-purple-100',
+                'Published': 'bg-zinc-600 text-zinc-100'
+            };
+            return colors[status] || 'bg-zinc-600 text-zinc-100';
+        }
+        
+        function updateNextDue(postByTime) {
+            if (!postByTime) {
+                document.getElementById('nextDue').textContent = '--:--';
+                return;
+            }
+            
+            const [hours, minutes] = postByTime.split(':').map(Number);
+            const now = new Date();
+            const nextDue = new Date();
+            nextDue.setHours(hours, minutes, 0, 0);
+            
+            if (nextDue < now) {
+                nextDue.setDate(nextDue.getDate() + 1);
+            }
+            
+            const diff = nextDue - now;
+            const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+            const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('nextDue').textContent = `${hoursLeft}h ${minutesLeft}m`;
+        }
+        
+        // Load on page load
+        loadDashboard();
+        
+        // Refresh every minute
+        setInterval(loadDashboard, 60000);
     </script>
-    <script src="{{ url_for('static', filename='app.js') }}" onerror="console.warn('External JS failed to load, using inline fallback')"></script>
 </body>
 </html>

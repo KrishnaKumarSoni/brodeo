@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlog - Brodeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
+        .mohave { font-family: 'Mohave', sans-serif; }
+        .dragging { opacity: 0.5; }
+        .drag-over { background-color: #1f2937 !important; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#DC2626',
+                        dark: '#000000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- Top Bar -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
+                <nav class="flex space-x-4">
+                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
+                    <a href="/calendar" class="text-sm hover:text-red-500 transition"><i class="fas fa-calendar mr-1"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm text-red-500"><i class="fas fa-tasks mr-1"></i> Backlog</a>
+                    <a href="/editor" class="text-sm hover:text-red-500 transition"><i class="fas fa-edit mr-1"></i> Editor</a>
+                    <a href="/schedule" class="text-sm hover:text-red-500 transition"><i class="fas fa-clock mr-1"></i> Schedule</a>
+                    <a href="/settings" class="text-sm hover:text-red-500 transition"><i class="fas fa-cog mr-1"></i> Settings</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm">
+                    <span class="text-zinc-400">Next Due:</span>
+                    <span class="text-red-500 font-semibold ml-1" id="nextDue">--:--</span>
+                </div>
+                <div class="text-sm">
+                    <span class="text-zinc-400">Streak:</span>
+                    <span class="text-green-500 font-semibold ml-1" id="streak">0</span>
+                    <i class="fas fa-fire text-orange-500 ml-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="container-fluid px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold mohave">Video Pipeline</h2>
+            <button onclick="window.location.href='/editor'" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                <i class="fas fa-plus mr-2"></i>New Idea
+            </button>
+        </div>
+
+        <div class="flex gap-4 overflow-x-auto pb-4">
+            <!-- Idea Column -->
+            <div class="kanban-column flex-shrink-0 w-80">
+                <div class="bg-zinc-900 rounded-lg border border-zinc-800">
+                    <div class="p-4 border-b border-zinc-800">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-blue-500">
+                                <i class="fas fa-lightbulb mr-2"></i>Idea
+                            </h3>
+                            <span class="text-xs text-zinc-400" id="ideaCount">0</span>
+                        </div>
+                    </div>
+                    <div class="p-4 min-h-[400px] space-y-3" 
+                         id="ideaColumn"
+                         ondrop="dropCard(event, 'Idea')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drafting Column -->
+            <div class="kanban-column flex-shrink-0 w-80">
+                <div class="bg-zinc-900 rounded-lg border border-zinc-800">
+                    <div class="p-4 border-b border-zinc-800">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-yellow-500">
+                                <i class="fas fa-pen mr-2"></i>Drafting
+                            </h3>
+                            <span class="text-xs text-zinc-400" id="draftingCount">0</span>
+                        </div>
+                    </div>
+                    <div class="p-4 min-h-[400px] space-y-3"
+                         id="draftingColumn"
+                         ondrop="dropCard(event, 'Drafting')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editing Column -->
+            <div class="kanban-column flex-shrink-0 w-80">
+                <div class="bg-zinc-900 rounded-lg border border-zinc-800">
+                    <div class="p-4 border-b border-zinc-800">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-orange-500">
+                                <i class="fas fa-film mr-2"></i>Editing
+                            </h3>
+                            <span class="text-xs text-zinc-400" id="editingCount">0</span>
+                        </div>
+                    </div>
+                    <div class="p-4 min-h-[400px] space-y-3"
+                         id="editingColumn"
+                         ondrop="dropCard(event, 'Editing')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ready Column -->
+            <div class="kanban-column flex-shrink-0 w-80">
+                <div class="bg-zinc-900 rounded-lg border border-zinc-800">
+                    <div class="p-4 border-b border-zinc-800">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-green-500">
+                                <i class="fas fa-check-circle mr-2"></i>Ready
+                            </h3>
+                            <span class="text-xs text-zinc-400" id="readyCount">0</span>
+                        </div>
+                    </div>
+                    <div class="p-4 min-h-[400px] space-y-3"
+                         id="readyColumn"
+                         ondrop="dropCard(event, 'Ready')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduled Column -->
+            <div class="kanban-column flex-shrink-0 w-80">
+                <div class="bg-zinc-900 rounded-lg border border-zinc-800">
+                    <div class="p-4 border-b border-zinc-800">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-purple-500">
+                                <i class="fas fa-calendar-check mr-2"></i>Scheduled
+                            </h3>
+                            <span class="text-xs text-zinc-400" id="scheduledCount">0</span>
+                        </div>
+                    </div>
+                    <div class="p-4 min-h-[400px] space-y-3"
+                         id="scheduledColumn"
+                         ondrop="dropCard(event, 'Scheduled')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Published Column -->
+            <div class="kanban-column flex-shrink-0 w-80">
+                <div class="bg-zinc-900 rounded-lg border border-zinc-800">
+                    <div class="p-4 border-b border-zinc-800">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-zinc-400">
+                                <i class="fas fa-globe mr-2"></i>Published
+                            </h3>
+                            <span class="text-xs text-zinc-400" id="publishedCount">0</span>
+                        </div>
+                    </div>
+                    <div class="p-4 min-h-[400px] space-y-3"
+                         id="publishedColumn"
+                         ondrop="dropCard(event, 'Published')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <!-- Cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ideas = [];
+        let draggedCard = null;
+
+        async function loadKanban() {
+            const res = await fetch('/api/ideas');
+            ideas = await res.json();
+            
+            // Clear all columns
+            const statuses = ['Idea', 'Drafting', 'Editing', 'Ready', 'Scheduled', 'Published'];
+            statuses.forEach(status => {
+                const columnId = status.toLowerCase() + 'Column';
+                document.getElementById(columnId).innerHTML = '';
+                document.getElementById(status.toLowerCase() + 'Count').textContent = '0';
+            });
+            
+            // Group ideas by status
+            const grouped = {};
+            statuses.forEach(status => grouped[status] = []);
+            
+            ideas.forEach(idea => {
+                const status = idea.status || 'Idea';
+                if (grouped[status]) {
+                    grouped[status].push(idea);
+                }
+            });
+            
+            // Render cards in each column
+            Object.entries(grouped).forEach(([status, statusIdeas]) => {
+                const columnId = status.toLowerCase() + 'Column';
+                const column = document.getElementById(columnId);
+                const countEl = document.getElementById(status.toLowerCase() + 'Count');
+                
+                countEl.textContent = statusIdeas.length;
+                
+                if (statusIdeas.length === 0) {
+                    column.innerHTML = '<p class="text-xs text-zinc-500 text-center">No items</p>';
+                } else {
+                    column.innerHTML = statusIdeas.map(idea => renderCard(idea)).join('');
+                }
+            });
+        }
+
+        function renderCard(idea) {
+            const priorityColors = {
+                'high': 'text-red-500',
+                'medium': 'text-yellow-500',
+                'low': 'text-green-500'
+            };
+            
+            return `
+                <div class="kanban-card bg-zinc-800 rounded-lg p-4 cursor-move hover:bg-zinc-700 transition"
+                     draggable="true"
+                     ondragstart="dragCard(event, '${idea.id}')"
+                     ondragend="dragEnd(event)">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-sm font-semibold line-clamp-2">${idea.title || 'Untitled'}</h4>
+                        <span class="${priorityColors[idea.priority || 'medium']}">
+                            <i class="fas fa-flag text-xs"></i>
+                        </span>
+                    </div>
+                    <p class="text-xs text-zinc-400 line-clamp-3 mb-3">${idea.description || 'No description'}</p>
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        ${(idea.tags || []).map(tag => `
+                            <span class="inline-block px-2 py-1 text-xs bg-zinc-700 rounded-full">${tag}</span>
+                        `).join('')}
+                    </div>
+                    <div class="flex justify-between items-center">
+                        ${idea.schedule_date ? `
+                            <span class="text-xs text-zinc-400">
+                                <i class="fas fa-calendar-alt mr-1"></i>
+                                ${new Date(idea.schedule_date).toLocaleDateString()}
+                            </span>
+                        ` : '<span></span>'}
+                        <button onclick="window.location.href='/editor?id=${idea.id}'; event.stopPropagation();" 
+                                class="text-xs text-red-500 hover:text-red-400 transition">
+                            <i class="fas fa-arrow-right"></i> Edit
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function dragCard(event, cardId) {
+            draggedCard = cardId;
+            event.dataTransfer.effectAllowed = 'move';
+            event.target.classList.add('dragging');
+        }
+
+        function dragEnd(event) {
+            event.target.classList.remove('dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function leaveDrop(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        async function dropCard(event, newStatus) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('drag-over');
+            
+            if (!draggedCard) return;
+            
+            // Update idea status
+            await fetch(`/api/ideas/${draggedCard}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            
+            draggedCard = null;
+            loadKanban();
+        }
+
+        // Load on page load
+        loadKanban();
+    </script>
+</body>
+</html>

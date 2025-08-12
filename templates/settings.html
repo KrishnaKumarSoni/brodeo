@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Brodeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
+        .mohave { font-family: 'Mohave', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#DC2626',
+                        dark: '#000000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- Top Bar -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
+                <nav class="flex space-x-4">
+                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
+                    <a href="/calendar" class="text-sm hover:text-red-500 transition"><i class="fas fa-calendar mr-1"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm hover:text-red-500 transition"><i class="fas fa-tasks mr-1"></i> Backlog</a>
+                    <a href="/editor" class="text-sm hover:text-red-500 transition"><i class="fas fa-edit mr-1"></i> Editor</a>
+                    <a href="/schedule" class="text-sm hover:text-red-500 transition"><i class="fas fa-clock mr-1"></i> Schedule</a>
+                    <a href="/settings" class="text-sm text-red-500"><i class="fas fa-cog mr-1"></i> Settings</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm">
+                    <span class="text-zinc-400">Next Due:</span>
+                    <span class="text-red-500 font-semibold ml-1" id="nextDue">--:--</span>
+                </div>
+                <div class="text-sm">
+                    <span class="text-zinc-400">Streak:</span>
+                    <span class="text-green-500 font-semibold ml-1" id="streak">0</span>
+                    <i class="fas fa-fire text-orange-500 ml-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Channel Settings -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800 mb-6">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Channel Settings</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Channel Name</label>
+                        <input type="text" id="channelName" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="Your YouTube channel name">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Channel Description</label>
+                        <textarea id="channelDescription" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" rows="3" placeholder="Brief description of your channel..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Channel URL</label>
+                        <input type="url" id="channelUrl" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="https://youtube.com/@yourchannel">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thumbnail Defaults -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800 mb-6">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Thumbnail Defaults</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Default Font</label>
+                        <select id="defaultFont" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
+                            <option value="Mohave">Mohave</option>
+                            <option value="Inter">Inter</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Bebas Neue">Bebas Neue</option>
+                            <option value="Anton">Anton</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Default Template</label>
+                        <select id="defaultTemplate" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
+                            <option value="text-only">Text Only</option>
+                            <option value="text-over-image">Text Over Image</option>
+                            <option value="text-behind-subject">Text Behind Subject</option>
+                            <option value="image-only">Image Only</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Primary Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="color" id="primaryColor" class="h-10 w-20 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#DC2626">
+                                <input type="text" id="primaryColorHex" class="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm" value="#DC2626">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Background Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="color" id="backgroundColor" class="h-10 w-20 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#000000">
+                                <input type="text" id="backgroundColorHex" class="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm" value="#000000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Defaults -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800 mb-6">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Video Defaults</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Default Tags</label>
+                        <input type="text" id="defaultTags" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="Comma-separated default tags for all videos">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Description Template</label>
+                        <textarea id="descriptionTemplate" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" rows="4" placeholder="Template for video descriptions..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Hashtag Set</label>
+                        <input type="text" id="hashtagSet" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="#yourhastags #here">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export/Import -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800 mb-6">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Data Management</h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="exportData()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-3 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-download mr-2"></i>Export All Data
+                    </button>
+                    <button onclick="document.getElementById('importFile').click()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-3 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-upload mr-2"></i>Import Data
+                    </button>
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                </div>
+                
+                <div class="mt-4 p-4 bg-zinc-800 rounded-lg">
+                    <h3 class="text-sm font-semibold mb-2 text-yellow-500">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Danger Zone
+                    </h3>
+                    <button onclick="confirmReset()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-trash mr-2"></i>Reset All Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button onclick="saveSettings()" class="w-full bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-medium transition">
+                <i class="fas fa-save mr-2"></i>Save Settings
+            </button>
+        </div>
+    </div>
+
+    <script>
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                const settings = await res.json();
+                
+                // Channel settings
+                document.getElementById('channelName').value = settings.channel_name || '';
+                document.getElementById('channelDescription').value = settings.channel_description || '';
+                document.getElementById('channelUrl').value = settings.channel_url || '';
+                
+                // Thumbnail defaults
+                document.getElementById('defaultFont').value = settings.default_font || 'Mohave';
+                document.getElementById('defaultTemplate').value = settings.default_template || 'text-over-image';
+                
+                const primaryColor = settings.theme_colors?.primary || '#DC2626';
+                const backgroundColor = settings.theme_colors?.background || '#000000';
+                
+                document.getElementById('primaryColor').value = primaryColor;
+                document.getElementById('primaryColorHex').value = primaryColor;
+                document.getElementById('backgroundColor').value = backgroundColor;
+                document.getElementById('backgroundColorHex').value = backgroundColor;
+                
+                // Video defaults
+                document.getElementById('defaultTags').value = (settings.default_tags || []).join(', ');
+                document.getElementById('descriptionTemplate').value = settings.description_template || '';
+                document.getElementById('hashtagSet').value = settings.hashtag_set || '';
+                
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function saveSettings() {
+            const settings = {
+                channel_name: document.getElementById('channelName').value,
+                channel_description: document.getElementById('channelDescription').value,
+                channel_url: document.getElementById('channelUrl').value,
+                default_font: document.getElementById('defaultFont').value,
+                default_template: document.getElementById('defaultTemplate').value,
+                theme_colors: {
+                    primary: document.getElementById('primaryColor').value,
+                    background: document.getElementById('backgroundColor').value
+                },
+                default_tags: document.getElementById('defaultTags').value.split(',').map(t => t.trim()).filter(t => t),
+                description_template: document.getElementById('descriptionTemplate').value,
+                hashtag_set: document.getElementById('hashtagSet').value
+            };
+            
+            try {
+                await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                
+                alert('Settings saved successfully!');
+            } catch (error) {
+                alert('Error saving settings');
+                console.error('Error:', error);
+            }
+        }
+
+        // Color picker sync
+        document.getElementById('primaryColor').addEventListener('input', (e) => {
+            document.getElementById('primaryColorHex').value = e.target.value;
+        });
+        
+        document.getElementById('primaryColorHex').addEventListener('input', (e) => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                document.getElementById('primaryColor').value = e.target.value;
+            }
+        });
+        
+        document.getElementById('backgroundColor').addEventListener('input', (e) => {
+            document.getElementById('backgroundColorHex').value = e.target.value;
+        });
+        
+        document.getElementById('backgroundColorHex').addEventListener('input', (e) => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                document.getElementById('backgroundColor').value = e.target.value;
+            }
+        });
+
+        async function exportData() {
+            try {
+                const [ideasRes, settingsRes, scheduleRes] = await Promise.all([
+                    fetch('/api/ideas'),
+                    fetch('/api/settings'),
+                    fetch('/api/schedule')
+                ]);
+                
+                const data = {
+                    ideas: await ideasRes.json(),
+                    settings: await settingsRes.json(),
+                    schedule: await scheduleRes.json(),
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `brodeo-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                alert('Error exporting data');
+                console.error('Error:', error);
+            }
+        }
+
+        async function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (confirm('This will replace all existing data. Continue?')) {
+                        // Import ideas
+                        if (data.ideas) {
+                            for (const idea of data.ideas) {
+                                await fetch('/api/ideas', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(idea)
+                                });
+                            }
+                        }
+                        
+                        // Import settings
+                        if (data.settings) {
+                            await fetch('/api/settings', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(data.settings)
+                            });
+                        }
+                        
+                        // Import schedule
+                        if (data.schedule) {
+                            await fetch('/api/schedule', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(data.schedule)
+                            });
+                        }
+                        
+                        alert('Data imported successfully!');
+                        location.reload();
+                    }
+                } catch (error) {
+                    alert('Error importing data');
+                    console.error('Error:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmReset() {
+            if (confirm('This will delete ALL your data including ideas, settings, and schedule. This cannot be undone. Are you sure?')) {
+                if (confirm('Are you really sure? Type "RESET" to confirm.')) {
+                    // In production, this would clear the database
+                    alert('Data reset functionality would be implemented here');
+                }
+            }
+        }
+
+        // Load settings on page load
+        loadSettings();
+    </script>
+</body>
+</html>

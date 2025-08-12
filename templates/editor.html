@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor - Brodeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
+        .mohave { font-family: 'Mohave', sans-serif; }
+        #thumbnailCanvas { max-width: 100%; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#DC2626',
+                        dark: '#000000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- Top Bar -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
+                <nav class="flex space-x-4">
+                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
+                    <a href="/calendar" class="text-sm hover:text-red-500 transition"><i class="fas fa-calendar mr-1"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm hover:text-red-500 transition"><i class="fas fa-tasks mr-1"></i> Backlog</a>
+                    <a href="/editor" class="text-sm text-red-500"><i class="fas fa-edit mr-1"></i> Editor</a>
+                    <a href="/schedule" class="text-sm hover:text-red-500 transition"><i class="fas fa-clock mr-1"></i> Schedule</a>
+                    <a href="/settings" class="text-sm hover:text-red-500 transition"><i class="fas fa-cog mr-1"></i> Settings</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm">
+                    <span class="text-zinc-400">Next Due:</span>
+                    <span class="text-red-500 font-semibold ml-1" id="nextDue">--:--</span>
+                </div>
+                <div class="text-sm">
+                    <span class="text-zinc-400">Streak:</span>
+                    <span class="text-green-500 font-semibold ml-1" id="streak">0</span>
+                    <i class="fas fa-fire text-orange-500 ml-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Panel - Input & AI Generation -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic Info -->
+                <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                    <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Video Details</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Topic</label>
+                            <input type="text" id="topic" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="What's your video about?">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Target Audience</label>
+                            <input type="text" id="audience" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="Who will watch this?">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Key Points</label>
+                            <textarea id="keyPoints" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" rows="3" placeholder="Main points to cover..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Priority</label>
+                                <select id="priority" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Status</label>
+                                <select id="status" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
+                                    <option value="Idea">Idea</option>
+                                    <option value="Drafting">Drafting</option>
+                                    <option value="Editing">Editing</option>
+                                    <option value="Ready">Ready</option>
+                                    <option value="Scheduled">Scheduled</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Tags</label>
+                            <input type="text" id="tags" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="Comma-separated tags">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title Generation -->
+                <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold mohave">AI Title Generator</h3>
+                        <button onclick="generateTitles()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
+                            <i class="fas fa-magic mr-2"></i>Generate
+                        </button>
+                    </div>
+                    
+                    <div id="titleSuggestions" class="space-y-2">
+                        <p class="text-sm text-zinc-400">Click generate to get AI suggestions</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium mb-2">Selected Title</label>
+                        <input type="text" id="selectedTitle" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" placeholder="Choose or type your title">
+                    </div>
+                </div>
+
+                <!-- Description Generation -->
+                <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold mohave">AI Description Generator</h3>
+                        <button onclick="generateDescription()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
+                            <i class="fas fa-magic mr-2"></i>Generate
+                        </button>
+                    </div>
+                    
+                    <div id="descriptionSuggestion" class="mb-4">
+                        <p class="text-sm text-zinc-400">Click generate to get AI description</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Video Description</label>
+                        <textarea id="selectedDescription" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500" rows="6" placeholder="Your video description..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Thumbnail Studio -->
+            <div class="space-y-6">
+                <!-- Thumbnail Studio -->
+                <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                    <h3 class="text-lg font-semibold mb-4 mohave">Thumbnail Studio</h3>
+                    
+                    <!-- Aspect Ratio -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Aspect Ratio</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="setAspectRatio('16:9')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="16:9">16:9</button>
+                            <button onclick="setAspectRatio('4:3')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="4:3">4:3</button>
+                            <button onclick="setAspectRatio('1:1')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="1:1">1:1</button>
+                            <button onclick="setAspectRatio('9:16')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="9:16">9:16</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Template -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Template</label>
+                        <select id="thumbnailTemplate" onchange="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
+                            <option value="text-only">Text Only</option>
+                            <option value="text-over-image">Text Over Image</option>
+                            <option value="text-behind-subject">Text Behind Subject</option>
+                            <option value="image-only">Image Only</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Text Options -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Thumbnail Text</label>
+                        <input type="text" id="thumbnailText" onkeyup="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mb-2" placeholder="Enter text...">
+                        <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition">
+                            <i class="fas fa-magic mr-1"></i>AI Suggestions
+                        </button>
+                        <div id="thumbnailTextSuggestions" class="mt-2 space-y-1"></div>
+                    </div>
+                    
+                    <!-- Font Selection -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Font</label>
+                        <select id="thumbnailFont" onchange="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
+                            <option value="Mohave">Mohave</option>
+                            <option value="Inter">Inter</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Bebas Neue">Bebas Neue</option>
+                            <option value="Anton">Anton</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Color Options -->
+                    <div class="mb-4 grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium mb-1">Text Color</label>
+                            <input type="color" id="textColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#FFFFFF">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium mb-1">Background</label>
+                            <input type="color" id="bgColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#DC2626">
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Image -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Upload Image</label>
+                        <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs">
+                        <button onclick="removeBackground()" class="w-full mt-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition">
+                            <i class="fas fa-eraser mr-1"></i>Remove Background
+                        </button>
+                    </div>
+                    
+                    <!-- Canvas Preview -->
+                    <div class="mb-4">
+                        <canvas id="thumbnailCanvas" width="1280" height="720" class="w-full rounded-lg bg-zinc-800"></canvas>
+                    </div>
+                    
+                    <!-- Preview Modes -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">YouTube Preview</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-white rounded p-2">
+                                <div class="text-black text-xs mb-1">Light Mode</div>
+                                <div class="relative">
+                                    <canvas id="previewLight" width="320" height="180" class="w-full rounded"></canvas>
+                                    <div class="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs px-1 rounded">10:23</div>
+                                </div>
+                            </div>
+                            <div class="bg-zinc-800 rounded p-2">
+                                <div class="text-xs mb-1">Dark Mode</div>
+                                <div class="relative">
+                                    <canvas id="previewDark" width="320" height="180" class="w-full rounded"></canvas>
+                                    <div class="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs px-1 rounded">10:23</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        <button onclick="saveThumbnail()" class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
+                            <i class="fas fa-save mr-2"></i>Save
+                        </button>
+                        <button onclick="downloadThumbnail()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
+                            <i class="fas fa-download mr-2"></i>Download
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Save Idea Button -->
+                <button onclick="saveIdea()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition">
+                    <i class="fas fa-save mr-2"></i>Save Video Idea
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentIdeaId = null;
+        let uploadedImage = null;
+        let currentAspectRatio = '16:9';
+        let thumbnailDataUrl = null;
+
+        // Load Google Fonts dynamically
+        const fonts = ['Roboto', 'Open+Sans', 'Montserrat', 'Poppins', 'Bebas+Neue', 'Anton'];
+        fonts.forEach(font => {
+            const link = document.createElement('link');
+            link.href = `https://fonts.googleapis.com/css2?family=${font}:wght@400;700&display=swap`;
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+        });
+
+        // Check if editing existing idea
+        const urlParams = new URLSearchParams(window.location.search);
+        const ideaId = urlParams.get('id');
+        if (ideaId) {
+            loadIdea(ideaId);
+        }
+
+        async function loadIdea(id) {
+            try {
+                const res = await fetch(`/api/ideas/${id}`);
+                const idea = await res.json();
+                
+                currentIdeaId = id;
+                document.getElementById('topic').value = idea.topic || '';
+                document.getElementById('audience').value = idea.audience || '';
+                document.getElementById('keyPoints').value = idea.key_points || '';
+                document.getElementById('priority').value = idea.priority || 'medium';
+                document.getElementById('status').value = idea.status || 'Idea';
+                document.getElementById('tags').value = (idea.tags || []).join(', ');
+                document.getElementById('selectedTitle').value = idea.title || '';
+                document.getElementById('selectedDescription').value = idea.description || '';
+                
+                if (idea.assets?.thumbnail) {
+                    thumbnailDataUrl = idea.assets.thumbnail;
+                    // Load thumbnail to canvas
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.getElementById('thumbnailCanvas');
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        updatePreviews();
+                    };
+                    img.src = thumbnailDataUrl;
+                }
+            } catch (error) {
+                console.error('Error loading idea:', error);
+            }
+        }
+
+        async function generateTitles() {
+            const topic = document.getElementById('topic').value;
+            const audience = document.getElementById('audience').value;
+            const keyPoints = document.getElementById('keyPoints').value;
+            
+            if (!topic) {
+                alert('Please enter a topic first');
+                return;
+            }
+            
+            const suggestionsDiv = document.getElementById('titleSuggestions');
+            suggestionsDiv.innerHTML = '<p class="text-sm text-zinc-400">Generating...</p>';
+            
+            try {
+                const res = await fetch('/api/generate/title', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic, audience, key_points: keyPoints })
+                });
+                
+                const data = await res.json();
+                const titles = data.titles || data.suggestions || Object.values(data).flat();
+                
+                suggestionsDiv.innerHTML = titles.map((title, i) => `
+                    <div class="p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 cursor-pointer transition" onclick="selectTitle('${title.replace(/'/g, "\\'")}')">
+                        <p class="text-sm">${title}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                suggestionsDiv.innerHTML = '<p class="text-sm text-red-400">Error generating titles</p>';
+                console.error('Error:', error);
+            }
+        }
+
+        function selectTitle(title) {
+            document.getElementById('selectedTitle').value = title;
+        }
+
+        async function generateDescription() {
+            const title = document.getElementById('selectedTitle').value;
+            const topic = document.getElementById('topic').value;
+            const keyPoints = document.getElementById('keyPoints').value;
+            
+            if (!title && !topic) {
+                alert('Please enter a title or topic first');
+                return;
+            }
+            
+            const suggestionDiv = document.getElementById('descriptionSuggestion');
+            suggestionDiv.innerHTML = '<p class="text-sm text-zinc-400">Generating...</p>';
+            
+            try {
+                const res = await fetch('/api/generate/description', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, topic, key_points: keyPoints })
+                });
+                
+                const data = await res.json();
+                const description = data.full || data.description || '';
+                
+                suggestionDiv.innerHTML = `
+                    <div class="p-3 bg-zinc-800 rounded-lg">
+                        <p class="text-sm mb-2">${data.preview || description.substring(0, 200)}</p>
+                        <button onclick="document.getElementById('selectedDescription').value = '${description.replace(/'/g, "\\'").replace(/\n/g, '\\n')}'" class="text-xs text-red-500 hover:text-red-400">
+                            Use this description
+                        </button>
+                    </div>
+                `;
+            } catch (error) {
+                suggestionDiv.innerHTML = '<p class="text-sm text-red-400">Error generating description</p>';
+                console.error('Error:', error);
+            }
+        }
+
+        async function generateThumbnailText() {
+            const title = document.getElementById('selectedTitle').value;
+            
+            if (!title) {
+                alert('Please enter a title first');
+                return;
+            }
+            
+            const suggestionsDiv = document.getElementById('thumbnailTextSuggestions');
+            suggestionsDiv.innerHTML = '<p class="text-xs text-zinc-400">Generating...</p>';
+            
+            try {
+                const res = await fetch('/api/generate/thumbnail-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title })
+                });
+                
+                const data = await res.json();
+                const suggestions = data.suggestions || data.texts || Object.values(data).flat();
+                
+                suggestionsDiv.innerHTML = suggestions.map(text => `
+                    <button onclick="document.getElementById('thumbnailText').value='${text}'; updateThumbnail();" class="block w-full text-left p-2 bg-zinc-800 rounded hover:bg-zinc-700 text-xs transition">
+                        ${text}
+                    </button>
+                `).join('');
+            } catch (error) {
+                suggestionsDiv.innerHTML = '<p class="text-xs text-red-400">Error generating suggestions</p>';
+                console.error('Error:', error);
+            }
+        }
+
+        function setAspectRatio(ratio) {
+            currentAspectRatio = ratio;
+            document.querySelectorAll('.aspect-btn').forEach(btn => {
+                btn.classList.toggle('bg-red-600', btn.dataset.ratio === ratio);
+                btn.classList.toggle('bg-zinc-800', btn.dataset.ratio !== ratio);
+            });
+            
+            const canvas = document.getElementById('thumbnailCanvas');
+            switch(ratio) {
+                case '16:9':
+                    canvas.width = 1280;
+                    canvas.height = 720;
+                    break;
+                case '4:3':
+                    canvas.width = 1024;
+                    canvas.height = 768;
+                    break;
+                case '1:1':
+                    canvas.width = 1080;
+                    canvas.height = 1080;
+                    break;
+                case '9:16':
+                    canvas.width = 720;
+                    canvas.height = 1280;
+                    break;
+            }
+            updateThumbnail();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImage = new Image();
+                    uploadedImage.onload = () => updateThumbnail();
+                    uploadedImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateThumbnail() {
+            const canvas = document.getElementById('thumbnailCanvas');
+            const ctx = canvas.getContext('2d');
+            const template = document.getElementById('thumbnailTemplate').value;
+            const text = document.getElementById('thumbnailText').value;
+            const font = document.getElementById('thumbnailFont').value;
+            const textColor = document.getElementById('textColor').value;
+            const bgColor = document.getElementById('bgColor').value;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Background
+            if (template !== 'image-only' || !uploadedImage) {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // Image
+            if (uploadedImage && template !== 'text-only') {
+                ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+            }
+            
+            // Text
+            if (text && template !== 'image-only') {
+                const fontSize = Math.floor(canvas.height / 8);
+                ctx.font = `bold ${fontSize}px '${font}'`;
+                ctx.fillStyle = textColor;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Add text shadow for better visibility
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                
+                // Word wrap if needed
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = '';
+                
+                words.forEach(word => {
+                    const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > canvas.width * 0.8) {
+                        if (currentLine) lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                });
+                if (currentLine) lines.push(currentLine);
+                
+                const lineHeight = fontSize * 1.2;
+                const startY = canvas.height / 2 - (lines.length - 1) * lineHeight / 2;
+                
+                lines.forEach((line, i) => {
+                    ctx.fillText(line, canvas.width / 2, startY + i * lineHeight);
+                });
+            }
+            
+            thumbnailDataUrl = canvas.toDataURL();
+            updatePreviews();
+        }
+
+        function updatePreviews() {
+            const mainCanvas = document.getElementById('thumbnailCanvas');
+            const lightPreview = document.getElementById('previewLight');
+            const darkPreview = document.getElementById('previewDark');
+            
+            const lightCtx = lightPreview.getContext('2d');
+            const darkCtx = darkPreview.getContext('2d');
+            
+            // Scale down main canvas to preview size
+            lightCtx.drawImage(mainCanvas, 0, 0, 320, 180);
+            darkCtx.drawImage(mainCanvas, 0, 0, 320, 180);
+        }
+
+        async function removeBackground() {
+            if (!uploadedImage) {
+                alert('Please upload an image first');
+                return;
+            }
+            
+            // This would call a background removal API
+            // For now, just show a placeholder message
+            alert('Background removal would be implemented with remove.bg API or similar service');
+        }
+
+        function downloadThumbnail() {
+            const canvas = document.getElementById('thumbnailCanvas');
+            const link = document.createElement('a');
+            link.download = 'thumbnail.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        async function saveThumbnail() {
+            thumbnailDataUrl = document.getElementById('thumbnailCanvas').toDataURL();
+            alert('Thumbnail saved to current idea');
+        }
+
+        async function saveIdea() {
+            const ideaData = {
+                title: document.getElementById('selectedTitle').value,
+                description: document.getElementById('selectedDescription').value,
+                topic: document.getElementById('topic').value,
+                audience: document.getElementById('audience').value,
+                key_points: document.getElementById('keyPoints').value,
+                priority: document.getElementById('priority').value,
+                status: document.getElementById('status').value,
+                tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t),
+                assets: {
+                    thumbnail: thumbnailDataUrl
+                }
+            };
+            
+            try {
+                let res;
+                if (currentIdeaId) {
+                    res = await fetch(`/api/ideas/${currentIdeaId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(ideaData)
+                    });
+                } else {
+                    res = await fetch('/api/ideas', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(ideaData)
+                    });
+                    const data = await res.json();
+                    currentIdeaId = data.id;
+                }
+                
+                alert('Video idea saved successfully!');
+                window.location.href = '/backlog';
+            } catch (error) {
+                alert('Error saving idea');
+                console.error('Error:', error);
+            }
+        }
+
+        // Initialize
+        setAspectRatio('16:9');
+        updateThumbnail();
+    </script>
+</body>
+</html>

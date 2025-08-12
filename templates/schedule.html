@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule - Brodeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
+        .mohave { font-family: 'Mohave', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#DC2626',
+                        dark: '#000000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- Top Bar -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
+                <nav class="flex space-x-4">
+                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
+                    <a href="/calendar" class="text-sm hover:text-red-500 transition"><i class="fas fa-calendar mr-1"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm hover:text-red-500 transition"><i class="fas fa-tasks mr-1"></i> Backlog</a>
+                    <a href="/editor" class="text-sm hover:text-red-500 transition"><i class="fas fa-edit mr-1"></i> Editor</a>
+                    <a href="/schedule" class="text-sm text-red-500"><i class="fas fa-clock mr-1"></i> Schedule</a>
+                    <a href="/settings" class="text-sm hover:text-red-500 transition"><i class="fas fa-cog mr-1"></i> Settings</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm">
+                    <span class="text-zinc-400">Next Due:</span>
+                    <span class="text-red-500 font-semibold ml-1" id="nextDue">--:--</span>
+                </div>
+                <div class="text-sm">
+                    <span class="text-zinc-400">Streak:</span>
+                    <span class="text-green-500 font-semibold ml-1" id="streak">0</span>
+                    <i class="fas fa-fire text-orange-500 ml-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Streak Overview -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800 mb-6">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Streak Overview</h2>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-500" id="currentStreak">0</div>
+                        <div class="text-sm text-zinc-400">Current Streak</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-yellow-500" id="bestStreak">0</div>
+                        <div class="text-sm text-zinc-400">Best Streak</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-500" id="totalPublished">0</div>
+                        <div class="text-sm text-zinc-400">Total Published</div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-sm font-semibold mb-3">Streak Calendar</h3>
+                    <div id="streakCalendar" class="grid grid-cols-7 gap-1">
+                        <!-- Streak calendar will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Settings -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800 mb-6">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Publishing Schedule</h2>
+                
+                <!-- Cadence -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-3">Posting Cadence</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="radio" name="cadence" value="daily" id="cadenceDaily" class="mr-3 text-red-600" onchange="updateCadence()">
+                            <span>Daily (Every day)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="cadence" value="custom" id="cadenceCustom" class="mr-3 text-red-600" onchange="updateCadence()">
+                            <span>Custom Days</span>
+                        </label>
+                    </div>
+                    
+                    <div id="customDaysSection" class="mt-4 hidden">
+                        <label class="block text-sm font-medium mb-2">Select Days</label>
+                        <div class="flex gap-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" value="0" class="day-checkbox mr-1">
+                                <span class="text-xs">Sun</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" value="1" class="day-checkbox mr-1">
+                                <span class="text-xs">Mon</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" value="2" class="day-checkbox mr-1">
+                                <span class="text-xs">Tue</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" value="3" class="day-checkbox mr-1">
+                                <span class="text-xs">Wed</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" value="4" class="day-checkbox mr-1">
+                                <span class="text-xs">Thu</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" value="5" class="day-checkbox mr-1">
+                                <span class="text-xs">Fri</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" value="6" class="day-checkbox mr-1">
+                                <span class="text-xs">Sat</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Post By Time -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Post By Time</label>
+                    <input type="time" id="postByTime" class="bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
+                    <p class="text-xs text-zinc-400 mt-1">Videos must be published before this time to maintain streak</p>
+                </div>
+                
+                <!-- Reminders -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-3">Reminders</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="reminder60" class="mr-3 text-red-600">
+                            <span>60 minutes before deadline</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="reminder10" class="mr-3 text-red-600">
+                            <span>10 minutes before deadline</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-zinc-400 mt-2">Browser notifications will be sent at these times</p>
+                </div>
+                
+                <!-- Auto-Carry -->
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="autoCarry" class="mr-3 text-red-600" checked>
+                        <div>
+                            <span class="font-medium">Auto-Carry Missed Videos</span>
+                            <p class="text-xs text-zinc-400">Automatically move unpublished videos to the next scheduled day</p>
+                        </div>
+                    </label>
+                </div>
+                
+                <!-- Save Button -->
+                <button onclick="saveSchedule()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition">
+                    <i class="fas fa-save mr-2"></i>Save Schedule
+                </button>
+            </div>
+
+            <!-- Upcoming Schedule -->
+            <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Upcoming Videos</h2>
+                <div id="upcomingVideos" class="space-y-3">
+                    <!-- Upcoming videos will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scheduleData = {};
+        let streakData = {};
+
+        async function loadSchedule() {
+            try {
+                // Load schedule settings
+                const scheduleRes = await fetch('/api/schedule');
+                scheduleData = await scheduleRes.json();
+                
+                // Set form values
+                if (scheduleData.cadence === 'daily') {
+                    document.getElementById('cadenceDaily').checked = true;
+                } else {
+                    document.getElementById('cadenceCustom').checked = true;
+                    document.getElementById('customDaysSection').classList.remove('hidden');
+                    
+                    // Set custom days
+                    document.querySelectorAll('.day-checkbox').forEach(checkbox => {
+                        checkbox.checked = scheduleData.custom_days?.includes(parseInt(checkbox.value));
+                    });
+                }
+                
+                document.getElementById('postByTime').value = scheduleData.post_by_time || '18:00';
+                document.getElementById('reminder60').checked = scheduleData.reminders?.['60min'] !== false;
+                document.getElementById('reminder10').checked = scheduleData.reminders?.['10min'] !== false;
+                
+                // Load streak
+                const streakRes = await fetch('/api/streak');
+                streakData = await streakRes.json();
+                document.getElementById('currentStreak').textContent = streakData.count || 0;
+                document.getElementById('streak').textContent = streakData.count || 0;
+                
+                // Load upcoming videos
+                loadUpcomingVideos();
+                
+                // Render streak calendar
+                renderStreakCalendar();
+                
+                // Update next due
+                updateNextDue(scheduleData.post_by_time);
+                
+                // Request notification permission
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+                
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+            }
+        }
+
+        function updateCadence() {
+            const isCustom = document.getElementById('cadenceCustom').checked;
+            document.getElementById('customDaysSection').classList.toggle('hidden', !isCustom);
+        }
+
+        async function saveSchedule() {
+            const cadence = document.querySelector('input[name="cadence"]:checked').value;
+            const customDays = cadence === 'custom' 
+                ? Array.from(document.querySelectorAll('.day-checkbox:checked')).map(cb => parseInt(cb.value))
+                : [];
+            
+            const scheduleData = {
+                cadence,
+                custom_days: customDays,
+                post_by_time: document.getElementById('postByTime').value,
+                reminders: {
+                    '60min': document.getElementById('reminder60').checked,
+                    '10min': document.getElementById('reminder10').checked
+                }
+            };
+            
+            try {
+                await fetch('/api/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(scheduleData)
+                });
+                
+                alert('Schedule saved successfully!');
+                
+                // Set up reminders
+                setupReminders(scheduleData);
+                
+            } catch (error) {
+                alert('Error saving schedule');
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadUpcomingVideos() {
+            try {
+                const res = await fetch('/api/ideas');
+                const ideas = await res.json();
+                
+                const scheduled = ideas.filter(idea => 
+                    idea.status === 'Scheduled' || 
+                    (idea.schedule_date && new Date(idea.schedule_date) >= new Date())
+                ).sort((a, b) => new Date(a.schedule_date) - new Date(b.schedule_date));
+                
+                const upcomingDiv = document.getElementById('upcomingVideos');
+                
+                if (scheduled.length === 0) {
+                    upcomingDiv.innerHTML = '<p class="text-sm text-zinc-400">No upcoming videos scheduled</p>';
+                    return;
+                }
+                
+                upcomingDiv.innerHTML = scheduled.slice(0, 5).map(idea => `
+                    <div class="bg-zinc-800 rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold text-sm">${idea.title || 'Untitled'}</h4>
+                                <p class="text-xs text-zinc-400 mt-1">${idea.description || 'No description'}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-zinc-400">
+                                    ${new Date(idea.schedule_date).toLocaleDateString()}
+                                </div>
+                                <div class="text-xs text-red-500">
+                                    ${getDaysUntil(idea.schedule_date)} days
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading upcoming videos:', error);
+            }
+        }
+
+        function getDaysUntil(date) {
+            const diff = new Date(date) - new Date();
+            return Math.ceil(diff / (1000 * 60 * 60 * 24));
+        }
+
+        function renderStreakCalendar() {
+            const calendar = document.getElementById('streakCalendar');
+            const today = new Date();
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - 27); // Show last 4 weeks
+            
+            let html = '';
+            
+            for (let i = 0; i < 28; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const isToday = date.toDateString() === today.toDateString();
+                const isPast = date < today;
+                
+                // This would check actual publishing data
+                const hasVideo = Math.random() > 0.5 && isPast; // Placeholder logic
+                
+                html += `
+                    <div class="aspect-square rounded ${
+                        isToday ? 'ring-2 ring-red-600' : ''
+                    } ${
+                        hasVideo ? 'bg-green-600' : isPast ? 'bg-zinc-800' : 'bg-zinc-900'
+                    }" title="${date.toLocaleDateString()}"></div>
+                `;
+            }
+            
+            calendar.innerHTML = html;
+        }
+
+        function setupReminders(schedule) {
+            if (!schedule.reminders) return;
+            
+            const postTime = schedule.post_by_time;
+            if (!postTime) return;
+            
+            const [hours, minutes] = postTime.split(':').map(Number);
+            
+            // Check every minute if we need to show a reminder
+            setInterval(() => {
+                const now = new Date();
+                const deadline = new Date();
+                deadline.setHours(hours, minutes, 0, 0);
+                
+                if (deadline < now) {
+                    deadline.setDate(deadline.getDate() + 1);
+                }
+                
+                const minutesUntil = Math.floor((deadline - now) / (1000 * 60));
+                
+                if (schedule.reminders['60min'] && minutesUntil === 60) {
+                    showNotification('Video Due in 1 Hour', 'Your video deadline is approaching!');
+                }
+                
+                if (schedule.reminders['10min'] && minutesUntil === 10) {
+                    showNotification('Video Due in 10 Minutes!', 'Upload your video now to maintain your streak!');
+                }
+            }, 60000); // Check every minute
+        }
+
+        function showNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body,
+                    icon: '/favicon.ico',
+                    badge: '/favicon.ico',
+                    requireInteraction: true
+                });
+            }
+        }
+
+        function updateNextDue(postByTime) {
+            if (!postByTime) {
+                document.getElementById('nextDue').textContent = '--:--';
+                return;
+            }
+            
+            const [hours, minutes] = postByTime.split(':').map(Number);
+            const now = new Date();
+            const nextDue = new Date();
+            nextDue.setHours(hours, minutes, 0, 0);
+            
+            if (nextDue < now) {
+                nextDue.setDate(nextDue.getDate() + 1);
+            }
+            
+            const diff = nextDue - now;
+            const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+            const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('nextDue').textContent = `${hoursLeft}h ${minutesLeft}m`;
+        }
+
+        // Load on page load
+        loadSchedule();
+        
+        // Update next due every minute
+        setInterval(() => {
+            updateNextDue(scheduleData.post_by_time);
+        }, 60000);
+    </script>
+</body>
+</html>

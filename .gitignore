@@ -1,12 +1,22 @@
 # Python
-venv/
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+venv/
 env/
+ENV/
+.venv
+
+# Environment variables
 .env
+.env.local
+.env.production
+
+# Firebase credentials
+brodeo-yt-firebase-adminsdk-*.json
+firebaseConfig.md
 
 # Node
 node_modules/
@@ -19,15 +29,29 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+*~
 .DS_Store
 
-# Project specific
-CLAUDE.local.md
-dist/output.css
-*.db
-instance/
+# Build outputs
+static/output.css
+dist/
+build/
 
-# Firebase
-.firebase/
-firebase-debug.log
+# Vercel
 .vercel
+
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database
+*.db
+*.sqlite3
+
+# Uploaded files
+uploads/
+assets/

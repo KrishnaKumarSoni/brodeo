@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - Brodeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
+        .mohave { font-family: 'Mohave', sans-serif; }
+        .dragging { opacity: 0.5; }
+        .drag-over { background-color: #1f2937 !important; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#DC2626',
+                        dark: '#000000',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- Top Bar -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
+                <nav class="flex space-x-4">
+                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
+                    <a href="/calendar" class="text-sm text-red-500"><i class="fas fa-calendar mr-1"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm hover:text-red-500 transition"><i class="fas fa-tasks mr-1"></i> Backlog</a>
+                    <a href="/editor" class="text-sm hover:text-red-500 transition"><i class="fas fa-edit mr-1"></i> Editor</a>
+                    <a href="/schedule" class="text-sm hover:text-red-500 transition"><i class="fas fa-clock mr-1"></i> Schedule</a>
+                    <a href="/settings" class="text-sm hover:text-red-500 transition"><i class="fas fa-cog mr-1"></i> Settings</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm">
+                    <span class="text-zinc-400">Next Due:</span>
+                    <span class="text-red-500 font-semibold ml-1" id="nextDue">--:--</span>
+                </div>
+                <div class="text-sm">
+                    <span class="text-zinc-400">Streak:</span>
+                    <span class="text-green-500 font-semibold ml-1" id="streak">0</span>
+                    <i class="fas fa-fire text-orange-500 ml-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Calendar Controls -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-4">
+                <button onclick="changeMonth(-1)" class="bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg transition">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h2 class="text-2xl font-bold mohave" id="currentMonth">January 2025</h2>
+                <button onclick="changeMonth(1)" class="bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg transition">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="setView('month')" class="view-btn bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition" data-view="month">Month</button>
+                <button onclick="setView('week')" class="view-btn bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition" data-view="week">Week</button>
+                <button onclick="setView('day')" class="view-btn bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition" data-view="day">Day</button>
+            </div>
+        </div>
+
+        <div class="flex gap-6">
+            <!-- Calendar Grid -->
+            <div class="flex-1">
+                <div id="calendarGrid" class="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+                    <!-- Calendar will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Ideas Sidebar -->
+            <div class="w-80">
+                <div class="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+                    <h3 class="text-lg font-semibold mb-4 mohave text-red-500">Unscheduled Ideas</h3>
+                    <div id="unscheduledIdeas" class="space-y-2 max-h-96 overflow-y-auto">
+                        <!-- Ideas will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold mohave">Video Preview</h3>
+                <button onclick="closePreviewModal()" class="text-zinc-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="previewContent">
+                <!-- Preview content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let currentView = 'month';
+        let ideas = [];
+        let draggedIdea = null;
+
+        async function loadCalendar() {
+            const res = await fetch('/api/ideas');
+            ideas = await res.json();
+            
+            renderCalendar();
+            loadUnscheduledIdeas();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            
+            if (currentView === 'month') {
+                renderMonthView(grid);
+            } else if (currentView === 'week') {
+                renderWeekView(grid);
+            } else {
+                renderDayView(grid);
+            }
+        }
+
+        function renderMonthView(grid) {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            let html = '<div class="grid grid-cols-7 gap-2">';
+            
+            // Day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                html += `<div class="text-center text-xs font-semibold text-zinc-400 py-2">${day}</div>`;
+            });
+            
+            // Calendar days
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const isCurrentMonth = date.getMonth() === month;
+                const isToday = isDateToday(date);
+                const dateStr = formatDate(date);
+                const dayIdeas = ideas.filter(idea => idea.schedule_date === dateStr);
+                
+                html += `
+                    <div class="calendar-day min-h-[100px] p-2 rounded-lg border ${isCurrentMonth ? 'border-zinc-700 bg-zinc-800' : 'border-zinc-800 bg-zinc-900 opacity-50'} ${isToday ? 'ring-2 ring-red-600' : ''}"
+                         ondrop="drop(event, '${dateStr}')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <div class="text-xs font-semibold mb-1 ${isToday ? 'text-red-500' : 'text-zinc-400'}">${date.getDate()}</div>
+                        <div class="space-y-1">
+                            ${dayIdeas.map(idea => renderIdeaCard(idea, true)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            grid.innerHTML = html;
+            
+            // Update month display
+            document.getElementById('currentMonth').textContent = 
+                currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        }
+
+        function renderWeekView(grid) {
+            // Simplified week view
+            const startOfWeek = new Date(currentDate);
+            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+            
+            let html = '<div class="grid grid-cols-7 gap-2">';
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                const dateStr = formatDate(date);
+                const dayIdeas = ideas.filter(idea => idea.schedule_date === dateStr);
+                const isToday = isDateToday(date);
+                
+                html += `
+                    <div class="calendar-day min-h-[400px] p-2 rounded-lg border border-zinc-700 bg-zinc-800 ${isToday ? 'ring-2 ring-red-600' : ''}"
+                         ondrop="drop(event, '${dateStr}')"
+                         ondragover="allowDrop(event)"
+                         ondragleave="leaveDrop(event)">
+                        <div class="text-sm font-semibold mb-2 ${isToday ? 'text-red-500' : 'text-zinc-400'}">
+                            ${date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}
+                        </div>
+                        <div class="space-y-2">
+                            ${dayIdeas.map(idea => renderIdeaCard(idea, false)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            grid.innerHTML = html;
+        }
+
+        function renderDayView(grid) {
+            const dateStr = formatDate(currentDate);
+            const dayIdeas = ideas.filter(idea => idea.schedule_date === dateStr);
+            
+            let html = `
+                <div class="calendar-day min-h-[500px] p-4 rounded-lg border border-zinc-700 bg-zinc-800"
+                     ondrop="drop(event, '${dateStr}')"
+                     ondragover="allowDrop(event)"
+                     ondragleave="leaveDrop(event)">
+                    <h3 class="text-lg font-semibold mb-4">
+                        ${currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    </h3>
+                    <div class="space-y-3">
+                        ${dayIdeas.map(idea => renderIdeaCard(idea, false)).join('')}
+                    </div>
+                </div>
+            `;
+            
+            grid.innerHTML = html;
+        }
+
+        function renderIdeaCard(idea, compact = false) {
+            const statusColor = getStatusColor(idea.status);
+            
+            if (compact) {
+                return `
+                    <div class="idea-card p-1 rounded bg-zinc-700 cursor-move hover:bg-zinc-600 transition"
+                         draggable="true"
+                         ondragstart="drag(event, '${idea.id}')"
+                         onclick="showPreview('${idea.id}')">
+                        <div class="text-xs truncate">${idea.title || 'Untitled'}</div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="idea-card p-3 rounded-lg bg-zinc-700 cursor-move hover:bg-zinc-600 transition"
+                     draggable="true"
+                     ondragstart="drag(event, '${idea.id}')"
+                     onclick="showPreview('${idea.id}')">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-sm font-semibold">${idea.title || 'Untitled'}</h4>
+                        <span class="inline-block px-2 py-1 text-xs rounded-full ${statusColor}">
+                            ${idea.status}
+                        </span>
+                    </div>
+                    <p class="text-xs text-zinc-400 line-clamp-2">${idea.description || 'No description'}</p>
+                </div>
+            `;
+        }
+
+        function loadUnscheduledIdeas() {
+            const unscheduled = ideas.filter(idea => !idea.schedule_date);
+            const container = document.getElementById('unscheduledIdeas');
+            
+            if (unscheduled.length === 0) {
+                container.innerHTML = '<p class="text-sm text-zinc-400">No unscheduled ideas</p>';
+                return;
+            }
+            
+            container.innerHTML = unscheduled.map(idea => renderIdeaCard(idea, false)).join('');
+        }
+
+        function drag(event, ideaId) {
+            draggedIdea = ideaId;
+            event.dataTransfer.effectAllowed = 'move';
+            event.target.classList.add('dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function leaveDrop(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        async function drop(event, date) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('drag-over');
+            
+            if (!draggedIdea) return;
+            
+            // Update idea with new date
+            await fetch(`/api/ideas/${draggedIdea}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ schedule_date: date })
+            });
+            
+            // Remove dragging class
+            document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+            
+            draggedIdea = null;
+            loadCalendar();
+        }
+
+        function changeMonth(direction) {
+            if (currentView === 'month') {
+                currentDate.setMonth(currentDate.getMonth() + direction);
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() + (direction * 7));
+            } else {
+                currentDate.setDate(currentDate.getDate() + direction);
+            }
+            renderCalendar();
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('bg-red-600', btn.dataset.view === view);
+                btn.classList.toggle('bg-zinc-800', btn.dataset.view !== view);
+            });
+            renderCalendar();
+        }
+
+        function showPreview(ideaId) {
+            const idea = ideas.find(i => i.id === ideaId);
+            if (!idea) return;
+            
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('previewContent');
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-2">${idea.title || 'Untitled'}</h4>
+                        <p class="text-sm text-zinc-400">${idea.description || 'No description'}</p>
+                    </div>
+                    
+                    ${idea.assets?.thumbnail ? `
+                        <div>
+                            <h5 class="text-sm font-semibold mb-2">Thumbnail Preview</h5>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-2">
+                                    <img src="${idea.assets.thumbnail}" alt="Light mode" class="w-full rounded">
+                                    <p class="text-xs text-center mt-1 text-black">Light Mode</p>
+                                </div>
+                                <div class="bg-zinc-800 rounded-lg p-2">
+                                    <img src="${idea.assets.thumbnail}" alt="Dark mode" class="w-full rounded">
+                                    <p class="text-xs text-center mt-1">Dark Mode</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="window.location.href='/editor?id=${ideaId}'" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
+                            <i class="fas fa-edit mr-2"></i>Edit
+                        </button>
+                        <button onclick="closePreviewModal()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').classList.add('hidden');
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function isDateToday(date) {
+            const today = new Date();
+            return date.toDateString() === today.toDateString();
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'Idea': 'bg-blue-600 text-blue-100',
+                'Drafting': 'bg-yellow-600 text-yellow-100',
+                'Editing': 'bg-orange-600 text-orange-100',
+                'Ready': 'bg-green-600 text-green-100',
+                'Scheduled': 'bg-purple-600 text-purple-100',
+                'Published': 'bg-zinc-600 text-zinc-100'
+            };
+            return colors[status] || 'bg-zinc-600 text-zinc-100';
+        }
+
+        // Initialize
+        loadCalendar();
+        setView('month');
+    </script>
+</body>
+</html>
