@@ -32,17 +32,17 @@
 </head>
 <body class="bg-black text-white min-h-screen">
     <!-- Top Bar -->
-    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+    <div class="bg-zinc-900 border-b border-zinc-800 px-6 py-4">
         <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-8">
                 <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
-                <nav class="flex space-x-4">
-                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
-                    <a href="/calendar" class="text-sm hover:text-red-500 transition"><i class="fas fa-calendar mr-1"></i> Calendar</a>
-                    <a href="/backlog" class="text-sm hover:text-red-500 transition"><i class="fas fa-tasks mr-1"></i> Backlog</a>
-                    <a href="/editor" class="text-sm text-red-500"><i class="fas fa-edit mr-1"></i> Editor</a>
-                    <a href="/schedule" class="text-sm hover:text-red-500 transition"><i class="fas fa-clock mr-1"></i> Schedule</a>
-                    <a href="/settings" class="text-sm hover:text-red-500 transition"><i class="fas fa-cog mr-1"></i> Settings</a>
+                <nav class="flex space-x-6">
+                    <a href="/" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-home mr-2"></i> Home</a>
+                    <a href="/calendar" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-calendar mr-2"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-tasks mr-2"></i> Backlog</a>
+                    <a href="/editor" class="text-sm text-red-500 flex items-center"><i class="fas fa-edit mr-2"></i> Editor</a>
+                    <a href="/schedule" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-clock mr-2"></i> Schedule</a>
+                    <a href="/settings" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-cog mr-2"></i> Settings</a>
                 </nav>
             </div>
             <div class="flex items-center space-x-4">
@@ -87,22 +87,38 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Priority</label>
-                                <select id="priority" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
-                                    <option value="low">Low</option>
-                                    <option value="medium" selected>Medium</option>
-                                    <option value="high">High</option>
-                                </select>
+                                <div class="relative">
+                                    <button type="button" id="priorityButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('priority')">
+                                        <span id="priorityValue">Medium</span>
+                                        <i class="fas fa-chevron-down text-zinc-400"></i>
+                                    </button>
+                                    <div id="priorityDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                        <div class="py-1">
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('priority', 'low', 'Low')">Low</div>
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('priority', 'medium', 'Medium')">Medium</div>
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('priority', 'high', 'High')">High</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium mb-2">Status</label>
-                                <select id="status" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
-                                    <option value="Idea">Idea</option>
-                                    <option value="Drafting">Drafting</option>
-                                    <option value="Editing">Editing</option>
-                                    <option value="Ready">Ready</option>
-                                    <option value="Scheduled">Scheduled</option>
-                                </select>
+                                <div class="relative">
+                                    <button type="button" id="statusButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('status')">
+                                        <span id="statusValue">Idea</span>
+                                        <i class="fas fa-chevron-down text-zinc-400"></i>
+                                    </button>
+                                    <div id="statusDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                        <div class="py-1">
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('status', 'Idea')">Idea</div>
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('status', 'Drafting')">Drafting</div>
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('status', 'Editing')">Editing</div>
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('status', 'Ready')">Ready</div>
+                                            <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('status', 'Scheduled')">Scheduled</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
@@ -172,12 +188,20 @@
                     <!-- Template -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Template</label>
-                        <select id="thumbnailTemplate" onchange="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
-                            <option value="text-only">Text Only</option>
-                            <option value="text-over-image">Text Over Image</option>
-                            <option value="text-behind-subject">Text Behind Subject</option>
-                            <option value="image-only">Image Only</option>
-                        </select>
+                        <div class="relative">
+                            <button type="button" id="thumbnailTemplateButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('thumbnailTemplate')">
+                                <span id="thumbnailTemplateValue">Text Over Image</span>
+                                <i class="fas fa-chevron-down text-zinc-400"></i>
+                            </button>
+                            <div id="thumbnailTemplateDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                <div class="py-1">
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-only', 'Text Only')">Text Only</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-over-image', 'Text Over Image')">Text Over Image</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-behind-subject', 'Text Behind Subject')">Text Behind Subject</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('image-only', 'Image Only')">Image Only</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Text Options -->
@@ -193,16 +217,24 @@
                     <!-- Font Selection -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Font</label>
-                        <select id="thumbnailFont" onchange="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
-                            <option value="Mohave">Mohave</option>
-                            <option value="Inter">Inter</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Poppins">Poppins</option>
-                            <option value="Bebas Neue">Bebas Neue</option>
-                            <option value="Anton">Anton</option>
-                        </select>
+                        <div class="relative">
+                            <button type="button" id="thumbnailFontButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('thumbnailFont')">
+                                <span id="thumbnailFontValue">Mohave</span>
+                                <i class="fas fa-chevron-down text-zinc-400"></i>
+                            </button>
+                            <div id="thumbnailFontDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                <div class="py-1">
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Mohave')">Mohave</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Inter')">Inter</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Roboto')">Roboto</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Open Sans')">Open Sans</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Montserrat')">Montserrat</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Poppins')">Poppins</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Bebas Neue')">Bebas Neue</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Anton')">Anton</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Color Options -->
@@ -302,8 +334,13 @@
                 document.getElementById('topic').value = idea.topic || '';
                 document.getElementById('audience').value = idea.audience || '';
                 document.getElementById('keyPoints').value = idea.key_points || '';
-                document.getElementById('priority').value = idea.priority || 'medium';
-                document.getElementById('status').value = idea.status || 'Idea';
+                
+                const priority = idea.priority || 'medium';
+                document.getElementById('priorityValue').textContent = priority.charAt(0).toUpperCase() + priority.slice(1);
+                
+                const status = idea.status || 'Idea';
+                document.getElementById('statusValue').textContent = status;
+                
                 document.getElementById('tags').value = (idea.tags || []).join(', ');
                 document.getElementById('selectedTitle').value = idea.title || '';
                 document.getElementById('selectedDescription').value = idea.description || '';
@@ -477,9 +514,9 @@
         function updateThumbnail() {
             const canvas = document.getElementById('thumbnailCanvas');
             const ctx = canvas.getContext('2d');
-            const template = document.getElementById('thumbnailTemplate').value;
+            const template = getTemplateValueFromDisplay(document.getElementById('thumbnailTemplateValue').textContent);
             const text = document.getElementById('thumbnailText').value;
-            const font = document.getElementById('thumbnailFont').value;
+            const font = document.getElementById('thumbnailFontValue').textContent;
             const textColor = document.getElementById('textColor').value;
             const bgColor = document.getElementById('bgColor').value;
             
@@ -584,8 +621,8 @@
                 topic: document.getElementById('topic').value,
                 audience: document.getElementById('audience').value,
                 key_points: document.getElementById('keyPoints').value,
-                priority: document.getElementById('priority').value,
-                status: document.getElementById('status').value,
+                priority: document.getElementById('priorityValue').textContent.toLowerCase(),
+                status: document.getElementById('statusValue').textContent,
                 tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t),
                 assets: {
                     thumbnail: thumbnailDataUrl
@@ -618,6 +655,54 @@
             }
         }
 
+        // Dropdown functionality
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId + 'Dropdown');
+            const isHidden = dropdown.classList.contains('hidden');
+            
+            // Close all other dropdowns
+            document.querySelectorAll('[id$="Dropdown"]').forEach(d => d.classList.add('hidden'));
+            
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+            }
+        }
+        
+        function selectOption(dropdownId, value, displayText) {
+            const valueElement = document.getElementById(dropdownId + 'Value');
+            valueElement.textContent = displayText || value;
+            document.getElementById(dropdownId + 'Dropdown').classList.add('hidden');
+        }
+        
+        function selectTemplate(value, displayText) {
+            document.getElementById('thumbnailTemplateValue').textContent = displayText;
+            document.getElementById('thumbnailTemplateDropdown').classList.add('hidden');
+            updateThumbnail();
+        }
+        
+        function selectFont(value) {
+            document.getElementById('thumbnailFontValue').textContent = value;
+            document.getElementById('thumbnailFontDropdown').classList.add('hidden');
+            updateThumbnail();
+        }
+        
+        function getTemplateValueFromDisplay(displayText) {
+            const templateValues = {
+                'Text Only': 'text-only',
+                'Text Over Image': 'text-over-image',
+                'Text Behind Subject': 'text-behind-subject',
+                'Image Only': 'image-only'
+            };
+            return templateValues[displayText] || 'text-over-image';
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('[onclick*="toggleDropdown"]') && !event.target.closest('[id$="Dropdown"]')) {
+                document.querySelectorAll('[id$="Dropdown"]').forEach(d => d.classList.add('hidden'));
+            }
+        });
+        
         // Initialize
         setAspectRatio('16:9');
         updateThumbnail();

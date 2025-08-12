@@ -31,17 +31,17 @@
 </head>
 <body class="bg-black text-white min-h-screen">
     <!-- Top Bar -->
-    <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-2">
+    <div class="bg-zinc-900 border-b border-zinc-800 px-6 py-4">
         <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-8">
                 <h1 class="text-2xl font-bold text-red-600 mohave">BRODEO</h1>
-                <nav class="flex space-x-4">
-                    <a href="/" class="text-sm hover:text-red-500 transition"><i class="fas fa-home mr-1"></i> Home</a>
-                    <a href="/calendar" class="text-sm hover:text-red-500 transition"><i class="fas fa-calendar mr-1"></i> Calendar</a>
-                    <a href="/backlog" class="text-sm hover:text-red-500 transition"><i class="fas fa-tasks mr-1"></i> Backlog</a>
-                    <a href="/editor" class="text-sm hover:text-red-500 transition"><i class="fas fa-edit mr-1"></i> Editor</a>
-                    <a href="/schedule" class="text-sm hover:text-red-500 transition"><i class="fas fa-clock mr-1"></i> Schedule</a>
-                    <a href="/settings" class="text-sm text-red-500"><i class="fas fa-cog mr-1"></i> Settings</a>
+                <nav class="flex space-x-6">
+                    <a href="/" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-home mr-2"></i> Home</a>
+                    <a href="/calendar" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-calendar mr-2"></i> Calendar</a>
+                    <a href="/backlog" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-tasks mr-2"></i> Backlog</a>
+                    <a href="/editor" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-edit mr-2"></i> Editor</a>
+                    <a href="/schedule" class="text-sm hover:text-red-500 transition flex items-center"><i class="fas fa-clock mr-2"></i> Schedule</a>
+                    <a href="/settings" class="text-sm text-red-500 flex items-center"><i class="fas fa-cog mr-2"></i> Settings</a>
                 </nav>
             </div>
             <div class="flex items-center space-x-4">
@@ -90,26 +90,42 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium mb-2">Default Font</label>
-                        <select id="defaultFont" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
-                            <option value="Mohave">Mohave</option>
-                            <option value="Inter">Inter</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Poppins">Poppins</option>
-                            <option value="Bebas Neue">Bebas Neue</option>
-                            <option value="Anton">Anton</option>
-                        </select>
+                        <div class="relative">
+                            <button type="button" id="defaultFontButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('defaultFont')">
+                                <span id="defaultFontValue">Mohave</span>
+                                <i class="fas fa-chevron-down text-zinc-400"></i>
+                            </button>
+                            <div id="defaultFontDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                <div class="py-1">
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Mohave')">Mohave</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Inter')">Inter</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Roboto')">Roboto</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Open Sans')">Open Sans</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Montserrat')">Montserrat</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Poppins')">Poppins</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Bebas Neue')">Bebas Neue</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultFont', 'Anton')">Anton</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium mb-2">Default Template</label>
-                        <select id="defaultTemplate" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-red-500">
-                            <option value="text-only">Text Only</option>
-                            <option value="text-over-image">Text Over Image</option>
-                            <option value="text-behind-subject">Text Behind Subject</option>
-                            <option value="image-only">Image Only</option>
-                        </select>
+                        <div class="relative">
+                            <button type="button" id="defaultTemplateButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('defaultTemplate')">
+                                <span id="defaultTemplateValue">Text Over Image</span>
+                                <i class="fas fa-chevron-down text-zinc-400"></i>
+                            </button>
+                            <div id="defaultTemplateDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                <div class="py-1">
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultTemplate', 'text-only', 'Text Only')">Text Only</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultTemplate', 'text-over-image', 'Text Over Image')">Text Over Image</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultTemplate', 'text-behind-subject', 'Text Behind Subject')">Text Behind Subject</div>
+                                    <div class="dropdown-option px-4 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('defaultTemplate', 'image-only', 'Image Only')">Image Only</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
@@ -197,8 +213,17 @@
                 document.getElementById('channelUrl').value = settings.channel_url || '';
                 
                 // Thumbnail defaults
-                document.getElementById('defaultFont').value = settings.default_font || 'Mohave';
-                document.getElementById('defaultTemplate').value = settings.default_template || 'text-over-image';
+                const defaultFont = settings.default_font || 'Mohave';
+                document.getElementById('defaultFontValue').textContent = defaultFont;
+                
+                const defaultTemplate = settings.default_template || 'text-over-image';
+                const templateDisplayNames = {
+                    'text-only': 'Text Only',
+                    'text-over-image': 'Text Over Image', 
+                    'text-behind-subject': 'Text Behind Subject',
+                    'image-only': 'Image Only'
+                };
+                document.getElementById('defaultTemplateValue').textContent = templateDisplayNames[defaultTemplate] || 'Text Over Image';
                 
                 const primaryColor = settings.theme_colors?.primary || '#DC2626';
                 const backgroundColor = settings.theme_colors?.background || '#000000';
@@ -223,8 +248,8 @@
                 channel_name: document.getElementById('channelName').value,
                 channel_description: document.getElementById('channelDescription').value,
                 channel_url: document.getElementById('channelUrl').value,
-                default_font: document.getElementById('defaultFont').value,
-                default_template: document.getElementById('defaultTemplate').value,
+                default_font: document.getElementById('defaultFontValue').textContent,
+                default_template: getTemplateValueFromDisplay(document.getElementById('defaultTemplateValue').textContent),
                 theme_colors: {
                     primary: document.getElementById('primaryColor').value,
                     background: document.getElementById('backgroundColor').value
@@ -357,6 +382,42 @@
             }
         }
 
+        // Dropdown functionality
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId + 'Dropdown');
+            const isHidden = dropdown.classList.contains('hidden');
+            
+            // Close all other dropdowns
+            document.querySelectorAll('[id$="Dropdown"]').forEach(d => d.classList.add('hidden'));
+            
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+            }
+        }
+        
+        function selectOption(dropdownId, value, displayText) {
+            const valueElement = document.getElementById(dropdownId + 'Value');
+            valueElement.textContent = displayText || value;
+            document.getElementById(dropdownId + 'Dropdown').classList.add('hidden');
+        }
+        
+        function getTemplateValueFromDisplay(displayText) {
+            const templateValues = {
+                'Text Only': 'text-only',
+                'Text Over Image': 'text-over-image',
+                'Text Behind Subject': 'text-behind-subject',
+                'Image Only': 'image-only'
+            };
+            return templateValues[displayText] || 'text-over-image';
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('[onclick*="toggleDropdown"]') && !event.target.closest('[id$="Dropdown"]')) {
+                document.querySelectorAll('[id$="Dropdown"]').forEach(d => d.classList.add('hidden'));
+            }
+        });
+        
         // Load settings on page load
         loadSettings();
     </script>
