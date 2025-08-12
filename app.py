@@ -200,25 +200,30 @@ def generate_description():
         return jsonify({'description': fallback_description})
     
     try:
-        client = openai.OpenAI(api_key=openai.api_key)
-        prompt = f"Write a YouTube video description for a video titled '{title}' about {topic}. Include these key points: {', '.join(key_points)}. Make it engaging and SEO-friendly."
-        
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a YouTube description writer. Create engaging, SEO-friendly descriptions."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=300,
-            temperature=0.7,
-            timeout=30
+        client = openai.OpenAI(
+            api_key=openai.api_key,
+            max_retries=2,
+            timeout=30.0
         )
         
+        def api_call():
+            prompt = f"Write a YouTube video description for a video titled '{title}' about {topic}. Include these key points: {', '.join(key_points)}. Make it engaging and SEO-friendly."
+            return client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a YouTube description writer. Create engaging, SEO-friendly descriptions."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=300,
+                temperature=0.7
+            )
+        
+        response = make_openai_request(api_call, max_retries=3)
         description = response.choices[0].message.content.strip()
         return jsonify({'description': description})
     except Exception as e:
-        print(f"OpenAI API Error (description): {str(e)}")
-        return jsonify({'description': fallback_description, 'warning': f'Using fallback description due to API error: {str(e)[:100]}'})
+        print(f"OpenAI API Error (description) - Final failure: {str(e)}")
+        return jsonify({'description': fallback_description, 'warning': f'API temporarily unavailable: {str(e)[:50]}'})
 
 @app.route('/api/ai/generate-thumbnail-text', methods=['POST'])
 def generate_thumbnail_text():
@@ -370,39 +375,44 @@ def generate_thumbnail():
         }), 400
     
     try:
-        client = openai.OpenAI(api_key=openai.api_key)
-        
-        # Build the prompt including reference faces if selected
-        full_prompt = f"YouTube thumbnail: {prompt}"
-        if include_faces:
-            face_names = [f['name'] for f in settings['reference_faces'] if f['filename'] in include_faces]
-            if face_names:
-                full_prompt += f". Include these people: {', '.join(face_names)}"
-        
-        if template == 'text_behind_subject':
-            full_prompt += ". Place text behind the main subject."
-        elif template == 'text_over_image':
-            full_prompt += ". Overlay text on the image."
-        
-        full_prompt += ". Style: professional, eye-catching, high contrast."
-        
-        response = client.images.generate(
-            model="dall-e-3",
-            prompt=full_prompt,
-            size="1792x1024",  # 16:9 aspect ratio
-            quality="standard",
-            n=1,
-            timeout=60  # Longer timeout for image generation
+        client = openai.OpenAI(
+            api_key=openai.api_key,
+            max_retries=2,  # Built-in retries
+            timeout=60.0  # Longer timeout for image generation
         )
         
+        def api_call():
+            # Build the prompt including reference faces if selected
+            full_prompt = f"YouTube thumbnail: {prompt}"
+            if include_faces:
+                face_names = [f['name'] for f in settings['reference_faces'] if f['filename'] in include_faces]
+                if face_names:
+                    full_prompt += f". Include these people: {', '.join(face_names)}"
+            
+            if template == 'text_behind_subject':
+                full_prompt += ". Place text behind the main subject."
+            elif template == 'text_over_image':
+                full_prompt += ". Overlay text on the image."
+            
+            full_prompt += ". Style: professional, eye-catching, high contrast."
+            
+            return client.images.generate(
+                model="dall-e-3",
+                prompt=full_prompt,
+                size="1792x1024",  # 16:9 aspect ratio
+                quality="standard",
+                n=1
+            )
+        
+        response = make_openai_request(api_call, max_retries=3)
         image_url = response.data[0].url
         return jsonify({'image_url': image_url})
         
     except Exception as e:
-        print(f"OpenAI API Error (thumbnail generation): {str(e)}")
+        print(f"OpenAI API Error (thumbnail generation) - Final failure: {str(e)}")
         return jsonify({
-            'error': f'Thumbnail generation failed: {str(e)[:100]}...',
-            'suggestion': 'Try again with a simpler prompt or check your OpenAI API quota'
+            'error': f'Thumbnail generation temporarily unavailable: {str(e)[:50]}...',
+            'suggestion': 'Please try again in a moment. The AI service is experiencing high demand.'
         }), 500
 
 if __name__ == '__main__':
