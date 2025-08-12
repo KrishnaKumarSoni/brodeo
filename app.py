@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 import openai
 import base64
 from werkzeug.utils import secure_filename
+import time
+import random
 
 load_dotenv()
 
@@ -61,6 +63,20 @@ settings = {
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def make_openai_request(request_func, max_retries=3):
+    """Make OpenAI API request with exponential backoff retry logic"""
+    for attempt in range(max_retries):
+        try:
+            return request_func()
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise e
+            
+            # Exponential backoff with jitter
+            delay = (2 ** attempt) + random.uniform(0, 1)
+            print(f"OpenAI API attempt {attempt + 1} failed: {str(e)}, retrying in {delay:.2f}s")
+            time.sleep(delay)
 
 @app.route('/')
 def index():
@@ -138,20 +154,25 @@ def generate_titles():
         return jsonify({'titles': fallback_titles})
     
     try:
-        client = openai.OpenAI(api_key=openai.api_key)
-        prompt = f"Generate 4 YouTube video titles for a video about {topic} targeted at {audience}. Key points: {', '.join(key_points)}. Make them catchy and clickable."
-        
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a YouTube title expert. Generate only titles, one per line."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=150,
-            temperature=0.8,
-            timeout=30  # 30 second timeout
+        client = openai.OpenAI(
+            api_key=openai.api_key,
+            max_retries=2,
+            timeout=30.0
         )
         
+        def api_call():
+            prompt = f"Generate 4 YouTube video titles for a video about {topic} targeted at {audience}. Key points: {', '.join(key_points)}. Make them catchy and clickable."
+            return client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a YouTube title expert. Generate only titles, one per line."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=150,
+                temperature=0.8
+            )
+        
+        response = make_openai_request(api_call, max_retries=3)
         titles = response.choices[0].message.content.strip().split('\n')
         titles = [t.strip() for t in titles if t.strip()][:4]
         
@@ -161,8 +182,8 @@ def generate_titles():
         
         return jsonify({'titles': titles[:4]})
     except Exception as e:
-        print(f"OpenAI API Error (titles): {str(e)}")  # Server-side logging
-        return jsonify({'titles': fallback_titles, 'warning': f'Using fallback titles due to API error: {str(e)[:100]}'})  # Don't return 500, return fallback
+        print(f"OpenAI API Error (titles) - Final failure: {str(e)}")
+        return jsonify({'titles': fallback_titles, 'warning': f'API temporarily unavailable: {str(e)[:50]}'})
 
 @app.route('/api/ai/generate-description', methods=['POST'])
 def generate_description():
@@ -215,20 +236,25 @@ def generate_thumbnail_text():
         return jsonify({'suggestions': fallback_suggestions})
     
     try:
-        client = openai.OpenAI(api_key=openai.api_key)
-        prompt = f"Generate 4 short, punchy thumbnail text options for a YouTube video titled '{title}'. Each should be 2-4 words maximum."
-        
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Generate short, punchy YouTube thumbnail text. Maximum 2-4 words each. One per line."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=100,
-            temperature=0.9,
-            timeout=30
+        client = openai.OpenAI(
+            api_key=openai.api_key,
+            max_retries=2,  # Built-in retries
+            timeout=30.0
         )
         
+        def api_call():
+            prompt = f"Generate 4 short, punchy thumbnail text options for a YouTube video titled '{title}'. Each should be 2-4 words maximum."
+            return client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Generate short, punchy YouTube thumbnail text. Maximum 2-4 words each. One per line."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=100,
+                temperature=0.9
+            )
+        
+        response = make_openai_request(api_call, max_retries=3)
         suggestions = response.choices[0].message.content.strip().split('\n')
         suggestions = [s.strip() for s in suggestions if s.strip()][:4]
         
@@ -238,8 +264,8 @@ def generate_thumbnail_text():
         
         return jsonify({'suggestions': suggestions})
     except Exception as e:
-        print(f"OpenAI API Error (thumbnail text): {str(e)}")
-        return jsonify({'suggestions': fallback_suggestions, 'warning': f'Using fallback suggestions due to API error: {str(e)[:100]}'})
+        print(f"OpenAI API Error (thumbnail text) - Final failure: {str(e)}")
+        return jsonify({'suggestions': fallback_suggestions, 'warning': f'API temporarily unavailable: {str(e)[:50]}'})  
 
 @app.route('/api/settings', methods=['GET', 'PUT'])
 def handle_settings():
