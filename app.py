@@ -337,30 +337,35 @@ def generate_image_prompt():
     concept = data.get('concept', {})
     topic = data.get('topic', '')
     
-    prompt = f"""Create a GPT-image-1 optimized prompt for a YouTube thumbnail image:
+    prompt = f"""Create a GPT-4o native image generation optimized prompt for a YouTube thumbnail image:
 
     Topic: {topic}
     Concept: {concept.get('title', '')} - {concept.get('description', '')}
     Style: {concept.get('style', 'photography')}
     
-    Requirements:
-    - 16:9 aspect ratio YouTube thumbnail (1792x1024)
+    CRITICAL REQUIREMENTS:
+    - 16:9 aspect ratio YouTube thumbnail (1792x1024)  
+    - ABSOLUTELY NO TEXT, WORDS, OR LETTERS in the image
+    - NO typography, NO captions, NO labels, NO signs with text
+    - Pure visual imagery only - text will be added separately later
     - Ultra high-quality, professional cinematography
     - Dynamic composition with strong visual hierarchy
     - Bold, saturated colors that pop on screen
     - Dramatic lighting and shadows for depth
     - Clear focal point with engaging visual storytelling
     - Modern, trending aesthetic suitable for social media
-    - Include specific text placement areas if needed
     - Photorealistic quality with crisp details
+    - Clean visual composition without any textual elements
     
-    Leverage GPT-image-1's advanced capabilities:
-    - Superior text rendering if text is needed
-    - Enhanced prompt following accuracy
-    - Rich contextual understanding
-    - Vivid, cinematic style generation
+    Leverage GPT-4o's native image generation capabilities:
+    - Enhanced prompt following with contextual understanding
+    - Rich multimodal knowledge integration  
+    - Vivid, cinematic style generation with photorealistic quality
+    - Advanced compositional intelligence
     
-    Return JSON: {{"prompt": "detailed GPT-image-1 prompt", "style_notes": "quality and composition guidance"}}"""
+    REMEMBER: Generate ONLY the visual image without any text whatsoever.
+    
+    Return JSON: {{"prompt": "detailed GPT-4o optimized prompt with NO TEXT", "style_notes": "visual composition guidance"}}"""
     
     try:
         response = client.chat.completions.create(
@@ -387,9 +392,9 @@ def generate_image():
         return jsonify({'error': 'No prompt provided'}), 400
     
     try:
-        # Use the latest GPT-image-1 model (GPT-4o multimodal)
+        # Use GPT-4o's native image generation (same as ChatGPT web app)
         response = client.images.generate(
-            model="gpt-image-1",
+            model="gpt-4o",
             prompt=prompt,
             size="1792x1024",  # 16:9 aspect ratio for YouTube thumbnails
             quality=quality,   # standard or hd

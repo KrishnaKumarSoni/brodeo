@@ -316,7 +316,7 @@
                     
                     <!-- AI Image Generation -->
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">AI Image Generation (GPT-image-1)</label>
+                        <label class="block text-sm font-medium mb-2">AI Image Generation (GPT-4o Native)</label>
                         <div class="mb-2">
                             <label class="block text-xs font-medium mb-1">Quality</label>
                             <div class="relative">
@@ -333,9 +333,9 @@
                             </div>
                         </div>
                         <button onclick="showImageConceptsModal()" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
-                            <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with GPT-image-1
+                            <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with GPT-4o
                         </button>
-                        <div class="text-xs text-zinc-500 mt-1 text-center">Latest OpenAI model with superior quality</div>
+                        <div class="text-xs text-zinc-500 mt-1 text-center">Same model as ChatGPT web app</div>
                     </div>
 
                     <!-- Upload Image -->
@@ -1246,7 +1246,7 @@
             loadingDiv.innerHTML = `
                 <div class="bg-zinc-900 rounded-lg p-6 text-center">
                     <i class="ph ph-spinner ph-spin text-4xl text-purple-500 mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2">Generating Image with GPT-image-1...</h3>
+                    <h3 class="text-lg font-semibold mb-2">Generating Image with GPT-4o...</h3>
                     <p class="text-sm text-zinc-400">Using ${quality.toUpperCase()} quality • This may take 10-60 seconds</p>
                 </div>
             `;
@@ -1271,7 +1271,7 @@
                 img.onload = () => {
                     uploadedImage = img;
                     updateThumbnail();
-                    alert(`✨ Image generated successfully with GPT-image-1! \n\nConcept: ${conceptTitle}\nQuality: ${quality.toUpperCase()}`);
+                    alert(`✨ Image generated successfully with GPT-4o! \n\nConcept: ${conceptTitle}\nQuality: ${quality.toUpperCase()}`);
                 };
                 img.onerror = () => {
                     alert('Error loading generated image');
