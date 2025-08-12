@@ -126,18 +126,19 @@ def generate_titles():
     audience = data.get('audience', '')
     key_points = data.get('key_points', [])
     
+    # Fallback titles if no API key or API fails
+    fallback_titles = [
+        f"How to {topic} - Complete Guide" if topic else "How to Create Amazing Content",
+        f"{topic} for {audience or 'Beginners'}" if topic else "Content Creation for Beginners",
+        f"Top Tips for {topic}" if topic else "Top Content Creation Tips",
+        f"Master {topic} in 2025" if topic else "Master Content Creation in 2025"
+    ]
+    
     if not openai.api_key or openai.api_key == 'your_openai_api_key_here':
-        return jsonify({
-            'titles': [
-                f"How to {topic} - Complete Guide",
-                f"{topic} for {audience or 'Beginners'}",
-                f"Top Tips for {topic}",
-                f"Master {topic} in 2025"
-            ]
-        })
+        return jsonify({'titles': fallback_titles})
     
     try:
-        client = openai.OpenAI()
+        client = openai.OpenAI(api_key=openai.api_key)
         prompt = f"Generate 4 YouTube video titles for a video about {topic} targeted at {audience}. Key points: {', '.join(key_points)}. Make them catchy and clickable."
         
         response = client.chat.completions.create(
@@ -147,15 +148,21 @@ def generate_titles():
                 {"role": "user", "content": prompt}
             ],
             max_tokens=150,
-            temperature=0.8
+            temperature=0.8,
+            timeout=30  # 30 second timeout
         )
         
         titles = response.choices[0].message.content.strip().split('\n')
         titles = [t.strip() for t in titles if t.strip()][:4]
         
-        return jsonify({'titles': titles})
+        # Ensure we have at least 4 titles
+        while len(titles) < 4:
+            titles.extend(fallback_titles)
+        
+        return jsonify({'titles': titles[:4]})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"OpenAI API Error (titles): {str(e)}")  # Server-side logging
+        return jsonify({'titles': fallback_titles, 'warning': f'Using fallback titles due to API error: {str(e)[:100]}'})  # Don't return 500, return fallback
 
 @app.route('/api/ai/generate-description', methods=['POST'])
 def generate_description():
@@ -164,15 +171,15 @@ def generate_description():
     topic = data.get('topic', '')
     key_points = data.get('key_points', [])
     
-    if not openai.api_key or openai.api_key == 'your_openai_api_key_here':
-        return jsonify({
-            'description': f"In this video, we explore {topic}.\n\nTopics covered:\n" + 
-                          '\n'.join([f"• {point}" for point in key_points]) +
+    fallback_description = f"In this video, we explore {topic or 'this topic'}.\n\nTopics covered:\n" + \
+                          '\n'.join([f"• {point}" for point in key_points]) + \
                           "\n\nDon't forget to like and subscribe!"
-        })
+    
+    if not openai.api_key or openai.api_key == 'your_openai_api_key_here':
+        return jsonify({'description': fallback_description})
     
     try:
-        client = openai.OpenAI()
+        client = openai.OpenAI(api_key=openai.api_key)
         prompt = f"Write a YouTube video description for a video titled '{title}' about {topic}. Include these key points: {', '.join(key_points)}. Make it engaging and SEO-friendly."
         
         response = client.chat.completions.create(
@@ -182,31 +189,33 @@ def generate_description():
                 {"role": "user", "content": prompt}
             ],
             max_tokens=300,
-            temperature=0.7
+            temperature=0.7,
+            timeout=30
         )
         
         description = response.choices[0].message.content.strip()
         return jsonify({'description': description})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"OpenAI API Error (description): {str(e)}")
+        return jsonify({'description': fallback_description, 'warning': f'Using fallback description due to API error: {str(e)[:100]}'})
 
 @app.route('/api/ai/generate-thumbnail-text', methods=['POST'])
 def generate_thumbnail_text():
     data = request.json
     title = data.get('title', '')
     
+    fallback_suggestions = [
+        title[:15] + '...' if len(title) > 15 else title or 'AMAZING',
+        'MUST WATCH',
+        'SHOCKING',
+        'WOW!'
+    ]
+    
     if not openai.api_key or openai.api_key == 'your_openai_api_key_here':
-        return jsonify({
-            'suggestions': [
-                title[:20] + '...' if len(title) > 20 else title,
-                'MUST WATCH',
-                'SHOCKING RESULTS',
-                'YOU WON\'T BELIEVE'
-            ]
-        })
+        return jsonify({'suggestions': fallback_suggestions})
     
     try:
-        client = openai.OpenAI()
+        client = openai.OpenAI(api_key=openai.api_key)
         prompt = f"Generate 4 short, punchy thumbnail text options for a YouTube video titled '{title}'. Each should be 2-4 words maximum."
         
         response = client.chat.completions.create(
@@ -216,15 +225,21 @@ def generate_thumbnail_text():
                 {"role": "user", "content": prompt}
             ],
             max_tokens=100,
-            temperature=0.9
+            temperature=0.9,
+            timeout=30
         )
         
         suggestions = response.choices[0].message.content.strip().split('\n')
         suggestions = [s.strip() for s in suggestions if s.strip()][:4]
         
+        # Ensure we have suggestions
+        if not suggestions:
+            suggestions = fallback_suggestions
+        
         return jsonify({'suggestions': suggestions})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"OpenAI API Error (thumbnail text): {str(e)}")
+        return jsonify({'suggestions': fallback_suggestions, 'warning': f'Using fallback suggestions due to API error: {str(e)[:100]}'})
 
 @app.route('/api/settings', methods=['GET', 'PUT'])
 def handle_settings():
@@ -325,11 +340,11 @@ def generate_thumbnail():
     if not openai.api_key or openai.api_key == 'your_openai_api_key_here':
         return jsonify({
             'error': 'OpenAI API key not configured',
-            'suggestion': 'Please add your OpenAI API key in settings'
+            'suggestion': 'Please add your OpenAI API key in environment variables'
         }), 400
     
     try:
-        client = openai.OpenAI()
+        client = openai.OpenAI(api_key=openai.api_key)
         
         # Build the prompt including reference faces if selected
         full_prompt = f"YouTube thumbnail: {prompt}"
@@ -350,14 +365,19 @@ def generate_thumbnail():
             prompt=full_prompt,
             size="1792x1024",  # 16:9 aspect ratio
             quality="standard",
-            n=1
+            n=1,
+            timeout=60  # Longer timeout for image generation
         )
         
         image_url = response.data[0].url
         return jsonify({'image_url': image_url})
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"OpenAI API Error (thumbnail generation): {str(e)}")
+        return jsonify({
+            'error': f'Thumbnail generation failed: {str(e)[:100]}...',
+            'suggestion': 'Try again with a simpler prompt or check your OpenAI API quota'
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
