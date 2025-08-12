@@ -16,6 +16,50 @@
         h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
         .mohave { font-family: 'Mohave', sans-serif; }
         #thumbnailCanvas { max-width: 100%; }
+        
+        /* AI Loading Animations */
+        @keyframes sparkle {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(90deg); }
+            50% { transform: scale(1) rotate(180deg); }
+            75% { transform: scale(1.2) rotate(270deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0.1); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        
+        @keyframes typing-dots {
+            0%, 80%, 100% { opacity: 0; }
+            40% { opacity: 1; }
+        }
+        
+        @keyframes brain-wave {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(4px); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(-4px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .ai-loading-sparkle {
+            animation: sparkle 1.5s infinite ease-in-out;
+        }
+        
+        .ai-loading-pulse {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        .ai-loading-brain {
+            animation: brain-wave 0.8s infinite ease-in-out;
+        }
+        
+        .typing-animation .dot:nth-child(1) { animation: typing-dots 1.4s infinite; animation-delay: 0.2s; }
+        .typing-animation .dot:nth-child(2) { animation: typing-dots 1.4s infinite; animation-delay: 0.4s; }
+        .typing-animation .dot:nth-child(3) { animation: typing-dots 1.4s infinite; animation-delay: 0.6s; }
     </style>
     <script>
         tailwind.config = {
@@ -308,25 +352,11 @@
                         <canvas id="thumbnailCanvas" width="1280" height="720" class="w-full rounded-lg bg-zinc-800"></canvas>
                     </div>
                     
-                    <!-- Preview Modes -->
+                    <!-- Preview Button -->
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">YouTube Preview</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="bg-white rounded p-2">
-                                <div class="text-black text-xs mb-1">Light Mode</div>
-                                <div class="relative">
-                                    <canvas id="previewLight" width="320" height="180" class="w-full rounded"></canvas>
-                                    <div class="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs px-1 rounded">10:23</div>
-                                </div>
-                            </div>
-                            <div class="bg-zinc-800 rounded p-2">
-                                <div class="text-xs mb-1">Dark Mode</div>
-                                <div class="relative">
-                                    <canvas id="previewDark" width="320" height="180" class="w-full rounded"></canvas>
-                                    <div class="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs px-1 rounded">10:23</div>
-                                </div>
-                            </div>
-                        </div>
+                        <button onclick="showThumbnailPreviewModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-sm transition flex items-center justify-center" title="Preview Thumbnail">
+                            <i class="ph ph-eye mr-2" style="font-size: 16px;"></i>Preview Thumbnail
+                        </button>
                     </div>
                     
                     <!-- Actions -->
@@ -374,6 +404,106 @@
             </div>
             <div id="imagePromptContent" class="space-y-4">
                 <!-- Prompt content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Thumbnail Preview Modal -->
+    <div id="thumbnailPreviewModal" class="fixed inset-0 bg-black bg-opacity-90 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold mohave text-red-500">Thumbnail Preview</h3>
+                <button onclick="closeThumbnailPreviewModal()" class="text-zinc-400 hover:text-white">
+                    <i class="ph ph-x" style="font-size: 24px;"></i>
+                </button>
+            </div>
+            
+            <!-- Controls -->
+            <div class="flex flex-wrap gap-4 mb-6 p-4 bg-zinc-800 rounded-lg">
+                <!-- Theme Toggle -->
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium">Theme:</label>
+                    <button id="themeToggle" onclick="togglePreviewTheme()" class="bg-zinc-700 hover:bg-zinc-600 px-3 py-1 rounded text-sm transition flex items-center">
+                        <i class="ph ph-moon mr-1" style="font-size: 14px;"></i>
+                        <span id="themeText">Dark</span>
+                    </button>
+                </div>
+                
+                <!-- YouTube Dummy Toggle -->
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm font-medium">YouTube UI:</label>
+                    <button id="youtubeToggle" onclick="toggleYoutubeDummy()" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition flex items-center">
+                        <i class="ph ph-eye mr-1" style="font-size: 14px;"></i>
+                        <span id="youtubeText">Enabled</span>
+                    </button>
+                </div>
+                
+                <!-- Size Display -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-zinc-400">Size: <span id="previewSize">1280x720</span></span>
+                </div>
+            </div>
+            
+            <!-- Preview Container -->
+            <div id="previewContainer" class="transition-colors duration-300">
+                <!-- YouTube Dummy Container -->
+                <div id="youtubeDummy" class="mx-auto max-w-4xl">
+                    <!-- YouTube Header -->
+                    <div class="mb-4 p-3 rounded-lg transition-colors duration-300" id="youtubeHeader">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
+                                    <i class="ph ph-play-fill text-white"></i>
+                                </div>
+                                <span class="font-bold text-lg">YouTube</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <i class="ph ph-magnifying-glass text-xl"></i>
+                                <i class="ph ph-bell text-xl"></i>
+                                <div class="w-8 h-8 bg-zinc-600 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Preview -->
+                    <div class="relative mx-auto" style="max-width: 800px;">
+                        <canvas id="modalPreviewCanvas" width="1280" height="720" class="w-full rounded-lg shadow-lg"></canvas>
+                        
+                        <!-- YouTube Video Overlay -->
+                        <div id="videoOverlay" class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black bg-opacity-30 rounded-lg">
+                            <div class="bg-black bg-opacity-75 rounded-full p-4">
+                                <i class="ph ph-play-fill text-white text-4xl"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Video Duration -->
+                        <div class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">
+                            10:23
+                        </div>
+                    </div>
+                    
+                    <!-- Video Info -->
+                    <div id="videoInfo" class="mt-4 p-4 rounded-lg transition-colors duration-300">
+                        <h4 class="font-semibold text-lg mb-2" id="videoTitle">Your Video Title Here</h4>
+                        <div class="flex items-center space-x-4 text-sm" id="videoMeta">
+                            <span>1.2M views</span>
+                            <span>•</span>
+                            <span>2 days ago</span>
+                        </div>
+                        <div class="flex items-center mt-3">
+                            <div class="w-10 h-10 bg-zinc-600 rounded-full mr-3"></div>
+                            <div>
+                                <div class="font-medium">Your Channel Name</div>
+                                <div class="text-sm text-zinc-400">1.5M subscribers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Simple Preview (when YouTube dummy is disabled) -->
+                <div id="simplePreview" class="hidden text-center">
+                    <canvas id="simplePreviewCanvas" width="1280" height="720" class="mx-auto rounded-lg shadow-lg" style="max-width: 800px;"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -428,7 +558,6 @@
                         const canvas = document.getElementById('thumbnailCanvas');
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        updatePreviews();
                     };
                     img.src = thumbnailDataUrl;
                 }
@@ -448,7 +577,21 @@
             }
             
             const suggestionsDiv = document.getElementById('titleSuggestions');
-            suggestionsDiv.innerHTML = '<p class="text-sm text-zinc-400">Generating...</p>';
+            suggestionsDiv.innerHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="text-center">
+                        <div class="mb-4">
+                            <i class="ph ph-sparkle text-4xl text-red-500 ai-loading-sparkle"></i>
+                        </div>
+                        <div class="text-sm text-zinc-300 font-medium mb-2">Crafting killer titles...</div>
+                        <div class="typing-animation flex items-center justify-center space-x-1">
+                            <div class="dot w-2 h-2 bg-red-500 rounded-full"></div>
+                            <div class="dot w-2 h-2 bg-red-500 rounded-full"></div>
+                            <div class="dot w-2 h-2 bg-red-500 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
             
             try {
                 const res = await fetch('/api/generate/title', {
@@ -466,7 +609,12 @@
                     </div>
                 `).join('');
             } catch (error) {
-                suggestionsDiv.innerHTML = '<p class="text-sm text-red-400">Error generating titles</p>';
+                suggestionsDiv.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="ph ph-warning text-2xl text-red-400 mb-2"></i>
+                        <p class="text-sm text-red-400">Error generating titles</p>
+                    </div>
+                `;
                 console.error('Error:', error);
             }
         }
@@ -486,7 +634,21 @@
             }
             
             const suggestionDiv = document.getElementById('descriptionSuggestion');
-            suggestionDiv.innerHTML = '<p class="text-sm text-zinc-400">Generating...</p>';
+            suggestionDiv.innerHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="text-center">
+                        <div class="mb-4">
+                            <i class="ph ph-article text-4xl text-red-500 ai-loading-brain"></i>
+                        </div>
+                        <div class="text-sm text-zinc-300 font-medium mb-2">Writing compelling description...</div>
+                        <div class="flex items-center justify-center space-x-2">
+                            <div class="w-8 h-1 bg-red-500 rounded animate-pulse"></div>
+                            <div class="w-4 h-1 bg-red-400 rounded animate-pulse" style="animation-delay: 0.2s"></div>
+                            <div class="w-6 h-1 bg-red-300 rounded animate-pulse" style="animation-delay: 0.4s"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
             
             try {
                 const res = await fetch('/api/generate/description', {
@@ -507,7 +669,12 @@
                     </div>
                 `;
             } catch (error) {
-                suggestionDiv.innerHTML = '<p class="text-sm text-red-400">Error generating description</p>';
+                suggestionDiv.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="ph ph-warning text-2xl text-red-400 mb-2"></i>
+                        <p class="text-sm text-red-400">Error generating description</p>
+                    </div>
+                `;
                 console.error('Error:', error);
             }
         }
@@ -521,7 +688,16 @@
             }
             
             const suggestionsDiv = document.getElementById('thumbnailTextSuggestions');
-            suggestionsDiv.innerHTML = '<p class="text-xs text-zinc-400">Generating...</p>';
+            suggestionsDiv.innerHTML = `
+                <div class="flex items-center justify-center py-4">
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <i class="ph ph-lightbulb text-2xl text-yellow-500 ai-loading-sparkle"></i>
+                        </div>
+                        <div class="text-xs text-zinc-300 font-medium">Generating catchy text...</div>
+                    </div>
+                </div>
+            `;
             
             try {
                 const res = await fetch('/api/generate/thumbnail-text', {
@@ -539,7 +715,12 @@
                     </button>
                 `).join('');
             } catch (error) {
-                suggestionsDiv.innerHTML = '<p class="text-xs text-red-400">Error generating suggestions</p>';
+                suggestionsDiv.innerHTML = `
+                    <div class="text-center py-2">
+                        <i class="ph ph-warning text-lg text-red-400 mb-1"></i>
+                        <p class="text-xs text-red-400">Error generating suggestions</p>
+                    </div>
+                `;
                 console.error('Error:', error);
             }
         }
@@ -649,20 +830,118 @@
             }
             
             thumbnailDataUrl = canvas.toDataURL();
-            updatePreviews();
         }
 
-        function updatePreviews() {
+        // Thumbnail Preview Modal State
+        let previewTheme = 'dark';
+        let showYoutubeDummy = true;
+        
+        function showThumbnailPreviewModal() {
+            const modal = document.getElementById('thumbnailPreviewModal');
+            updateModalPreview();
+            updatePreviewTheme();
+            updateYoutubeDummyVisibility();
+            modal.classList.remove('hidden');
+        }
+        
+        function closeThumbnailPreviewModal() {
+            document.getElementById('thumbnailPreviewModal').classList.add('hidden');
+        }
+        
+        function togglePreviewTheme() {
+            previewTheme = previewTheme === 'dark' ? 'light' : 'dark';
+            updatePreviewTheme();
+            updateModalPreview();
+        }
+        
+        function toggleYoutubeDummy() {
+            showYoutubeDummy = !showYoutubeDummy;
+            updateYoutubeDummyVisibility();
+        }
+        
+        function updatePreviewTheme() {
+            const container = document.getElementById('previewContainer');
+            const header = document.getElementById('youtubeHeader');
+            const videoInfo = document.getElementById('videoInfo');
+            const videoMeta = document.getElementById('videoMeta');
+            const themeButton = document.getElementById('themeToggle');
+            const themeText = document.getElementById('themeText');
+            const themeIcon = themeButton.querySelector('i');
+            
+            if (previewTheme === 'light') {
+                container.style.backgroundColor = '#ffffff';
+                container.style.color = '#000000';
+                header.style.backgroundColor = '#ffffff';
+                header.style.color = '#000000';
+                videoInfo.style.backgroundColor = '#ffffff';
+                videoInfo.style.color = '#000000';
+                videoMeta.style.color = '#666666';
+                themeText.textContent = 'Light';
+                themeIcon.className = 'ph ph-sun mr-1';
+            } else {
+                container.style.backgroundColor = '#0f0f0f';
+                container.style.color = '#ffffff';
+                header.style.backgroundColor = '#0f0f0f';
+                header.style.color = '#ffffff';
+                videoInfo.style.backgroundColor = '#0f0f0f';
+                videoInfo.style.color = '#ffffff';
+                videoMeta.style.color = '#aaaaaa';
+                themeText.textContent = 'Dark';
+                themeIcon.className = 'ph ph-moon mr-1';
+            }
+        }
+        
+        function updateYoutubeDummyVisibility() {
+            const youtubeDummy = document.getElementById('youtubeDummy');
+            const simplePreview = document.getElementById('simplePreview');
+            const youtubeToggle = document.getElementById('youtubeToggle');
+            const youtubeText = document.getElementById('youtubeText');
+            const youtubeIcon = youtubeToggle.querySelector('i');
+            
+            if (showYoutubeDummy) {
+                youtubeDummy.classList.remove('hidden');
+                simplePreview.classList.add('hidden');
+                youtubeText.textContent = 'Enabled';
+                youtubeIcon.className = 'ph ph-eye mr-1';
+                youtubeToggle.classList.remove('bg-zinc-600');
+                youtubeToggle.classList.add('bg-red-600', 'hover:bg-red-700');
+            } else {
+                youtubeDummy.classList.add('hidden');
+                simplePreview.classList.remove('hidden');
+                youtubeText.textContent = 'Disabled';
+                youtubeIcon.className = 'ph ph-eye-slash mr-1';
+                youtubeToggle.classList.remove('bg-red-600', 'hover:bg-red-700');
+                youtubeToggle.classList.add('bg-zinc-600');
+                updateSimplePreview();
+            }
+        }
+        
+        function updateModalPreview() {
             const mainCanvas = document.getElementById('thumbnailCanvas');
-            const lightPreview = document.getElementById('previewLight');
-            const darkPreview = document.getElementById('previewDark');
+            const modalCanvas = document.getElementById('modalPreviewCanvas');
+            const ctx = modalCanvas.getContext('2d');
             
-            const lightCtx = lightPreview.getContext('2d');
-            const darkCtx = darkPreview.getContext('2d');
+            // Update size display
+            document.getElementById('previewSize').textContent = `${mainCanvas.width}x${mainCanvas.height}`;
             
-            // Scale down main canvas to preview size
-            lightCtx.drawImage(mainCanvas, 0, 0, 320, 180);
-            darkCtx.drawImage(mainCanvas, 0, 0, 320, 180);
+            // Copy main canvas to modal canvas
+            ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+            ctx.drawImage(mainCanvas, 0, 0);
+            
+            // Update video title if available
+            const title = document.getElementById('selectedTitle').value;
+            if (title) {
+                document.getElementById('videoTitle').textContent = title;
+            }
+        }
+        
+        function updateSimplePreview() {
+            const mainCanvas = document.getElementById('thumbnailCanvas');
+            const simpleCanvas = document.getElementById('simplePreviewCanvas');
+            const ctx = simpleCanvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, simpleCanvas.width, simpleCanvas.height);
+            ctx.drawImage(mainCanvas, 0, 0);
         }
 
         async function removeBackground() {
@@ -789,8 +1068,9 @@
             
             const btn = document.getElementById('generateEverythingBtn');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i class="ph ph-spinner ph-spin mr-2" style="font-size: 18px;"></i>Generating with AI...';
+            btn.innerHTML = '<i class="ph ph-magic-wand text-lg mr-2 ai-loading-sparkle"></i>Generating Everything...';
             btn.disabled = true;
+            btn.classList.add('ai-loading-pulse');
             
             try {
                 const res = await fetch('/api/generate/everything', {
@@ -856,6 +1136,7 @@
             } finally {
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
+                btn.classList.remove('ai-loading-pulse');
             }
         }
         
