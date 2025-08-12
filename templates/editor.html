@@ -272,11 +272,26 @@
                     
                     <!-- AI Image Generation -->
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">AI Image Generation</label>
+                        <label class="block text-sm font-medium mb-2">AI Image Generation (GPT-image-1)</label>
+                        <div class="mb-2">
+                            <label class="block text-xs font-medium mb-1">Quality</label>
+                            <div class="relative">
+                                <button type="button" id="imageQualityButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('imageQuality')">
+                                    <span id="imageQualityValue">HD (Higher Quality)</span>
+                                    <i class="fas fa-chevron-down text-zinc-400"></i>
+                                </button>
+                                <div id="imageQualityDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                    <div class="py-1">
+                                        <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('imageQuality', 'hd', 'HD (Higher Quality)')">HD (Higher Quality)</div>
+                                        <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('imageQuality', 'standard', 'Standard (Faster)')">Standard (Faster)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <button onclick="showImageConceptsModal()" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
-                            <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with AI
+                            <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with GPT-image-1
                         </button>
-                        <div class="text-xs text-zinc-500 mt-1 text-center">Or upload your own image below</div>
+                        <div class="text-xs text-zinc-500 mt-1 text-center">Latest OpenAI model with superior quality</div>
                     </div>
 
                     <!-- Upload Image -->
@@ -940,14 +955,18 @@
         async function generateImageFromPrompt(prompt, conceptTitle) {
             closeImagePromptModal();
             
+            // Get selected quality
+            const qualityValue = document.getElementById('imageQualityValue').textContent;
+            const quality = qualityValue.includes('HD') ? 'hd' : 'standard';
+            
             // Show loading state
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
             loadingDiv.innerHTML = `
                 <div class="bg-zinc-900 rounded-lg p-6 text-center">
-                    <i class="ph ph-spinner ph-spin text-4xl text-red-500 mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2">Generating Image...</h3>
-                    <p class="text-sm text-zinc-400">This may take 10-30 seconds</p>
+                    <i class="ph ph-spinner ph-spin text-4xl text-purple-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">Generating Image with GPT-image-1...</h3>
+                    <p class="text-sm text-zinc-400">Using ${quality.toUpperCase()} quality • This may take 10-60 seconds</p>
                 </div>
             `;
             document.body.appendChild(loadingDiv);
@@ -956,7 +975,7 @@
                 const res = await fetch('/api/generate/image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ prompt, quality })
                 });
                 
                 const data = await res.json();
@@ -971,7 +990,7 @@
                 img.onload = () => {
                     uploadedImage = img;
                     updateThumbnail();
-                    alert(`Image generated successfully! Concept: ${conceptTitle}`);
+                    alert(`✨ Image generated successfully with GPT-image-1! \n\nConcept: ${conceptTitle}\nQuality: ${quality.toUpperCase()}`);
                 };
                 img.onerror = () => {
                     alert('Error loading generated image');

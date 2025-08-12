@@ -337,20 +337,30 @@ def generate_image_prompt():
     concept = data.get('concept', {})
     topic = data.get('topic', '')
     
-    prompt = f"""Create a DALL-E 3 optimized prompt for a YouTube thumbnail image:
+    prompt = f"""Create a GPT-image-1 optimized prompt for a YouTube thumbnail image:
 
     Topic: {topic}
     Concept: {concept.get('title', '')} - {concept.get('description', '')}
     Style: {concept.get('style', 'photography')}
     
     Requirements:
-    - 16:9 aspect ratio suitable for YouTube thumbnail
-    - High contrast and vibrant colors
-    - Eye-catching and click-worthy
-    - Professional quality
-    - Clear focal point
+    - 16:9 aspect ratio YouTube thumbnail (1792x1024)
+    - Ultra high-quality, professional cinematography
+    - Dynamic composition with strong visual hierarchy
+    - Bold, saturated colors that pop on screen
+    - Dramatic lighting and shadows for depth
+    - Clear focal point with engaging visual storytelling
+    - Modern, trending aesthetic suitable for social media
+    - Include specific text placement areas if needed
+    - Photorealistic quality with crisp details
     
-    Return JSON: {{"prompt": "detailed DALL-E prompt", "style_notes": "additional styling guidance"}}"""
+    Leverage GPT-image-1's advanced capabilities:
+    - Superior text rendering if text is needed
+    - Enhanced prompt following accuracy
+    - Rich contextual understanding
+    - Vivid, cinematic style generation
+    
+    Return JSON: {{"prompt": "detailed GPT-image-1 prompt", "style_notes": "quality and composition guidance"}}"""
     
     try:
         response = client.chat.completions.create(
@@ -371,31 +381,55 @@ def generate_image_prompt():
 def generate_image():
     data = request.json
     prompt = data.get('prompt', '')
+    quality = data.get('quality', 'standard')  # standard, hd
     
     if not prompt:
         return jsonify({'error': 'No prompt provided'}), 400
     
     try:
+        # Use the latest GPT-image-1 model (GPT-4o multimodal)
         response = client.images.generate(
-            model="dall-e-3",
+            model="gpt-image-1",
             prompt=prompt,
             size="1792x1024",  # 16:9 aspect ratio for YouTube thumbnails
-            quality="standard",
+            quality=quality,   # standard or hd
+            style="vivid",     # vivid style for more dynamic images
             n=1,
         )
         
-        image_url = response.data[0].url
-        
-        # Download the image and convert to base64 to avoid CORS issues
-        image_response = requests.get(image_url)
-        if image_response.status_code == 200:
-            image_base64 = base64.b64encode(image_response.content).decode('utf-8')
-            return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
+        # GPT-image-1 returns base64 by default
+        if hasattr(response.data[0], 'b64_json') and response.data[0].b64_json:
+            return jsonify({'image_url': f'data:image/png;base64,{response.data[0].b64_json}'})
         else:
-            return jsonify({'image_url': image_url})  # Fallback to direct URL
+            # Fallback to URL if available
+            image_url = response.data[0].url
+            image_response = requests.get(image_url)
+            if image_response.status_code == 200:
+                image_base64 = base64.b64encode(image_response.content).decode('utf-8')
+                return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
+            else:
+                return jsonify({'image_url': image_url})
             
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # Fallback to DALL-E 3 if GPT-image-1 is not available
+        try:
+            response = client.images.generate(
+                model="dall-e-3",
+                prompt=prompt,
+                size="1792x1024",
+                quality=quality,
+                style="vivid",
+                n=1,
+            )
+            image_url = response.data[0].url
+            image_response = requests.get(image_url)
+            if image_response.status_code == 200:
+                image_base64 = base64.b64encode(image_response.content).decode('utf-8')
+                return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
+            else:
+                return jsonify({'image_url': image_url})
+        except Exception as fallback_error:
+            return jsonify({'error': f'Image generation failed: {str(e)}. Fallback error: {str(fallback_error)}'}), 500
 
 @app.route('/api/schedule', methods=['GET', 'POST', 'PUT'])
 def manage_schedule():
