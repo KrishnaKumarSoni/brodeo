@@ -448,6 +448,26 @@
         </div>
     </main>
 
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script>
+        // Inline critical JavaScript to ensure basic functionality works
+        function showView(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`${view}-view`).classList.remove('hidden');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-brodeo-red');
+                if (btn.textContent.toLowerCase() === view) {
+                    btn.classList.add('text-brodeo-red');
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            showView('calendar');
+        });
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}" onerror="console.warn('External JS failed to load, using inline fallback')"></script>
 </body>
 </html>

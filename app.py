@@ -66,6 +66,11 @@ def allowed_file(filename):
 def index():
     return render_template('index.html')
 
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """Serve static files"""
+    return send_from_directory('static', filename)
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     """Serve uploaded files from the upload folder or memory"""
