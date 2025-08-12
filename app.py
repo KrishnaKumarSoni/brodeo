@@ -16,9 +16,36 @@ load_dotenv()
 app = Flask(__name__)
 
 # Initialize Firebase
-cred = credentials.Certificate('brodeo-yt-firebase-adminsdk-fbsvc-cb6d523df0.json')
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+try:
+    # Check if we have Firebase environment variables (production)
+    if os.getenv('FIREBASE_PROJECT_ID'):
+        firebase_config = {
+            "type": "service_account",
+            "project_id": os.getenv('FIREBASE_PROJECT_ID'),
+            "private_key_id": os.getenv('FIREBASE_PRIVATE_KEY_ID'),
+            "private_key": os.getenv('FIREBASE_PRIVATE_KEY').replace('\\n', '\n') if os.getenv('FIREBASE_PRIVATE_KEY') else None,
+            "client_email": os.getenv('FIREBASE_CLIENT_EMAIL'),
+            "client_id": os.getenv('FIREBASE_CLIENT_ID'),
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": os.getenv('FIREBASE_CLIENT_X509_CERT_URL'),
+            "universe_domain": "googleapis.com"
+        }
+        cred = credentials.Certificate(firebase_config)
+    # Try using service account key file (for local development)
+    elif os.path.exists('brodeo-yt-firebase-adminsdk-fbsvc-cb6d523df0.json'):
+        cred = credentials.Certificate('brodeo-yt-firebase-adminsdk-fbsvc-cb6d523df0.json')
+    else:
+        raise Exception("No Firebase credentials found")
+    
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    print("Firebase initialized successfully")
+except Exception as e:
+    print(f"Firebase initialization error: {e}")
+    # Create a mock db for development if Firebase fails
+    db = None
 
 # Initialize OpenAI
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
