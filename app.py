@@ -50,6 +50,9 @@ except Exception as e:
 # Initialize OpenAI
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
+# Simple in-memory store for thumbnails (temporary solution)
+thumbnail_store = {}
+
 # Routes for pages
 @app.route('/')
 def index():
@@ -80,22 +83,50 @@ def settings():
 def manage_ideas():
     if request.method == 'POST':
         data = request.json
+        
+        # Handle assets separately to avoid Firestore size limits
+        assets = data.get('assets', {})
+        thumbnail_id = None
+        if assets and 'thumbnail' in assets and assets['thumbnail']:
+            # Store thumbnail in memory store and keep only reference in Firestore
+            thumbnail_data = assets['thumbnail']
+            if thumbnail_data:
+                import uuid
+                thumbnail_id = str(uuid.uuid4())
+                thumbnail_store[thumbnail_id] = thumbnail_data
+                # Replace thumbnail data with just the ID
+                assets['thumbnail_id'] = thumbnail_id
+                del assets['thumbnail']
+        
         idea = {
             'title': data.get('title', ''),
             'description': data.get('description', ''),
             'tags': data.get('tags', []),
             'priority': data.get('priority', 'medium'),
             'status': data.get('status', 'Idea'),
-            'assets': data.get('assets', {}),
+            'topic': data.get('topic', ''),
+            'audience': data.get('audience', ''),
+            'key_points': data.get('key_points', ''),
+            'assets': assets,
             'schedule_date': data.get('schedule_date'),
             'created_at': firestore.SERVER_TIMESTAMP,
             'updated_at': firestore.SERVER_TIMESTAMP
         }
-        doc_ref = db.collection('ideas').add(idea)
-        # Return only serializable data, not SERVER_TIMESTAMP
-        response_data = {k: v for k, v in idea.items() if k not in ['created_at', 'updated_at']}
-        response_data['id'] = doc_ref[1].id
-        return jsonify(response_data), 201
+        
+        try:
+            doc_ref = db.collection('ideas').add(idea)
+            # Return only serializable data, not SERVER_TIMESTAMP
+            response_data = {k: v for k, v in idea.items() if k not in ['created_at', 'updated_at']}
+            response_data['id'] = doc_ref[1].id
+            return jsonify(response_data), 201
+        except Exception as e:
+            # If still failing, remove assets entirely and try again
+            print(f"Firestore error with assets: {e}")
+            idea_without_assets = {k: v for k, v in idea.items() if k != 'assets'}
+            doc_ref = db.collection('ideas').add(idea_without_assets)
+            response_data = {k: v for k, v in idea_without_assets.items() if k not in ['created_at', 'updated_at']}
+            response_data['id'] = doc_ref[1].id
+            return jsonify(response_data), 201
     
     # GET request
     ideas = []
@@ -103,6 +134,13 @@ def manage_ideas():
     for doc in docs:
         idea = doc.to_dict()
         idea['id'] = doc.id
+        
+        # Restore thumbnail from memory store if available
+        if 'assets' in idea and idea['assets'] and 'thumbnail_id' in idea['assets']:
+            thumbnail_id = idea['assets']['thumbnail_id']
+            if thumbnail_id in thumbnail_store:
+                idea['assets']['thumbnail'] = thumbnail_store[thumbnail_id]
+                
         ideas.append(idea)
     return jsonify(ideas)
 
@@ -115,14 +153,44 @@ def manage_idea(idea_id):
         if doc.exists:
             idea = doc.to_dict()
             idea['id'] = doc.id
+            
+            # Restore thumbnail from memory store if available
+            if 'assets' in idea and idea['assets'] and 'thumbnail_id' in idea['assets']:
+                thumbnail_id = idea['assets']['thumbnail_id']
+                if thumbnail_id in thumbnail_store:
+                    idea['assets']['thumbnail'] = thumbnail_store[thumbnail_id]
+                    
             return jsonify(idea)
         return jsonify({'error': 'Idea not found'}), 404
     
     elif request.method == 'PUT':
         data = request.json
+        
+        # Handle assets separately to avoid Firestore size limits
+        if 'assets' in data:
+            assets = data['assets']
+            if assets and 'thumbnail' in assets and assets['thumbnail']:
+                thumbnail_data = assets['thumbnail']
+                if thumbnail_data:
+                    import uuid
+                    thumbnail_id = str(uuid.uuid4())
+                    thumbnail_store[thumbnail_id] = thumbnail_data
+                    # Replace thumbnail data with just the ID
+                    assets['thumbnail_id'] = thumbnail_id
+                    del assets['thumbnail']
+        
         data['updated_at'] = firestore.SERVER_TIMESTAMP
-        doc_ref.update(data)
-        return jsonify({'message': 'Idea updated successfully'})
+        
+        try:
+            doc_ref.update(data)
+            return jsonify({'message': 'Idea updated successfully'})
+        except Exception as e:
+            # If still failing, remove assets and try again
+            print(f"Firestore update error with assets: {e}")
+            if 'assets' in data:
+                del data['assets']
+            doc_ref.update(data)
+            return jsonify({'message': 'Idea updated successfully (without assets)'})
     
     elif request.method == 'DELETE':
         doc_ref.delete()
