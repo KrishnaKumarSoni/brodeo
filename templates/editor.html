@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Mohave:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, h5, h6 { font-family: 'Mohave', sans-serif; }
@@ -64,9 +65,29 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Left Panel - Input & AI Generation -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Basic Info -->
+                <!-- AI-Powered Quick Input -->
                 <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
-                    <h2 class="text-xl font-semibold mb-4 mohave text-red-500">Video Details</h2>
+                    <h2 class="text-xl font-semibold mb-4 mohave text-red-500">AI-Powered Video Creator</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Describe Your Video Idea</label>
+                            <textarea id="freeTextIdea" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-red-500" rows="4" placeholder="Just describe your video idea in plain English. AI will extract all the details automatically...&#10;&#10;Example: 'I want to make a video about time management techniques for remote workers who are overwhelmed by their daily tasks and need practical solutions to boost productivity'"></textarea>
+                        </div>
+                        
+                        <button onclick="generateEverything()" id="generateEverythingBtn" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg font-medium transition flex items-center justify-center">
+                            <i class="ph ph-magic-wand mr-2" style="font-size: 18px;"></i>
+                            Generate Everything with AI
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Manual Details (Auto-populated by AI, but editable) -->
+                <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold mohave text-red-500">Video Details</h2>
+                        <span class="text-xs text-zinc-500">Auto-generated, but fully editable</span>
+                    </div>
                     
                     <div class="space-y-4">
                         <div>
@@ -133,8 +154,8 @@
                 <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold mohave">AI Title Generator</h3>
-                        <button onclick="generateTitles()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
-                            <i class="fas fa-magic mr-2"></i>Generate
+                        <button onclick="generateTitles()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg transition flex items-center" title="Generate Titles">
+                            <i class="ph ph-sparkle" style="font-size: 18px;"></i>
                         </button>
                     </div>
                     
@@ -152,8 +173,8 @@
                 <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold mohave">AI Description Generator</h3>
-                        <button onclick="generateDescription()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
-                            <i class="fas fa-magic mr-2"></i>Generate
+                        <button onclick="generateDescription()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg transition flex items-center" title="Generate Description">
+                            <i class="ph ph-article" style="font-size: 18px;"></i>
                         </button>
                     </div>
                     
@@ -208,8 +229,8 @@
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Thumbnail Text</label>
                         <input type="text" id="thumbnailText" onkeyup="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mb-2" placeholder="Enter text...">
-                        <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition">
-                            <i class="fas fa-magic mr-1"></i>AI Suggestions
+                        <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="AI Text Suggestions">
+                            <i class="ph ph-lightbulb mr-1" style="font-size: 14px;"></i>AI Suggestions
                         </button>
                         <div id="thumbnailTextSuggestions" class="mt-2 space-y-1"></div>
                     </div>
@@ -249,12 +270,21 @@
                         </div>
                     </div>
                     
+                    <!-- AI Image Generation -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">AI Image Generation</label>
+                        <button onclick="showImageConceptsModal()" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
+                            <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with AI
+                        </button>
+                        <div class="text-xs text-zinc-500 mt-1 text-center">Or upload your own image below</div>
+                    </div>
+
                     <!-- Upload Image -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">Upload Image</label>
                         <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs">
-                        <button onclick="removeBackground()" class="w-full mt-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition">
-                            <i class="fas fa-eraser mr-1"></i>Remove Background
+                        <button onclick="removeBackground()" class="w-full mt-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Remove Background">
+                            <i class="ph ph-eraser mr-1" style="font-size: 14px;"></i>Remove Background
                         </button>
                     </div>
                     
@@ -286,19 +316,49 @@
                     
                     <!-- Actions -->
                     <div class="flex gap-2">
-                        <button onclick="saveThumbnail()" class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition">
-                            <i class="fas fa-save mr-2"></i>Save
+                        <button onclick="saveThumbnail()" class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition flex items-center justify-center" title="Save Thumbnail">
+                            <i class="ph ph-floppy-disk" style="font-size: 16px;"></i>
                         </button>
-                        <button onclick="downloadThumbnail()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
-                            <i class="fas fa-download mr-2"></i>Download
+                        <button onclick="downloadThumbnail()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition flex items-center justify-center" title="Download Thumbnail">
+                            <i class="ph ph-download" style="font-size: 16px;"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Save Idea Button -->
-                <button onclick="saveIdea()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition">
-                    <i class="fas fa-save mr-2"></i>Save Video Idea
+                <button onclick="saveIdea()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                    <i class="ph ph-check-circle mr-2" style="font-size: 18px;"></i>Save Video Idea
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Concepts Modal -->
+    <div id="imageConceptsModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold mohave">AI Image Concepts</h3>
+                <button onclick="closeImageConceptsModal()" class="text-zinc-400 hover:text-white">
+                    <i class="ph ph-x" style="font-size: 20px;"></i>
+                </button>
+            </div>
+            <div id="imageConceptsList" class="space-y-4">
+                <!-- Concepts will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Prompt Modal -->
+    <div id="imagePromptModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 rounded-lg p-6 max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold mohave">Review Image Prompt</h3>
+                <button onclick="closeImagePromptModal()" class="text-zinc-400 hover:text-white">
+                    <i class="ph ph-x" style="font-size: 20px;"></i>
+                </button>
+            </div>
+            <div id="imagePromptContent" class="space-y-4">
+                <!-- Prompt content will be loaded here -->
             </div>
         </div>
     </div>
@@ -703,6 +763,230 @@
             }
         });
         
+        // New AI-powered workflow functions
+        async function generateEverything() {
+            const freeTextIdea = document.getElementById('freeTextIdea').value.trim();
+            
+            if (!freeTextIdea) {
+                alert('Please describe your video idea first');
+                return;
+            }
+            
+            const btn = document.getElementById('generateEverythingBtn');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="ph ph-spinner ph-spin mr-2" style="font-size: 18px;"></i>Generating with AI...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/generate/everything', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idea: freeTextIdea })
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                
+                // Populate all the fields
+                document.getElementById('topic').value = data.topic || '';
+                document.getElementById('audience').value = data.audience || '';
+                document.getElementById('keyPoints').value = data.key_points || '';
+                document.getElementById('tags').value = (data.tags || []).join(', ');
+                
+                // Update priority dropdown
+                const priority = data.priority || 'medium';
+                document.getElementById('priorityValue').textContent = priority.charAt(0).toUpperCase() + priority.slice(1);
+                
+                // Display generated titles
+                if (data.titles && data.titles.length > 0) {
+                    const suggestionsDiv = document.getElementById('titleSuggestions');
+                    suggestionsDiv.innerHTML = data.titles.map(title => `
+                        <div class="p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 cursor-pointer transition" onclick="selectTitle('${title.replace(/'/g, "\\'")}')">
+                            <p class="text-sm">${title}</p>
+                        </div>
+                    `).join('');
+                    
+                    // Auto-select first title
+                    document.getElementById('selectedTitle').value = data.titles[0];
+                }
+                
+                // Display generated description
+                if (data.full || data.preview) {
+                    const description = data.full || data.preview;
+                    document.getElementById('selectedDescription').value = description;
+                    
+                    const suggestionDiv = document.getElementById('descriptionSuggestion');
+                    suggestionDiv.innerHTML = `
+                        <div class="p-3 bg-zinc-800 rounded-lg">
+                            <p class="text-sm">${data.preview || description.substring(0, 200)}</p>
+                        </div>
+                    `;
+                }
+                
+                // Store concepts for image generation
+                if (data.concepts) {
+                    window.currentImageConcepts = data.concepts;
+                    window.currentTopic = data.topic;
+                }
+                
+                alert('All content generated successfully! Review and edit as needed.');
+                
+            } catch (error) {
+                alert('Error generating content: ' + error.message);
+                console.error('Error:', error);
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+        
+        async function showImageConceptsModal() {
+            if (!window.currentImageConcepts) {
+                alert('Please generate content first using the AI-powered generator above');
+                return;
+            }
+            
+            const modal = document.getElementById('imageConceptsModal');
+            const conceptsList = document.getElementById('imageConceptsList');
+            
+            conceptsList.innerHTML = window.currentImageConcepts.map((concept, index) => `
+                <div class="bg-zinc-800 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-lg font-semibold">${concept.title}</h4>
+                        <span class="text-xs px-2 py-1 bg-zinc-700 rounded">${concept.style}</span>
+                    </div>
+                    <p class="text-sm text-zinc-300 mb-4">${concept.description}</p>
+                    <button onclick="selectImageConcept(${index})" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-sm transition flex items-center">
+                        <i class="ph ph-arrow-right mr-2"></i>Generate This Image
+                    </button>
+                </div>
+            `).join('');
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeImageConceptsModal() {
+            document.getElementById('imageConceptsModal').classList.add('hidden');
+        }
+        
+        async function selectImageConcept(index) {
+            const concept = window.currentImageConcepts[index];
+            
+            try {
+                // Generate DALL-E prompt
+                const promptRes = await fetch('/api/generate/image-prompt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ concept, topic: window.currentTopic })
+                });
+                
+                const promptData = await promptRes.json();
+                
+                if (promptData.error) {
+                    alert('Error generating prompt: ' + promptData.error);
+                    return;
+                }
+                
+                // Show prompt review modal
+                showImagePromptModal(promptData.prompt, concept);
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error('Error:', error);
+            }
+        }
+        
+        function showImagePromptModal(prompt, concept) {
+            const modal = document.getElementById('imagePromptModal');
+            const content = document.getElementById('imagePromptContent');
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-sm font-semibold mb-2">Selected Concept:</h4>
+                        <p class="text-sm text-zinc-300">${concept.title} - ${concept.description}</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-semibold mb-2">Generated Prompt:</h4>
+                        <div class="bg-zinc-800 rounded-lg p-3">
+                            <p class="text-sm text-zinc-200">${prompt}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="generateImageFromPrompt('${prompt.replace(/'/g, "\\'")}', '${concept.title.replace(/'/g, "\\'")}' )" class="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm transition flex items-center justify-center">
+                            <i class="ph ph-check mr-2"></i>Generate Image
+                        </button>
+                        <button onclick="closeImagePromptModal()" class="flex-1 bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded-lg text-sm transition">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            closeImageConceptsModal();
+            modal.classList.remove('hidden');
+        }
+        
+        function closeImagePromptModal() {
+            document.getElementById('imagePromptModal').classList.add('hidden');
+        }
+        
+        async function generateImageFromPrompt(prompt, conceptTitle) {
+            closeImagePromptModal();
+            
+            // Show loading state
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
+            loadingDiv.innerHTML = `
+                <div class="bg-zinc-900 rounded-lg p-6 text-center">
+                    <i class="ph ph-spinner ph-spin text-4xl text-red-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">Generating Image...</h3>
+                    <p class="text-sm text-zinc-400">This may take 10-30 seconds</p>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+            
+            try {
+                const res = await fetch('/api/generate/image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    alert('Error generating image: ' + data.error);
+                    return;
+                }
+                
+                // Load generated image into canvas
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    uploadedImage = img;
+                    updateThumbnail();
+                    alert(`Image generated successfully! Concept: ${conceptTitle}`);
+                };
+                img.onerror = () => {
+                    alert('Error loading generated image');
+                };
+                img.src = data.image_url;
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error('Error:', error);
+            } finally {
+                document.body.removeChild(loadingDiv);
+            }
+        }
+
         // Initialize
         setAspectRatio('16:9');
         updateThumbnail();

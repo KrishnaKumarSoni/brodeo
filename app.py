@@ -92,7 +92,10 @@ def manage_ideas():
             'updated_at': firestore.SERVER_TIMESTAMP
         }
         doc_ref = db.collection('ideas').add(idea)
-        return jsonify({'id': doc_ref[1].id, **idea}), 201
+        # Return only serializable data, not SERVER_TIMESTAMP
+        response_data = {k: v for k, v in idea.items() if k not in ['created_at', 'updated_at']}
+        response_data['id'] = doc_ref[1].id
+        return jsonify(response_data), 201
     
     # GET request
     ideas = []
@@ -213,6 +216,176 @@ def generate_thumbnail_text():
         
         result = json.loads(response.choices[0].message.content)
         return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/generate/everything', methods=['POST'])
+def generate_everything():
+    data = request.json
+    free_text_idea = data.get('idea', '')
+    
+    if not free_text_idea:
+        return jsonify({'error': 'No idea provided'}), 400
+    
+    # First, extract structured data from free text
+    structure_prompt = f"""Analyze this YouTube video idea and extract structured information:
+
+    Idea: "{free_text_idea}"
+
+    Extract and return JSON with:
+    {{
+        "topic": "clear topic (max 50 chars)",
+        "audience": "target audience (max 50 chars)", 
+        "key_points": "main points to cover (max 200 chars)",
+        "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+        "priority": "high|medium|low",
+        "estimated_length": "short|medium|long"
+    }}"""
+    
+    try:
+        # Step 1: Extract structure
+        structure_response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a YouTube content strategist. Extract structured data from video ideas."},
+                {"role": "user", "content": structure_prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        
+        structure_data = json.loads(structure_response.choices[0].message.content)
+        
+        # Step 2: Generate titles
+        title_prompt = f"""Generate 5 YouTube video titles for:
+        Topic: {structure_data.get('topic', '')}
+        Audience: {structure_data.get('audience', '')}
+        Key Points: {structure_data.get('key_points', '')}
+        
+        Make them catchy, SEO-optimized, and under 60 characters each.
+        Return as JSON: {{"titles": ["title1", "title2", ...]}}"""
+        
+        titles_response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a YouTube title optimization expert."},
+                {"role": "user", "content": title_prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        
+        titles_data = json.loads(titles_response.choices[0].message.content)
+        
+        # Step 3: Generate descriptions
+        desc_prompt = f"""Generate a YouTube video description for:
+        Topic: {structure_data.get('topic', '')}
+        Audience: {structure_data.get('audience', '')}
+        Key Points: {structure_data.get('key_points', '')}
+        
+        Include: hook, main content overview, timestamps placeholder, call-to-action, and relevant hashtags.
+        Return as JSON: {{"preview": "first 125 chars", "full": "complete description"}}"""
+        
+        desc_response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a YouTube description optimization expert."},
+                {"role": "user", "content": desc_prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        
+        desc_data = json.loads(desc_response.choices[0].message.content)
+        
+        # Step 4: Generate image concepts
+        image_concepts_prompt = f"""Generate 3 thumbnail image concepts for this YouTube video:
+        Topic: {structure_data.get('topic', '')}
+        Audience: {structure_data.get('audience', '')}
+        
+        Each concept should be visually compelling and click-worthy.
+        Return as JSON: {{"concepts": [
+            {{"title": "Concept Name", "description": "Visual description", "style": "photography|illustration|graphic"}},
+            ...
+        ]}}"""
+        
+        concepts_response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a YouTube thumbnail design expert."},
+                {"role": "user", "content": image_concepts_prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        
+        concepts_data = json.loads(concepts_response.choices[0].message.content)
+        
+        # Combine all results
+        result = {
+            **structure_data,
+            **titles_data,
+            **desc_data,
+            **concepts_data,
+            "original_idea": free_text_idea
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/generate/image-prompt', methods=['POST'])
+def generate_image_prompt():
+    data = request.json
+    concept = data.get('concept', {})
+    topic = data.get('topic', '')
+    
+    prompt = f"""Create a DALL-E 3 optimized prompt for a YouTube thumbnail image:
+
+    Topic: {topic}
+    Concept: {concept.get('title', '')} - {concept.get('description', '')}
+    Style: {concept.get('style', 'photography')}
+    
+    Requirements:
+    - 16:9 aspect ratio suitable for YouTube thumbnail
+    - High contrast and vibrant colors
+    - Eye-catching and click-worthy
+    - Professional quality
+    - Clear focal point
+    
+    Return JSON: {{"prompt": "detailed DALL-E prompt", "style_notes": "additional styling guidance"}}"""
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert at creating DALL-E prompts for YouTube thumbnails."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        
+        result = json.loads(response.choices[0].message.content)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/generate/image', methods=['POST'])
+def generate_image():
+    data = request.json
+    prompt = data.get('prompt', '')
+    
+    if not prompt:
+        return jsonify({'error': 'No prompt provided'}), 400
+    
+    try:
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1792x1024",  # 16:9 aspect ratio for YouTube thumbnails
+            quality="standard",
+            n=1,
+        )
+        
+        image_url = response.data[0].url
+        return jsonify({'image_url': image_url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
