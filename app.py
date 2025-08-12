@@ -12,12 +12,20 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+# Use /tmp for uploads in production (Vercel), local folder for development
+if os.environ.get('VERCEL'):
+    app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
+else:
+    app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 CORS(app)
 
-# Create upload folder if it doesn't exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Create upload folder if it doesn't exist (only if not on Vercel or using /tmp)
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+except OSError:
+    # If we can't create the directory (e.g., on Vercel), use /tmp
+    app.config['UPLOAD_FOLDER'] = '/tmp'
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
@@ -25,6 +33,8 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # In-memory storage (will be replaced with Firebase)
 videos = []
+# Store uploaded file data in memory for Vercel
+uploaded_files = {}  # filename -> file_data
 settings = {
     'channel_name': '',
     'channel_description': '',
@@ -55,6 +65,25 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Serve uploaded files from the upload folder or memory"""
+    # First check if file is in memory (for Vercel)
+    if filename in uploaded_files:
+        import io
+        from flask import send_file
+        return send_file(
+            io.BytesIO(uploaded_files[filename]['data']),
+            mimetype=uploaded_files[filename]['mimetype'],
+            as_attachment=False,
+            download_name=filename
+        )
+    # Otherwise try to serve from disk
+    try:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    except:
+        return jsonify({'error': 'File not found'}), 404
 
 @app.route('/api/videos', methods=['GET', 'POST'])
 def handle_videos():
@@ -234,14 +263,29 @@ def handle_reference_faces():
             filename = secure_filename(file.filename)
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = f"{timestamp}_{filename}"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
+            
+            # Read file data into memory
+            file_data = file.read()
+            file.seek(0)  # Reset file pointer
+            
+            # Store in memory for Vercel
+            uploaded_files[filename] = {
+                'data': file_data,
+                'mimetype': file.mimetype or 'image/jpeg'
+            }
+            
+            # Also try to save to disk if possible (for local development)
+            try:
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+            except:
+                pass  # Ignore if we can't save to disk (e.g., on Vercel)
             
             # Add to settings
             settings['reference_faces'].append({
                 'name': name,
                 'filename': filename,
-                'url': f"/static/uploads/{filename}"
+                'url': f"/uploads/{filename}"  # Changed to use our custom route
             })
             
             return jsonify({'message': 'Face uploaded successfully', 'filename': filename}), 201
@@ -252,10 +296,17 @@ def handle_reference_faces():
         filename = request.json.get('filename')
         settings['reference_faces'] = [f for f in settings['reference_faces'] if f['filename'] != filename]
         
-        # Delete file from disk
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        # Delete from memory
+        if filename in uploaded_files:
+            del uploaded_files[filename]
+        
+        # Try to delete file from disk (if it exists)
+        try:
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.exists(filepath):
+                os.remove(filepath)
+        except:
+            pass  # Ignore if we can't delete from disk
         
         return jsonify({'message': 'Face deleted successfully'}), 200
 
