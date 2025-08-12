@@ -4,7 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brodeo - YouTube Planning Studio</title>
-    <link href="/static/output.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='output.css') }}" rel="stylesheet">
+    <!-- Fallback CDN CSS for Tailwind basics -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'brodeo-red': '#DC2626',
+                        'brodeo-black': '#000000',
+                    },
+                    fontFamily: {
+                        'mohave': ['Mohave', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -429,6 +448,6 @@
         </div>
     </main>
 
-    <script src="/static/app.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
