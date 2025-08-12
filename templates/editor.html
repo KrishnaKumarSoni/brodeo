@@ -968,7 +968,6 @@
                 
                 // Load generated image into canvas
                 const img = new Image();
-                img.crossOrigin = 'anonymous';
                 img.onload = () => {
                     uploadedImage = img;
                     updateThumbnail();

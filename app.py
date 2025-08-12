@@ -385,7 +385,15 @@ def generate_image():
         )
         
         image_url = response.data[0].url
-        return jsonify({'image_url': image_url})
+        
+        # Download the image and convert to base64 to avoid CORS issues
+        image_response = requests.get(image_url)
+        if image_response.status_code == 200:
+            image_base64 = base64.b64encode(image_response.content).decode('utf-8')
+            return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
+        else:
+            return jsonify({'image_url': image_url})  # Fallback to direct URL
+            
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
