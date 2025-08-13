@@ -232,173 +232,168 @@
                 </div>
             </div>
 
-            <!-- Thumbnail Studio - Integrated -->
-            <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden mt-6">
-                <!-- Thumbnail Studio Header -->
-                <div class="bg-zinc-800 px-6 py-3 border-b border-zinc-700 flex items-center justify-between cursor-pointer" onclick="toggleThumbnailStudio()">
-                    <div class="flex items-center space-x-3">
-                        <i class="ph ph-image text-xl text-red-500"></i>
-                        <h3 class="text-lg font-semibold mohave text-red-500">Advanced Thumbnail Studio</h3>
-                        <span class="text-xs bg-red-600 px-2 py-1 rounded-full">NEW</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm text-zinc-400" id="thumbnailStudioStatus">Click to expand</span>
-                        <i class="ph ph-caret-down text-zinc-400 transition-transform" id="thumbnailStudioCaret"></i>
-                    </div>
-                </div>
-                
-                <!-- Thumbnail Studio Content -->
-                <div id="thumbnailStudioContent" class="hidden">
-                    <div class="px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <!-- Left Controls -->
-                        <div class="lg:col-span-3 space-y-4">
-                            <!-- Aspect Ratio -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Aspect Ratio</label>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button onclick="setAspectRatio('16:9')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="16:9">16:9</button>
-                                    <button onclick="setAspectRatio('4:3')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="4:3">4:3</button>
-                                    <button onclick="setAspectRatio('1:1')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="1:1">1:1</button>
-                                    <button onclick="setAspectRatio('9:16')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="9:16">9:16</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Template -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Template</label>
-                                <div class="relative">
-                                    <button type="button" id="thumbnailTemplateButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('thumbnailTemplate')">
-                                        <span id="thumbnailTemplateValue">Text Over Image</span>
-                                        <i class="fas fa-chevron-down text-zinc-400"></i>
-                                    </button>
-                                    <div id="thumbnailTemplateDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
-                                        <div class="py-1">
-                                            <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-only', 'Text Only')">Text Only</div>
-                                            <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-over-image', 'Text Over Image')">Text Over Image</div>
-                                            <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-behind-subject', 'Text Behind Subject')">Text Behind Subject</div>
-                                            <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('image-only', 'Image Only')">Image Only</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Text Options -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Thumbnail Text</label>
-                                <input type="text" id="thumbnailText" onkeyup="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mb-2" placeholder="Enter text...">
-                                <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="AI Text Suggestions">
-                                    <i class="ph ph-lightbulb mr-1" style="font-size: 14px;"></i>AI Suggestions
-                                </button>
-                                <div id="thumbnailTextSuggestions" class="mt-2 space-y-1"></div>
-                            </div>
-                            
-                            <!-- Font Selection -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Font</label>
-                                <div class="relative">
-                                    <input type="text" id="fontSearch" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm" placeholder="Search Google Fonts..." onkeyup="searchFonts(this.value)">
-                                    <div id="fontResults" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
-                                        <!-- Font search results will appear here -->
-                                    </div>
-                                </div>
-                                <div class="text-xs text-zinc-500 mt-1">Type to search 1000+ Google Fonts</div>
-                            </div>
-                            
-                            <!-- Color Options -->
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-xs font-medium mb-1">Text Color</label>
-                                    <input type="color" id="textColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#FFFFFF">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium mb-1">Background</label>
-                                    <input type="color" id="bgColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#DC2626">
-                                </div>
-                            </div>
-                            
-                        </div>
-                        
-                        <!-- Center Canvas -->
-                        <div class="lg:col-span-6 flex flex-col items-center space-y-4">
-                            <div class="relative">
-                                <canvas id="thumbnailCanvas" width="1280" height="720" class="rounded-lg bg-zinc-800 shadow-lg cursor-crosshair" style="max-width: 600px; width: 100%;"></canvas>
-                                <div id="textPositionIndicator" class="absolute pointer-events-none hidden">
-                                    <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                                </div>
-                            </div>
-                            
-                            <!-- Canvas Instructions -->
-                            <div class="text-center text-sm text-zinc-400 max-w-md">
-                                <p>Click and drag to position text anywhere on the thumbnail. Your text position will be saved automatically.</p>
-                            </div>
-                            
-                            <!-- Quick Actions -->
-                            <div class="flex gap-3">
-                                <button onclick="showThumbnailPreviewModal()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition flex items-center">
-                                    <i class="ph ph-eye mr-2" style="font-size: 16px;"></i>Preview
-                                </button>
-                                <button onclick="downloadThumbnail()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition flex items-center">
-                                    <i class="ph ph-download mr-2" style="font-size: 16px;"></i>Download
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Right AI Tools -->
-                        <div class="lg:col-span-3 space-y-4">
-                            <!-- AI Image Generation -->
-                            <div>
-                                <label class="block text-sm font-medium mb-2">AI Image Generation</label>
-                                <div class="mb-2">
-                                    <label class="block text-xs font-medium mb-1">Quality</label>
-                                    <div class="relative">
-                                        <button type="button" id="imageQualityButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('imageQuality')">
-                                            <span id="imageQualityValue">HD (Higher Quality)</span>
-                                            <i class="fas fa-chevron-down text-zinc-400"></i>
-                                        </button>
-                                        <div id="imageQualityDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
-                                            <div class="py-1">
-                                                <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectImageQuality('standard', 'Standard')">Standard</div>
-                                                <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectImageQuality('hd', 'HD (Higher Quality)')">HD (Higher Quality)</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button onclick="showImageConceptsModal()" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
-                                    <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with GPT-4o
-                                </button>
-                                <div class="text-xs text-zinc-500 mt-1 text-center">Uses reference image if uploaded</div>
-                            </div>
-                            
-                            <!-- Upload Image with Reference -->
-                            <div class="bg-zinc-800 rounded-lg p-4">
-                                <label class="block text-sm font-medium mb-2 flex items-center">
-                                    <i class="ph ph-upload-simple mr-2 text-blue-400"></i>Upload Your Image
-                                </label>
-                                <div class="space-y-3">
-                                    <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs mb-2">
-                                    <input type="file" id="referenceUpload" accept="image/*" onchange="handleReferenceUpload(event)" class="w-full text-xs mb-2" placeholder="Reference image for AI">
-                                    <button onclick="removeBackground()" class="w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Remove Background for Text-Behind-Subject Effect">
-                                        <i class="ph ph-eraser mr-2"></i>Remove Background
-                                    </button>
-                                    <div class="text-xs text-zinc-400 leading-relaxed">
-                                        <strong>Why upload?</strong><br>
-                                        • Enable "Text Behind Subject" effect<br>
-                                        • Use as reference for AI generation<br>
-                                        • Add your face/logo to thumbnails
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Save Everything Button -->
-            <button onclick="saveIdea()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition flex items-center justify-center mt-6">
-                <i class="ph ph-check-circle mr-2" style="font-size: 18px;"></i>Save Video Idea & Thumbnail
+            <!-- Save Idea Button -->
+            <button onclick="saveIdea()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                <i class="ph ph-check-circle mr-2" style="font-size: 18px;"></i>Save Video Idea
             </button>
         </div>
 
+        <!-- Thumbnail Studio - Bottom Panel -->
+        <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden">
+            <!-- Thumbnail Studio Header -->
+            <div class="bg-zinc-800 px-6 py-3 border-b border-zinc-700 flex items-center justify-between cursor-pointer" onclick="toggleThumbnailStudio()">
+                <div class="flex items-center space-x-3">
+                    <i class="ph ph-image text-xl text-red-500"></i>
+                    <h3 class="text-lg font-semibold mohave text-red-500">Advanced Thumbnail Studio</h3>
+                    <span class="text-xs bg-red-600 px-2 py-1 rounded-full">NEW</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-zinc-400" id="thumbnailStudioStatus">Click to expand</span>
+                    <i class="ph ph-caret-down text-zinc-400 transition-transform" id="thumbnailStudioCaret"></i>
+                </div>
+            </div>
+            
+            <!-- Thumbnail Studio Content -->
+            <div id="thumbnailStudioContent" class="hidden">
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Controls -->
+                        <!-- Aspect Ratio -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Aspect Ratio</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setAspectRatio('16:9')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="16:9">16:9</button>
+                                <button onclick="setAspectRatio('4:3')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="4:3">4:3</button>
+                                <button onclick="setAspectRatio('1:1')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="1:1">1:1</button>
+                                <button onclick="setAspectRatio('9:16')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="9:16">9:16</button>
+                            </div>
+                        </div>
+                    
+                    <!-- Template -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Template</label>
+                        <div class="relative">
+                            <button type="button" id="thumbnailTemplateButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('thumbnailTemplate')">
+                                <span id="thumbnailTemplateValue">Text Over Image</span>
+                                <i class="fas fa-chevron-down text-zinc-400"></i>
+                            </button>
+                            <div id="thumbnailTemplateDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                <div class="py-1">
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-only', 'Text Only')">Text Only</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-over-image', 'Text Over Image')">Text Over Image</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('text-behind-subject', 'Text Behind Subject')">Text Behind Subject</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectTemplate('image-only', 'Image Only')">Image Only</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Text Options -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Thumbnail Text</label>
+                        <input type="text" id="thumbnailText" onkeyup="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mb-2" placeholder="Enter text...">
+                        <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="AI Text Suggestions">
+                            <i class="ph ph-lightbulb mr-1" style="font-size: 14px;"></i>AI Suggestions
+                        </button>
+                        <div id="thumbnailTextSuggestions" class="mt-2 space-y-1"></div>
+                    </div>
+                    
+                    <!-- Font Selection -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Font</label>
+                        <div class="relative">
+                            <button type="button" id="thumbnailFontButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('thumbnailFont')">
+                                <span id="thumbnailFontValue">Mohave</span>
+                                <i class="fas fa-chevron-down text-zinc-400"></i>
+                            </button>
+                            <div id="thumbnailFontDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                <div class="py-1">
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Mohave')">Mohave</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Inter')">Inter</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Roboto')">Roboto</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Open Sans')">Open Sans</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Montserrat')">Montserrat</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Poppins')">Poppins</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Bebas Neue')">Bebas Neue</div>
+                                    <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectFont('Anton')">Anton</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Color Options -->
+                    <div class="mb-4 grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium mb-1">Text Color</label>
+                            <input type="color" id="textColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#FFFFFF">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium mb-1">Background</label>
+                            <input type="color" id="bgColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#DC2626">
+                        </div>
+                    </div>
+                    
+                    <!-- AI Image Generation -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">AI Image Generation (GPT-4o Native)</label>
+                        <div class="mb-2">
+                            <label class="block text-xs font-medium mb-1">Quality</label>
+                            <div class="relative">
+                                <button type="button" id="imageQualityButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('imageQuality')">
+                                    <span id="imageQualityValue">HD (Higher Quality)</span>
+                                    <i class="fas fa-chevron-down text-zinc-400"></i>
+                                </button>
+                                <div id="imageQualityDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
+                                    <div class="py-1">
+                                        <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('imageQuality', 'hd', 'HD (Higher Quality)')">HD (Higher Quality)</div>
+                                        <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectOption('imageQuality', 'standard', 'Standard (Faster)')">Standard (Faster)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="showImageConceptsModal()" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
+                            <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with GPT-4o
+                        </button>
+                        <div class="text-xs text-zinc-500 mt-1 text-center">Same model as ChatGPT web app</div>
+                    </div>
+
+                    <!-- Upload Image -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Upload Image</label>
+                        <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs">
+                        <button onclick="removeBackground()" class="w-full mt-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Remove Background">
+                            <i class="ph ph-eraser mr-1" style="font-size: 14px;"></i>Remove Background
+                        </button>
+                    </div>
+                    
+                    <!-- Canvas Preview -->
+                    <div class="mb-4">
+                        <canvas id="thumbnailCanvas" width="1280" height="720" class="w-full rounded-lg bg-zinc-800"></canvas>
+                    </div>
+                    
+                    <!-- Preview Button -->
+                    <div class="mb-4">
+                        <button onclick="showThumbnailPreviewModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-sm transition flex items-center justify-center" title="Preview Thumbnail">
+                            <i class="ph ph-eye mr-2" style="font-size: 16px;"></i>Preview Thumbnail
+                        </button>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        <button onclick="saveThumbnail()" class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition flex items-center justify-center" title="Save Thumbnail">
+                            <i class="ph ph-floppy-disk" style="font-size: 16px;"></i>
+                        </button>
+                        <button onclick="downloadThumbnail()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition flex items-center justify-center" title="Download Thumbnail">
+                            <i class="ph ph-download" style="font-size: 16px;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Save Idea Button -->
+                <button onclick="saveIdea()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                    <i class="ph ph-check-circle mr-2" style="font-size: 18px;"></i>Save Video Idea
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Image Concepts Modal -->
@@ -534,18 +529,8 @@
     <script>
         let currentIdeaId = null;
         let uploadedImage = null;
-        let referenceImage = null;
         let currentAspectRatio = '16:9';
         let thumbnailDataUrl = null;
-        
-        // Text positioning variables
-        let textX = null;
-        let textY = null;
-        let isDraggingText = false;
-        let currentFont = 'Mohave';
-        
-        // Thumbnail studio state
-        let thumbnailStudioExpanded = false;
 
         // Load Google Fonts dynamically
         const fonts = ['Roboto', 'Open+Sans', 'Montserrat', 'Poppins', 'Bebas+Neue', 'Anton'];
@@ -618,31 +603,6 @@
                         console.error('Failed to load thumbnail image');
                     };
                     img.src = thumbnailDataUrl;
-                    
-                    // Restore text position
-                    if (idea.assets.textPosition) {
-                        textX = idea.assets.textPosition.x;
-                        textY = idea.assets.textPosition.y;
-                    }
-                    
-                    // Restore font
-                    if (idea.assets.font) {
-                        currentFont = idea.assets.font;
-                        document.getElementById('fontSearch').value = currentFont;
-                        loadFont(currentFont);
-                    }
-                    
-                    // Restore reference image
-                    if (idea.assets.referenceImage) {
-                        referenceImage = new Image();
-                        referenceImage.src = idea.assets.referenceImage;
-                    }
-                    
-                    // Restore background removed image
-                    if (idea.assets.backgroundRemovedImage) {
-                        backgroundRemovedImage = new Image();
-                        backgroundRemovedImage.src = idea.assets.backgroundRemovedImage;
-                    }
                 } else {
                     console.log('No thumbnail found in assets:', idea.assets);
                 }
@@ -861,153 +821,64 @@
             const ctx = canvas.getContext('2d');
             const template = getTemplateValueFromDisplay(document.getElementById('thumbnailTemplateValue').textContent);
             const text = document.getElementById('thumbnailText').value;
+            const font = document.getElementById('thumbnailFontValue').textContent;
             const textColor = document.getElementById('textColor').value;
             const bgColor = document.getElementById('bgColor').value;
             
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Set default text position if not set
-            if (textX === null) textX = canvas.width / 2;
-            if (textY === null) textY = canvas.height / 2;
+            // Background
+            if (template !== 'image-only' || !uploadedImage) {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
             
-            // Template-based rendering
-            switch (template) {
-                case 'text-only':
-                    renderTextOnly(ctx, canvas, text, textColor, bgColor);
-                    break;
-                case 'image-only':
-                    renderImageOnly(ctx, canvas);
-                    break;
-                case 'text-over-image':
-                    renderTextOverImage(ctx, canvas, text, textColor);
-                    break;
-                case 'text-behind-subject':
-                    renderTextBehindSubject(ctx, canvas, text, textColor);
-                    break;
-                default:
-                    renderTextOverImage(ctx, canvas, text, textColor);
+            // Image
+            if (uploadedImage && template !== 'text-only') {
+                ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+            }
+            
+            // Text
+            if (text && template !== 'image-only') {
+                const fontSize = Math.floor(canvas.height / 8);
+                ctx.font = `bold ${fontSize}px '${font}'`;
+                ctx.fillStyle = textColor;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Add text shadow for better visibility
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                
+                // Word wrap if needed
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = '';
+                
+                words.forEach(word => {
+                    const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > canvas.width * 0.8) {
+                        if (currentLine) lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                });
+                if (currentLine) lines.push(currentLine);
+                
+                const lineHeight = fontSize * 1.2;
+                const startY = canvas.height / 2 - (lines.length - 1) * lineHeight / 2;
+                
+                lines.forEach((line, i) => {
+                    ctx.fillText(line, canvas.width / 2, startY + i * lineHeight);
+                });
             }
             
             thumbnailDataUrl = canvas.toDataURL();
-        }
-        
-        function renderTextOnly(ctx, canvas, text, textColor, bgColor) {
-            // Background
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Text
-            if (text) {
-                renderText(ctx, canvas, text, textColor);
-            }
-        }
-        
-        function renderImageOnly(ctx, canvas) {
-            if (uploadedImage) {
-                ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
-            } else {
-                // Placeholder
-                ctx.fillStyle = '#333333';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#666666';
-                ctx.font = '24px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('Upload or generate an image', canvas.width / 2, canvas.height / 2);
-            }
-        }
-        
-        function renderTextOverImage(ctx, canvas, text, textColor) {
-            // Background image or color
-            if (uploadedImage) {
-                ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.fillStyle = document.getElementById('bgColor').value;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-            
-            // Text on top
-            if (text) {
-                renderText(ctx, canvas, text, textColor);
-            }
-        }
-        
-        let backgroundRemovedImage = null;
-        
-        async function renderTextBehindSubject(ctx, canvas, text, textColor) {
-            if (!uploadedImage) {
-                renderTextOverImage(ctx, canvas, text, textColor);
-                return;
-            }
-            
-            // Step 1: Draw the original image (background layer)
-            ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
-            
-            // Step 2: Draw text behind subject
-            if (text) {
-                renderText(ctx, canvas, text, textColor);
-            }
-            
-            // Step 3: Draw the subject (background removed) on top
-            if (backgroundRemovedImage) {
-                ctx.drawImage(backgroundRemovedImage, 0, 0, canvas.width, canvas.height);
-            } else {
-                // If no background-removed version, show instruction
-                ctx.save();
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(10, 10, 300, 60);
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = '14px Inter';
-                ctx.textAlign = 'left';
-                ctx.fillText('Click "Remove Background" to enable', 20, 30);
-                ctx.fillText('text-behind-subject effect', 20, 50);
-                ctx.restore();
-            }
-        }
-        
-        function renderText(ctx, canvas, text, textColor) {
-            const fontSize = Math.floor(canvas.height / 8);
-            ctx.font = `bold ${fontSize}px '${currentFont}'`;
-            ctx.fillStyle = textColor;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // Add text shadow for better visibility
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 2;
-            ctx.shadowOffsetY = 2;
-            
-            // Word wrap if needed
-            const words = text.split(' ');
-            const lines = [];
-            let currentLine = '';
-            
-            words.forEach(word => {
-                const testLine = currentLine + (currentLine ? ' ' : '') + word;
-                const metrics = ctx.measureText(testLine);
-                if (metrics.width > canvas.width * 0.8) {
-                    if (currentLine) lines.push(currentLine);
-                    currentLine = word;
-                } else {
-                    currentLine = testLine;
-                }
-            });
-            if (currentLine) lines.push(currentLine);
-            
-            const lineHeight = fontSize * 1.2;
-            const startY = textY - (lines.length - 1) * lineHeight / 2;
-            
-            lines.forEach((line, i) => {
-                ctx.fillText(line, textX, startY + i * lineHeight);
-            });
-            
-            // Reset shadow
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
         }
 
         // Thumbnail Preview Modal State
@@ -1128,59 +999,9 @@
                 return;
             }
             
-            const button = document.querySelector('button[onclick="removeBackground()"]');
-            const originalContent = button.innerHTML;
-            
-            // Show loading state
-            button.innerHTML = '<i class="ph ph-spinner ph-spin mr-1" style="font-size: 14px;"></i>Processing...';
-            button.disabled = true;
-            
-            try {
-                // Convert uploaded image to base64
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = uploadedImage.width;
-                canvas.height = uploadedImage.height;
-                ctx.drawImage(uploadedImage, 0, 0);
-                const imageBase64 = canvas.toDataURL('image/png');
-                
-                // Call Remove.bg API through our backend
-                const response = await fetch('/api/remove-background', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        image: imageBase64
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.image) {
-                    // Load the background-removed image
-                    backgroundRemovedImage = new Image();
-                    backgroundRemovedImage.onload = () => {
-                        updateThumbnail();
-                        
-                        if (data.message && !data.error) {
-                            alert('✨ Background removed successfully! Now try "Text Behind Subject" template.');
-                        } else if (data.error) {
-                            alert(`⚠️ ${data.error}`);
-                        }
-                    };
-                    backgroundRemovedImage.src = data.image;
-                } else {
-                    alert('Failed to remove background');
-                }
-                
-            } catch (error) {
-                console.error('Background removal error:', error);
-                alert('Error removing background: ' + error.message);
-            } finally {
-                button.innerHTML = originalContent;
-                button.disabled = false;
-            }
+            // This would call a background removal API
+            // For now, just show a placeholder message
+            alert('Background removal would be implemented with remove.bg API or similar service');
         }
 
         function downloadThumbnail() {
@@ -1191,10 +1012,12 @@
             link.click();
         }
 
-        async function saveIdea() {
-            // Capture current thumbnail state
+        async function saveThumbnail() {
             thumbnailDataUrl = document.getElementById('thumbnailCanvas').toDataURL();
-            
+            alert('Thumbnail saved to current idea');
+        }
+
+        async function saveIdea() {
             const ideaData = {
                 title: document.getElementById('selectedTitle').value,
                 description: document.getElementById('selectedDescription').value,
@@ -1205,11 +1028,7 @@
                 status: document.getElementById('statusValue').textContent,
                 tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t),
                 assets: {
-                    thumbnail: thumbnailDataUrl,
-                    textPosition: { x: textX, y: textY },
-                    font: currentFont,
-                    referenceImage: referenceImage ? referenceImage.src : null,
-                    backgroundRemovedImage: backgroundRemovedImage ? backgroundRemovedImage.src : null
+                    thumbnail: thumbnailDataUrl
                 }
             };
             
@@ -1356,7 +1175,6 @@
                 if (data.concepts) {
                     window.currentImageConcepts = data.concepts;
                     window.currentTopic = data.topic;
-                    window.currentReferenceImage = referenceImage;
                 }
                 
                 alert('All content generated successfully! Review and edit as needed.');
@@ -1372,104 +1190,9 @@
         }
         
         async function showImageConceptsModal() {
-            // Check if we need to generate concepts based on current input
             if (!window.currentImageConcepts) {
-                // Get current values from form - get ALL available context
-                const titleEl = document.getElementById('selectedTitle');
-                const topicEl = document.getElementById('topic');
-                const audienceEl = document.getElementById('audience');
-                const descriptionEl = document.getElementById('selectedDescription');
-                const keyPointsEl = document.getElementById('keyPoints');
-                
-                const title = titleEl ? titleEl.value.trim() : '';
-                const topic = topicEl ? topicEl.value.trim() : '';
-                const audience = audienceEl ? audienceEl.value.trim() : '';
-                const description = descriptionEl ? descriptionEl.value.trim() : '';
-                const keyPoints = keyPointsEl ? keyPointsEl.value.trim() : '';
-                
-                // Check if we have at least some content to work with
-                if (!title && !topic && !description) {
-                    alert('Please enter a video title, topic, or description first to generate thumbnail concepts');
-                    return;
-                }
-                
-                // Build rich context for AI
-                const contextParts = [];
-                if (title) contextParts.push(`Title: ${title}`);
-                if (topic) contextParts.push(`Topic: ${topic}`);
-                if (description) contextParts.push(`Description: ${description}`);
-                if (keyPoints) contextParts.push(`Key Points: ${keyPoints}`);
-                if (audience) contextParts.push(`Target Audience: ${audience}`);
-                
-                const fullContext = contextParts.join('\n');
-                
-                // Generate concepts on-the-fly
-                try {
-                    // Show loading state
-                    const loadingDiv = document.createElement('div');
-                    loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
-                    loadingDiv.innerHTML = `
-                        <div class="bg-zinc-900 rounded-lg p-8 text-center max-w-md">
-                            <div class="mb-6">
-                                <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-full mb-4">
-                                    <i class="ph ph-image text-2xl text-white ai-loading-sparkle"></i>
-                                </div>
-                                <h3 class="text-xl font-semibold mb-2">Generating Thumbnail Concepts</h3>
-                                <p class="text-sm text-zinc-400">Analyzing your full video context...</p>
-                            </div>
-                            <div class="flex items-center justify-center space-x-2">
-                                <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                                <div class="w-2 h-2 bg-purple-300 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(loadingDiv);
-                    
-                    // Generate image concepts using rich context
-                    const conceptsPrompt = `Generate 3 thumbnail image concepts for this YouTube video:
-                    
-                    ${fullContext}
-                    
-                    Each concept should be visually compelling and click-worthy, directly reflecting the specific content above.
-                    Return as JSON: {"concepts": [
-                        {"title": "Concept Name", "description": "Visual description", "style": "photography|illustration|graphic"},
-                        ...
-                    ]}`;
-                    
-                    const response = await fetch('/api/generate/image-prompt', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            concept: { title: 'Custom', description: conceptsPrompt, style: 'photography' },
-                            topic: fullContext,
-                            has_reference_image: !!referenceImage
-                        })
-                    });
-                    
-                    // For now, create context-aware default concepts
-                    const mainTopic = title || topic || 'your video content';
-                    window.currentImageConcepts = [
-                        { title: "Dynamic Portrait", description: `Eye-catching portrait showcasing ${mainTopic} with dramatic lighting`, style: "photography" },
-                        { title: "Concept Visualization", description: `Visual representation of ${mainTopic} with modern graphics and clear focus`, style: "illustration" },
-                        { title: "Action Scene", description: `Dynamic scene demonstrating ${mainTopic} in action with engaging elements`, style: "photography" }
-                    ];
-                    window.currentTopic = fullContext;
-                    window.currentReferenceImage = referenceImage;
-                    
-                    document.body.removeChild(loadingDiv);
-                    
-                } catch (error) {
-                    console.error('Error generating concepts:', error);
-                    // Create context-aware fallback concepts
-                    const mainTopic = title || topic || 'your video content';
-                    window.currentImageConcepts = [
-                        { title: "Dynamic Portrait", description: `Eye-catching portrait showcasing ${mainTopic} with dramatic lighting`, style: "photography" },
-                        { title: "Concept Visualization", description: `Visual representation of ${mainTopic} with modern graphics`, style: "illustration" },
-                        { title: "Action Scene", description: `Dynamic scene demonstrating ${mainTopic} in action`, style: "photography" }
-                    ];
-                    window.currentTopic = fullContext;
-                }
+                alert('Please generate content first using the AI-powered generator above');
+                return;
             }
             
             const modal = document.getElementById('imageConceptsModal');
@@ -1503,11 +1226,7 @@
                 const promptRes = await fetch('/api/generate/image-prompt', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        concept, 
-                        topic: window.currentTopic,
-                        has_reference_image: !!referenceImage
-                    })
+                    body: JSON.stringify({ concept, topic: window.currentTopic })
                 });
                 
                 const promptData = await promptRes.json();
@@ -1574,20 +1293,10 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
             loadingDiv.innerHTML = `
-                <div class="bg-zinc-900 rounded-lg p-8 text-center max-w-md">
-                    <div class="mb-6">
-                        <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-full mb-4">
-                            <i class="ph ph-image text-2xl text-white ai-loading-sparkle"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Generating Image with GPT-4o</h3>
-                        <p class="text-sm text-zinc-400 mb-4">Using ${quality.toUpperCase()} quality • This may take 10-60 seconds</p>
-                        ${referenceImage ? '<p class="text-xs text-purple-400">✨ Including your reference image</p>' : ''}
-                    </div>
-                    <div class="flex items-center justify-center space-x-2">
-                        <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                        <div class="w-2 h-2 bg-purple-300 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-                    </div>
+                <div class="bg-zinc-900 rounded-lg p-6 text-center">
+                    <i class="ph ph-spinner ph-spin text-4xl text-purple-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">Generating Image with GPT-4o...</h3>
+                    <p class="text-sm text-zinc-400">Using ${quality.toUpperCase()} quality • This may take 10-60 seconds</p>
                 </div>
             `;
             document.body.appendChild(loadingDiv);
@@ -1626,183 +1335,9 @@
             }
         }
 
-        // New thumbnail studio functions
-        function toggleThumbnailStudio() {
-            const content = document.getElementById('thumbnailStudioContent');
-            const caret = document.getElementById('thumbnailStudioCaret');
-            const status = document.getElementById('thumbnailStudioStatus');
-            
-            thumbnailStudioExpanded = !thumbnailStudioExpanded;
-            
-            if (thumbnailStudioExpanded) {
-                content.classList.remove('hidden');
-                caret.style.transform = 'rotate(180deg)';
-                status.textContent = 'Click to collapse';
-            } else {
-                content.classList.add('hidden');
-                caret.style.transform = 'rotate(0deg)';
-                status.textContent = 'Click to expand';
-            }
-        }
-        
-        // Text drag and drop functionality
-        function setupTextDragging() {
-            const canvas = document.getElementById('thumbnailCanvas');
-            
-            canvas.addEventListener('mousedown', startTextDrag);
-            canvas.addEventListener('mousemove', dragText);
-            canvas.addEventListener('mouseup', endTextDrag);
-            canvas.addEventListener('mouseleave', endTextDrag);
-        }
-        
-        function startTextDrag(e) {
-            const canvas = document.getElementById('thumbnailCanvas');
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            const mouseX = (e.clientX - rect.left) * scaleX;
-            const mouseY = (e.clientY - rect.top) * scaleY;
-            
-            // Check if we clicked on text area (approximate)
-            if (textX && textY) {
-                const textWidth = 200; // Approximate text width
-                const textHeight = 50; // Approximate text height
-                
-                if (mouseX >= textX - textWidth/2 && mouseX <= textX + textWidth/2 &&
-                    mouseY >= textY - textHeight/2 && mouseY <= textY + textHeight/2) {
-                    isDraggingText = true;
-                    canvas.style.cursor = 'grabbing';
-                }
-            } else {
-                // First time placing text
-                textX = mouseX;
-                textY = mouseY;
-                isDraggingText = true;
-                updateThumbnail();
-            }
-        }
-        
-        function dragText(e) {
-            if (!isDraggingText) return;
-            
-            const canvas = document.getElementById('thumbnailCanvas');
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            textX = (e.clientX - rect.left) * scaleX;
-            textY = (e.clientY - rect.top) * scaleY;
-            
-            // Keep text within canvas bounds
-            textX = Math.max(50, Math.min(canvas.width - 50, textX));
-            textY = Math.max(50, Math.min(canvas.height - 50, textY));
-            
-            updateThumbnail();
-        }
-        
-        function endTextDrag() {
-            isDraggingText = false;
-            const canvas = document.getElementById('thumbnailCanvas');
-            canvas.style.cursor = 'crosshair';
-        }
-        
-        // Google Fonts search functionality
-        let googleFonts = [];
-        async function loadGoogleFonts() {
-            try {
-                // Use backend endpoint for Google Fonts to hide API key
-                const response = await fetch('/api/fonts');
-                const data = await response.json();
-                googleFonts = data.fonts || data.items || [];
-            } catch (error) {
-                console.error('Failed to load Google Fonts:', error);
-                // Fallback to popular fonts
-                googleFonts = [
-                    {family: 'Mohave'}, {family: 'Inter'}, {family: 'Roboto'}, 
-                    {family: 'Open Sans'}, {family: 'Montserrat'}, {family: 'Poppins'},
-                    {family: 'Bebas Neue'}, {family: 'Anton'}, {family: 'Oswald'},
-                    {family: 'Source Sans Pro'}, {family: 'Raleway'}, {family: 'Lato'},
-                    {family: 'PT Sans'}, {family: 'Ubuntu'}, {family: 'Playfair Display'},
-                    {family: 'Merriweather'}, {family: 'Nunito'}, {family: 'Work Sans'}
-                ];
-            }
-        }
-        
-        function searchFonts(query) {
-            const resultsDiv = document.getElementById('fontResults');
-            
-            if (!query || query.length < 2) {
-                resultsDiv.classList.add('hidden');
-                return;
-            }
-            
-            const filteredFonts = googleFonts.filter(font => 
-                font.family.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 10);
-            
-            if (filteredFonts.length > 0) {
-                resultsDiv.innerHTML = filteredFonts.map(font => `
-                    <div class="px-3 py-2 hover:bg-zinc-700 cursor-pointer text-sm" onclick="selectFont('${font.family}')">
-                        ${font.family}
-                    </div>
-                `).join('');
-                resultsDiv.classList.remove('hidden');
-            } else {
-                resultsDiv.innerHTML = '<div class="px-3 py-2 text-sm text-zinc-400">No fonts found</div>';
-                resultsDiv.classList.remove('hidden');
-            }
-        }
-        
-        function selectFont(fontFamily) {
-            currentFont = fontFamily;
-            document.getElementById('fontSearch').value = fontFamily;
-            document.getElementById('fontResults').classList.add('hidden');
-            
-            // Load font if not already loaded
-            loadFont(fontFamily);
-            updateThumbnail();
-        }
-        
-        function loadFont(fontFamily) {
-            const link = document.createElement('link');
-            link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/\s+/g, '+')}:wght@400;700&display=swap`;
-            link.rel = 'stylesheet';
-            
-            // Check if already loaded
-            if (!document.querySelector(`link[href*="${fontFamily.replace(/\s+/g, '+')}"]`)) {
-                document.head.appendChild(link);
-            }
-        }
-        
-        // Reference image upload
-        function handleReferenceUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    referenceImage = new Image();
-                    referenceImage.onload = () => {
-                        console.log('Reference image loaded:', file.name);
-                    };
-                    referenceImage.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
         // Initialize
-        setupTextDragging();
-        loadGoogleFonts();
         setAspectRatio('16:9');
         updateThumbnail();
-        
-        // Auto-expand thumbnail studio for new users
-        setTimeout(() => {
-            if (!thumbnailStudioExpanded) {
-                toggleThumbnailStudio();
-            }
-        }, 1000);
     </script>
 </body>
 </html>

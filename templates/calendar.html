@@ -252,8 +252,8 @@
                          ondragstart="drag(event, '${idea.id}')"
                          onclick="showPreview('${idea.id}')">
                         ${hasThumbnail ? `
-                            <div class="-m-1 mb-1">
-                                <img src="${idea.assets.thumbnail}" alt="Thumbnail" class="w-full h-12 object-cover rounded">
+                            <div class="-m-1 mb-1" style="aspect-ratio: 16/9;">
+                                <img src="${idea.assets.thumbnail}" alt="Thumbnail" class="w-full h-full object-cover rounded">
                             </div>
                         ` : ''}
                         <div class="text-xs truncate">${idea.title || 'Untitled'}</div>
@@ -267,8 +267,8 @@
                      ondragstart="drag(event, '${idea.id}')"
                      onclick="showPreview('${idea.id}')">
                     ${hasThumbnail ? `
-                        <div class="relative">
-                            <img src="${idea.assets.thumbnail}" alt="Thumbnail" class="w-full h-24 object-cover">
+                        <div class="relative" style="aspect-ratio: 16/9;">
+                            <img src="${idea.assets.thumbnail}" alt="Thumbnail" class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-gradient-to-t from-zinc-700 to-transparent"></div>
                         </div>
                     ` : ''}
@@ -279,7 +279,6 @@
                                 ${idea.status}
                             </span>
                         </div>
-                        <p class="text-xs text-zinc-400 line-clamp-2">${idea.description || 'No description'}</p>
                     </div>
                 </div>
             `;

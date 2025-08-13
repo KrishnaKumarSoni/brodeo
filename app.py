@@ -453,12 +453,23 @@ def generate_image_prompt():
     data = request.json
     concept = data.get('concept', {})
     topic = data.get('topic', '')
+    has_reference = data.get('has_reference_image', False)
+    
+    reference_context = ""
+    if has_reference:
+        reference_context = """
+    - INCLUDE the person from the reference image as the main subject
+    - Ensure the person is prominently featured and recognizable
+    - Position the person in a way that complements the thumbnail concept
+    - Maintain the person's likeness while fitting the overall composition
+    """
     
     prompt = f"""Create a GPT-4o native image generation optimized prompt for a YouTube thumbnail image:
 
     Topic: {topic}
     Concept: {concept.get('title', '')} - {concept.get('description', '')}
     Style: {concept.get('style', 'photography')}
+    {"Reference Image: A person should be included as specified in the reference" if has_reference else ""}
     
     CRITICAL REQUIREMENTS:
     - 16:9 aspect ratio YouTube thumbnail (1792x1024)  
@@ -473,6 +484,7 @@ def generate_image_prompt():
     - Modern, trending aesthetic suitable for social media
     - Photorealistic quality with crisp details
     - Clean visual composition without any textual elements
+    {reference_context}
     
     Leverage GPT-4o's native image generation capabilities:
     - Enhanced prompt following with contextual understanding
@@ -639,16 +651,107 @@ def manage_settings():
         'theme_colors': {'primary': '#DC2626', 'background': '#000000'}
     })
 
+@app.route('/api/fonts', methods=['GET'])
+def get_google_fonts():
+    """Get Google Fonts list"""
+    try:
+        google_fonts_api_key = os.getenv('GOOGLE_FONTS_API_KEY')
+        if not google_fonts_api_key:
+            # Fallback to popular fonts
+            return jsonify({
+                'fonts': [
+                    {'family': 'Mohave'}, {'family': 'Inter'}, {'family': 'Roboto'}, 
+                    {'family': 'Open Sans'}, {'family': 'Montserrat'}, {'family': 'Poppins'},
+                    {'family': 'Bebas Neue'}, {'family': 'Anton'}, {'family': 'Oswald'},
+                    {'family': 'Source Sans Pro'}, {'family': 'Raleway'}, {'family': 'Lato'},
+                    {'family': 'PT Sans'}, {'family': 'Ubuntu'}, {'family': 'Playfair Display'},
+                    {'family': 'Merriweather'}, {'family': 'Nunito'}, {'family': 'Work Sans'},
+                    {'family': 'Quicksand'}, {'family': 'Muli'}, {'family': 'Fira Sans'},
+                    {'family': 'Crimson Text'}, {'family': 'Libre Baskerville'}, {'family': 'Titillium Web'}
+                ]
+            })
+        
+        url = f'https://www.googleapis.com/webfonts/v1/webfonts?key={google_fonts_api_key}&sort=popularity'
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            # Return top 100 fonts to keep response size manageable
+            fonts = data.get('items', [])[:100]
+            return jsonify({'fonts': fonts})
+        else:
+            # Fallback to static list
+            return jsonify({
+                'fonts': [
+                    {'family': 'Mohave'}, {'family': 'Inter'}, {'family': 'Roboto'}, 
+                    {'family': 'Open Sans'}, {'family': 'Montserrat'}, {'family': 'Poppins'},
+                    {'family': 'Bebas Neue'}, {'family': 'Anton'}, {'family': 'Oswald'}
+                ]
+            })
+            
+    except Exception as e:
+        print(f"Google Fonts API error: {e}")
+        return jsonify({
+            'fonts': [
+                {'family': 'Mohave'}, {'family': 'Inter'}, {'family': 'Roboto'}, 
+                {'family': 'Open Sans'}, {'family': 'Montserrat'}, {'family': 'Poppins'}
+            ]
+        })
+
 @app.route('/api/remove-background', methods=['POST'])
 def remove_background():
-    # This is a placeholder for background removal
-    # In production, you'd use a service like remove.bg API or implement with rembg library
+    """Remove background from uploaded image using Remove.bg API"""
     data = request.json
     image_data = data.get('image')
     
-    # For now, return the same image
-    # You can integrate with remove.bg API or use rembg library
-    return jsonify({'image': image_data, 'message': 'Background removal placeholder'})
+    if not image_data:
+        return jsonify({'error': 'No image data provided'}), 400
+    
+    try:
+        remove_bg_api_key = os.getenv('REMOVE_BG_API_KEY')
+        
+        if not remove_bg_api_key:
+            # Return original image if no API key
+            return jsonify({
+                'image': image_data, 
+                'message': 'Remove.bg API key not configured. Background removal disabled.'
+            })
+        
+        # Convert base64 to bytes
+        if image_data.startswith('data:image'):
+            image_data = image_data.split(',')[1]
+        
+        image_bytes = base64.b64decode(image_data)
+        
+        # Call Remove.bg API
+        response = requests.post(
+            'https://api.remove.bg/v1.0/removebg',
+            files={'image_file': image_bytes},
+            data={'size': 'auto'},
+            headers={'X-Api-Key': remove_bg_api_key},
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            # Convert result back to base64
+            result_image = base64.b64encode(response.content).decode('utf-8')
+            return jsonify({
+                'image': f'data:image/png;base64,{result_image}',
+                'message': 'Background removed successfully'
+            })
+        else:
+            print(f"Remove.bg API error: {response.status_code} - {response.text}")
+            return jsonify({
+                'image': f'data:image/png;base64,{image_data}',
+                'error': f'Background removal failed: {response.text}'
+            }), response.status_code
+            
+    except Exception as e:
+        print(f"Background removal error: {e}")
+        return jsonify({
+            'image': f'data:image/png;base64,{image_data}',
+            'error': f'Background removal failed: {str(e)}'
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
