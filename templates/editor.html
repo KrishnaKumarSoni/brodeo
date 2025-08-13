@@ -129,7 +129,9 @@
                 <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold mohave text-red-500">Video Details</h2>
-                        <span class="text-xs text-zinc-500">Auto-generated, but fully editable</span>
+                        <button onclick="generateDetailsFromIdea()" class="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded-lg text-xs transition flex items-center">
+                            <i class="ph ph-sparkle mr-1"></i>AI Generate
+                        </button>
                     </div>
                     
                     <div class="space-y-4">
@@ -255,11 +257,11 @@
                             <!-- Aspect Ratio -->
                             <div>
                                 <label class="block text-sm font-medium mb-2">Aspect Ratio</label>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button onclick="setAspectRatio('16:9')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="16:9">16:9</button>
-                                    <button onclick="setAspectRatio('4:3')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="4:3">4:3</button>
-                                    <button onclick="setAspectRatio('1:1')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="1:1">1:1</button>
-                                    <button onclick="setAspectRatio('9:16')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition" data-ratio="9:16">9:16</button>
+                                <div class="flex gap-1">
+                                    <button onclick="setAspectRatio('16:9')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-xs transition flex-1" data-ratio="16:9">16:9</button>
+                                    <button onclick="setAspectRatio('4:3')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-xs transition flex-1" data-ratio="4:3">4:3</button>
+                                    <button onclick="setAspectRatio('1:1')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-xs transition flex-1" data-ratio="1:1">1:1</button>
+                                    <button onclick="setAspectRatio('9:16')" class="aspect-btn bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-xs transition flex-1" data-ratio="9:16">9:16</button>
                                 </div>
                             </div>
                             
@@ -286,6 +288,16 @@
                             <div>
                                 <label class="block text-sm font-medium mb-2">Thumbnail Text</label>
                                 <input type="text" id="thumbnailText" onkeyup="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mb-2" placeholder="Enter text...">
+                                
+                                <!-- Font Size Control -->
+                                <div class="mb-2">
+                                    <label class="block text-xs font-medium mb-1">Font Size</label>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="range" id="fontSize" min="20" max="120" value="60" oninput="updateThumbnail(); updateRangeDisplays()" onchange="updateThumbnail()" class="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
+                                        <span id="fontSizeValue" class="text-xs text-zinc-400 w-8">60px</span>
+                                    </div>
+                                </div>
+                                
                                 <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="AI Text Suggestions">
                                     <i class="ph ph-lightbulb mr-1" style="font-size: 14px;"></i>AI Suggestions
                                 </button>
@@ -305,14 +317,57 @@
                             </div>
                             
                             <!-- Color Options -->
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-xs font-medium mb-1">Text Color</label>
-                                    <input type="color" id="textColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#FFFFFF">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Colors</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-xs font-medium mb-1">Text</label>
+                                        <div class="custom-color-picker">
+                                            <input type="color" id="textColor" onchange="updateThumbnail(); updateColorDisplay('textColor')" class="hidden" value="#FFFFFF">
+                                            <div onclick="document.getElementById('textColor').click()" class="w-full h-8 rounded-lg border-2 border-zinc-600 cursor-pointer flex items-center justify-center hover:border-zinc-500 transition" style="background-color: #FFFFFF;">
+                                                <span class="text-xs font-medium" id="textColorDisplay" style="color: #000000;">Text</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium mb-1">Background</label>
+                                        <div class="custom-color-picker">
+                                            <input type="color" id="bgColor" onchange="updateThumbnail(); updateColorDisplay('bgColor')" class="hidden" value="#DC2626">
+                                            <div onclick="document.getElementById('bgColor').click()" class="w-full h-8 rounded-lg border-2 border-zinc-600 cursor-pointer flex items-center justify-center hover:border-zinc-500 transition" style="background-color: #DC2626;">
+                                                <span class="text-xs font-medium" id="bgColorDisplay" style="color: #FFFFFF;">BG</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-medium mb-1">Background</label>
-                                    <input type="color" id="bgColor" onchange="updateThumbnail()" class="w-full h-10 bg-zinc-800 border border-zinc-700 rounded cursor-pointer" value="#DC2626">
+                            </div>
+                            
+                            <!-- Border Controls -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Text Border</label>
+                                <div class="space-y-2">
+                                    <div>
+                                        <label class="block text-xs font-medium mb-1">Border Thickness</label>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="range" id="borderThickness" min="0" max="8" value="2" oninput="updateThumbnail(); updateRangeDisplays()" onchange="updateThumbnail()" class="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
+                                            <span id="borderThicknessValue" class="text-xs text-zinc-400 w-6">2px</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium mb-2">Border Color</label>
+                                        <div class="custom-color-picker">
+                                            <input type="color" id="borderColor" onchange="updateThumbnail(); updateColorDisplay('borderColor')" class="hidden" value="#000000">
+                                            <div onclick="document.getElementById('borderColor').click()" class="w-full h-8 rounded-lg border-2 border-zinc-600 cursor-pointer flex items-center justify-center hover:border-zinc-500 transition" style="background-color: #000000;">
+                                                <span class="text-xs font-medium" id="borderColorDisplay" style="color: #FFFFFF;">Border</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium mb-1">Border Radius</label>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="range" id="borderRadius" min="0" max="20" value="0" oninput="updateThumbnail(); updateRangeDisplays()" onchange="updateThumbnail()" class="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
+                                            <span id="borderRadiusValue" class="text-xs text-zinc-400 w-6">0px</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -348,6 +403,33 @@
                             <!-- AI Image Generation -->
                             <div>
                                 <label class="block text-sm font-medium mb-2">AI Image Generation</label>
+                                
+                                <!-- Upload Section - Shown conditionally -->
+                                <div id="uploadSection" class="bg-zinc-800 rounded-lg p-4 mb-4 hidden">
+                                    <label class="block text-sm font-medium mb-2 flex items-center">
+                                        <i class="ph ph-upload-simple mr-2 text-blue-400"></i>Upload Your Image
+                                    </label>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-xs text-zinc-400 mb-1">Main Image</label>
+                                            <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-zinc-400 mb-1">Reference Image (for AI)</label>
+                                            <input type="file" id="referenceUpload" accept="image/*" onchange="handleReferenceUpload(event)" class="w-full text-xs">
+                                        </div>
+                                        <button onclick="removeBackground()" class="w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Remove Background for Text-Behind-Subject Effect">
+                                            <i class="ph ph-eraser mr-2"></i>Remove Background
+                                        </button>
+                                        <div class="text-xs text-zinc-400 leading-relaxed">
+                                            <strong>Why upload?</strong><br>
+                                            • Enable "Text Behind Subject" effect<br>
+                                            • Use as reference for AI generation<br>
+                                            • Add your face/logo to thumbnails
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div class="mb-2">
                                     <label class="block text-xs font-medium mb-1">Quality</label>
                                     <div class="relative">
@@ -363,29 +445,17 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button onclick="showImageConceptsModal()" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
-                                    <i class="ph ph-image mr-1" style="font-size: 14px;"></i>Generate with GPT-4o
+                                
+                                <button onclick="showImageConceptsModal()" id="generateImageBtn" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
+                                    <i class="ph ph-image mr-1" style="font-size: 14px;" id="generateImageIcon"></i>
+                                    <span id="generateImageText">Generate with GPT-4o</span>
                                 </button>
-                                <div class="text-xs text-zinc-500 mt-1 text-center">Uses reference image if uploaded</div>
-                            </div>
-                            
-                            <!-- Upload Image with Reference -->
-                            <div class="bg-zinc-800 rounded-lg p-4">
-                                <label class="block text-sm font-medium mb-2 flex items-center">
-                                    <i class="ph ph-upload-simple mr-2 text-blue-400"></i>Upload Your Image
-                                </label>
-                                <div class="space-y-3">
-                                    <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs mb-2">
-                                    <input type="file" id="referenceUpload" accept="image/*" onchange="handleReferenceUpload(event)" class="w-full text-xs mb-2" placeholder="Reference image for AI">
-                                    <button onclick="removeBackground()" class="w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Remove Background for Text-Behind-Subject Effect">
-                                        <i class="ph ph-eraser mr-2"></i>Remove Background
+                                
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="text-xs text-zinc-500">Uses reference image if uploaded</div>
+                                    <button onclick="toggleUploadSection()" class="text-xs text-blue-400 hover:text-blue-300" id="toggleUploadBtn">
+                                        <i class="ph ph-upload-simple mr-1"></i>Upload Images
                                     </button>
-                                    <div class="text-xs text-zinc-400 leading-relaxed">
-                                        <strong>Why upload?</strong><br>
-                                        • Enable "Text Behind Subject" effect<br>
-                                        • Use as reference for AI generation<br>
-                                        • Add your face/logo to thumbnails
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -604,15 +674,38 @@
                 
                 // Load thumbnail if available
                 if (idea.assets?.thumbnail) {
-                    console.log('Loading thumbnail...');
+                    console.log('Loading thumbnail...', idea.assets.thumbnail.substring(0, 50) + '...');
+                    
+                    // Ensure thumbnail studio is expanded
+                    const thumbnailStudio = document.getElementById('thumbnailStudio');
+                    const thumbnailStudioContent = document.getElementById('thumbnailStudioContent');
+                    const thumbnailStudioToggle = thumbnailStudio.querySelector('button');
+                    
+                    if (thumbnailStudioContent.classList.contains('hidden')) {
+                        thumbnailStudioContent.classList.remove('hidden');
+                        const icon = thumbnailStudioToggle.querySelector('i');
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                        document.querySelector('[data-section="thumbnailStudio"] .toggle-text').textContent = 'Click to collapse';
+                    }
+                    
                     thumbnailDataUrl = idea.assets.thumbnail;
                     const img = new Image();
                     img.onload = () => {
                         console.log('Thumbnail loaded successfully');
                         const canvas = document.getElementById('thumbnailCanvas');
                         const ctx = canvas.getContext('2d');
+                        
+                        // Clear canvas first
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Draw the image
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        updateThumbnail(); // Refresh canvas
+                        
+                        // Force canvas update
+                        updateThumbnail();
+                        
+                        console.log('Canvas updated with thumbnail');
                     };
                     img.onerror = () => {
                         console.error('Failed to load thumbnail image');
@@ -864,6 +957,9 @@
             const textColor = document.getElementById('textColor').value;
             const bgColor = document.getElementById('bgColor').value;
             
+            // Update range value displays
+            updateRangeDisplays();
+            
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
@@ -967,17 +1063,18 @@
         }
         
         function renderText(ctx, canvas, text, textColor) {
-            const fontSize = Math.floor(canvas.height / 8);
+            // Get font size from control
+            const fontSizeEl = document.getElementById('fontSize');
+            const fontSize = fontSizeEl ? parseInt(fontSizeEl.value) : Math.floor(canvas.height / 8);
+            
+            // Get border controls
+            const borderThickness = parseInt(document.getElementById('borderThickness')?.value || 0);
+            const borderColor = document.getElementById('borderColor')?.value || '#000000';
+            const borderRadius = parseInt(document.getElementById('borderRadius')?.value || 0);
+            
             ctx.font = `bold ${fontSize}px '${currentFont}'`;
-            ctx.fillStyle = textColor;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            
-            // Add text shadow for better visibility
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 2;
-            ctx.shadowOffsetY = 2;
             
             // Word wrap if needed
             const words = text.split(' ');
@@ -1000,14 +1097,26 @@
             const startY = textY - (lines.length - 1) * lineHeight / 2;
             
             lines.forEach((line, i) => {
-                ctx.fillText(line, textX, startY + i * lineHeight);
+                const y = startY + i * lineHeight;
+                
+                // Draw border if thickness > 0
+                if (borderThickness > 0) {
+                    ctx.lineWidth = borderThickness;
+                    ctx.strokeStyle = borderColor;
+                    
+                    // Add border radius effect by drawing multiple strokes
+                    if (borderRadius > 0) {
+                        ctx.lineJoin = 'round';
+                        ctx.lineCap = 'round';
+                    }
+                    
+                    ctx.strokeText(line, textX, y);
+                }
+                
+                // Draw main text
+                ctx.fillStyle = textColor;
+                ctx.fillText(line, textX, y);
             });
-            
-            // Reset shadow
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
         }
 
         // Thumbnail Preview Modal State
@@ -1288,6 +1397,48 @@
         });
         
         // New AI-powered workflow functions
+        async function generateDetailsFromIdea() {
+            const freeTextIdea = document.getElementById('freeTextIdea').value.trim();
+            
+            if (!freeTextIdea) {
+                showCustomAlert('Please enter an idea in the free text field first', 'warning');
+                return;
+            }
+            
+            try {
+                showCustomAlert('Generating video details from your idea...', 'info');
+                
+                const response = await fetch('/api/generate/everything', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idea: freeTextIdea })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showCustomAlert('Error: ' + data.error, 'error');
+                    return;
+                }
+                
+                // Populate the fields
+                if (data.topic) document.getElementById('topic').value = data.topic;
+                if (data.audience) document.getElementById('audience').value = data.audience;
+                if (data.key_points) document.getElementById('keyPoints').value = data.key_points;
+                if (data.priority) {
+                    document.getElementById('priorityValue').textContent = data.priority.charAt(0).toUpperCase() + data.priority.slice(1);
+                }
+                if (data.tags && data.tags.length > 0) {
+                    document.getElementById('tags').value = data.tags.join(', ');
+                }
+                
+                showCustomAlert('Video details generated successfully!', 'success');
+                
+            } catch (error) {
+                showCustomAlert('Error generating details: ' + error.message, 'error');
+            }
+        }
+        
         async function generateEverything() {
             const freeTextIdea = document.getElementById('freeTextIdea').value.trim();
             
@@ -1372,6 +1523,17 @@
         }
         
         async function showImageConceptsModal() {
+            // Show loading state on button
+            const btn = document.getElementById('generateImageBtn');
+            const icon = document.getElementById('generateImageIcon');
+            const text = document.getElementById('generateImageText');
+            const originalBtnContent = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+            icon.className = 'ph ph-circle-notch mr-1 animate-spin';
+            text.textContent = 'Analyzing Context...';
+            
             // Check if we need to generate concepts based on current input
             if (!window.currentImageConcepts) {
                 // Get current values from form - get ALL available context
@@ -1489,6 +1651,11 @@
             `).join('');
             
             modal.classList.remove('hidden');
+            
+            // Reset button state
+            btn.disabled = false;
+            btn.classList.remove('opacity-75');
+            btn.innerHTML = originalBtnContent;
         }
         
         function closeImageConceptsModal() {
@@ -1791,11 +1958,129 @@
             }
         }
         
+        // New helper functions for enhanced controls
+        function updateRangeDisplays() {
+            // Update font size display
+            const fontSize = document.getElementById('fontSize');
+            const fontSizeValue = document.getElementById('fontSizeValue');
+            if (fontSize && fontSizeValue) {
+                fontSizeValue.textContent = fontSize.value + 'px';
+            }
+            
+            // Update border thickness display
+            const borderThickness = document.getElementById('borderThickness');
+            const borderThicknessValue = document.getElementById('borderThicknessValue');
+            if (borderThickness && borderThicknessValue) {
+                borderThicknessValue.textContent = borderThickness.value + 'px';
+            }
+            
+            // Update border radius display
+            const borderRadius = document.getElementById('borderRadius');
+            const borderRadiusValue = document.getElementById('borderRadiusValue');
+            if (borderRadius && borderRadiusValue) {
+                borderRadiusValue.textContent = borderRadius.value + 'px';
+            }
+        }
+        
+        function updateColorDisplay(colorId) {
+            const colorInput = document.getElementById(colorId);
+            const displayEl = document.getElementById(colorId + 'Display');
+            const containerEl = colorInput.nextElementSibling;
+            
+            if (colorInput && containerEl) {
+                containerEl.style.backgroundColor = colorInput.value;
+                
+                // Update text color for better contrast
+                if (displayEl) {
+                    const brightness = getBrightness(colorInput.value);
+                    displayEl.style.color = brightness > 128 ? '#000000' : '#FFFFFF';
+                }
+            }
+        }
+        
+        function getBrightness(hexColor) {
+            // Convert hex to RGB
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            
+            // Calculate brightness
+            return (r * 299 + g * 587 + b * 114) / 1000;
+        }
+        
+        function toggleUploadSection() {
+            const uploadSection = document.getElementById('uploadSection');
+            const toggleBtn = document.getElementById('toggleUploadBtn');
+            
+            if (uploadSection.classList.contains('hidden')) {
+                uploadSection.classList.remove('hidden');
+                toggleBtn.innerHTML = '<i class="ph ph-eye-slash mr-1"></i>Hide Upload';
+            } else {
+                uploadSection.classList.add('hidden');
+                toggleBtn.innerHTML = '<i class="ph ph-upload-simple mr-1"></i>Upload Images';
+            }
+        }
+        
+        // Custom alert/notification system
+        function showCustomAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transition-all duration-300 ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
+            } text-white`;
+            
+            alertDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="ph ph-${
+                            type === 'success' ? 'check-circle' : 
+                            type === 'error' ? 'x-circle' : 
+                            type === 'warning' ? 'warning-circle' : 'info'
+                        } mr-3 text-lg"></i>
+                        <span class="text-sm">${message}</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white/80 hover:text-white">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        // Override the alert function to use custom alerts
+        const originalAlert = window.alert;
+        window.alert = function(message) {
+            if (message.includes('success') || message.includes('saved')) {
+                showCustomAlert(message, 'success');
+            } else if (message.includes('error') || message.includes('Error')) {
+                showCustomAlert(message, 'error');
+            } else if (message.includes('warning') || message.includes('Warning')) {
+                showCustomAlert(message, 'warning');
+            } else {
+                showCustomAlert(message, 'info');
+            }
+        };
+        
         // Initialize
         setupTextDragging();
         loadGoogleFonts();
         setAspectRatio('16:9');
         updateThumbnail();
+        updateRangeDisplays();
+        
+        // Initialize color displays
+        updateColorDisplay('textColor');
+        updateColorDisplay('bgColor');
+        updateColorDisplay('borderColor');
         
         // Auto-expand thumbnail studio for new users
         setTimeout(() => {

@@ -198,6 +198,112 @@
         </div>
     </div>
 
+    <!-- Idea Details Modal -->
+    <div id="ideaDetailsModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-zinc-900 border-b border-zinc-700 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold mohave text-red-500">Idea Details</h3>
+                <button onclick="closeIdeaDetailsModal()" class="text-zinc-400 hover:text-white transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column: Basic Info -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Title</label>
+                            <input type="text" id="modalTitle" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none" placeholder="Enter title...">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Description</label>
+                            <textarea id="modalDescription" rows="4" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none resize-none" placeholder="Enter description..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-zinc-300 mb-2">Status</label>
+                                <select id="modalStatus" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none">
+                                    <option value="Idea">Idea</option>
+                                    <option value="Drafting">Drafting</option>
+                                    <option value="Editing">Editing</option>
+                                    <option value="Ready">Ready</option>
+                                    <option value="Scheduled">Scheduled</option>
+                                    <option value="Published">Published</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-zinc-300 mb-2">Priority</label>
+                                <select id="modalPriority" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Tags</label>
+                            <input type="text" id="modalTags" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none" placeholder="tag1, tag2, tag3">
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: Thumbnail & Advanced -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Thumbnail</label>
+                            <div id="modalThumbnailContainer" class="aspect-video bg-zinc-800 rounded-lg border border-zinc-700 flex items-center justify-center overflow-hidden">
+                                <div id="modalThumbnailPlaceholder" class="text-zinc-500 text-center">
+                                    <i class="fas fa-image text-3xl mb-2"></i>
+                                    <p class="text-sm">No thumbnail</p>
+                                </div>
+                                <img id="modalThumbnailImage" class="w-full h-full object-cover hidden" alt="Thumbnail">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Topic</label>
+                            <input type="text" id="modalTopic" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none" placeholder="Video topic...">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Target Audience</label>
+                            <input type="text" id="modalAudience" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none" placeholder="Target audience...">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Key Points</label>
+                            <textarea id="modalKeyPoints" rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none resize-none" placeholder="Key points to cover..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-between items-center pt-4 border-t border-zinc-700">
+                    <button onclick="deleteIdeaFromModal()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition text-white">
+                        <i class="fas fa-trash mr-2"></i>Delete Idea
+                    </button>
+                    
+                    <div class="flex space-x-3">
+                        <button onclick="closeIdeaDetailsModal()" class="bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded-lg text-sm font-medium transition text-white">
+                            Cancel
+                        </button>
+                        <button onclick="saveIdeaFromModal()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition text-white">
+                            <i class="fas fa-save mr-2"></i>Save Changes
+                        </button>
+                        <button onclick="editIdeaInEditor()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition text-white">
+                            <i class="fas fa-edit mr-2"></i>Open in Editor
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let ideas = [];
         let draggedCard = null;
@@ -275,10 +381,20 @@
                                     ${new Date(idea.schedule_date).toLocaleDateString()}
                                 </span>
                             ` : '<span></span>'}
-                            <button onclick="window.location.href='/editor?id=${idea.id}'; event.stopPropagation();" 
-                                    class="text-xs text-red-500 hover:text-red-400 transition flex items-center">
-                                <i class="fas fa-arrow-right mr-1"></i>Edit
-                            </button>
+                            <div class="flex space-x-2">
+                                <button onclick="viewIdeaDetails('${idea.id}'); event.stopPropagation();" 
+                                        class="text-xs text-blue-500 hover:text-blue-400 transition flex items-center">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </button>
+                                <button onclick="window.location.href='/editor?id=${idea.id}'; event.stopPropagation();" 
+                                        class="text-xs text-red-500 hover:text-red-400 transition flex items-center">
+                                    <i class="fas fa-edit mr-1"></i>Edit
+                                </button>
+                                <button onclick="deleteIdea('${idea.id}'); event.stopPropagation();" 
+                                        class="text-xs text-red-600 hover:text-red-400 transition flex items-center">
+                                    <i class="fas fa-trash mr-1"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -323,6 +439,140 @@
 
         // Load on page load
         loadKanban();
+
+        // Modal functionality
+        let currentModalIdeaId = null;
+
+        async function viewIdeaDetails(ideaId) {
+            try {
+                const res = await fetch(`/api/ideas/${ideaId}`);
+                const idea = await res.json();
+                
+                if (res.ok) {
+                    currentModalIdeaId = ideaId;
+                    populateModal(idea);
+                    document.getElementById('ideaDetailsModal').classList.remove('hidden');
+                } else {
+                    alert('Error loading idea details');
+                }
+            } catch (error) {
+                console.error('Error loading idea:', error);
+                alert('Error loading idea details');
+            }
+        }
+
+        function populateModal(idea) {
+            document.getElementById('modalTitle').value = idea.title || '';
+            document.getElementById('modalDescription').value = idea.description || '';
+            document.getElementById('modalStatus').value = idea.status || 'Idea';
+            document.getElementById('modalPriority').value = idea.priority || 'medium';
+            document.getElementById('modalTags').value = (idea.tags || []).join(', ');
+            document.getElementById('modalTopic').value = idea.topic || '';
+            document.getElementById('modalAudience').value = idea.audience || '';
+            document.getElementById('modalKeyPoints').value = idea.key_points || '';
+            
+            // Handle thumbnail
+            const thumbnailImg = document.getElementById('modalThumbnailImage');
+            const thumbnailPlaceholder = document.getElementById('modalThumbnailPlaceholder');
+            
+            if (idea.assets?.thumbnail) {
+                thumbnailImg.src = idea.assets.thumbnail;
+                thumbnailImg.classList.remove('hidden');
+                thumbnailPlaceholder.classList.add('hidden');
+            } else {
+                thumbnailImg.classList.add('hidden');
+                thumbnailPlaceholder.classList.remove('hidden');
+            }
+        }
+
+        function closeIdeaDetailsModal() {
+            document.getElementById('ideaDetailsModal').classList.add('hidden');
+            currentModalIdeaId = null;
+        }
+
+        async function saveIdeaFromModal() {
+            if (!currentModalIdeaId) return;
+            
+            const ideaData = {
+                title: document.getElementById('modalTitle').value,
+                description: document.getElementById('modalDescription').value,
+                status: document.getElementById('modalStatus').value,
+                priority: document.getElementById('modalPriority').value,
+                tags: document.getElementById('modalTags').value.split(',').map(t => t.trim()).filter(t => t),
+                topic: document.getElementById('modalTopic').value,
+                audience: document.getElementById('modalAudience').value,
+                key_points: document.getElementById('modalKeyPoints').value
+            };
+            
+            try {
+                const res = await fetch(`/api/ideas/${currentModalIdeaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(ideaData)
+                });
+                
+                if (res.ok) {
+                    closeIdeaDetailsModal();
+                    loadKanban(); // Reload the kanban board
+                } else {
+                    alert('Error saving changes');
+                }
+            } catch (error) {
+                console.error('Error saving idea:', error);
+                alert('Error saving changes');
+            }
+        }
+
+        async function deleteIdea(ideaId) {
+            if (!confirm('Are you sure you want to delete this idea? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/ideas/${ideaId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (res.ok) {
+                    loadKanban(); // Reload the kanban board
+                } else {
+                    alert('Error deleting idea');
+                }
+            } catch (error) {
+                console.error('Error deleting idea:', error);
+                alert('Error deleting idea');
+            }
+        }
+
+        async function deleteIdeaFromModal() {
+            if (!currentModalIdeaId) return;
+            
+            if (!confirm('Are you sure you want to delete this idea? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/ideas/${currentModalIdeaId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (res.ok) {
+                    closeIdeaDetailsModal();
+                    loadKanban(); // Reload the kanban board
+                } else {
+                    alert('Error deleting idea');
+                }
+            } catch (error) {
+                console.error('Error deleting idea:', error);
+                alert('Error deleting idea');
+            }
+        }
+
+        function editIdeaInEditor() {
+            if (currentModalIdeaId) {
+                window.location.href = `/editor?id=${currentModalIdeaId}`;
+            }
+        }
     </script>
 </body>
 </html>
