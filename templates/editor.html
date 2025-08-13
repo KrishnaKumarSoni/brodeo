@@ -532,10 +532,23 @@
 
         async function loadIdea(id) {
             try {
+                console.log('Loading idea with ID:', id);
                 const res = await fetch(`/api/ideas/${id}`);
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                
                 const idea = await res.json();
+                console.log('Loaded idea data:', idea);
+                
+                if (idea.error) {
+                    throw new Error(idea.error);
+                }
                 
                 currentIdeaId = id;
+                
+                // Populate all fields
                 document.getElementById('topic').value = idea.topic || '';
                 document.getElementById('audience').value = idea.audience || '';
                 document.getElementById('keyPoints').value = idea.key_points || '';
@@ -550,19 +563,37 @@
                 document.getElementById('selectedTitle').value = idea.title || '';
                 document.getElementById('selectedDescription').value = idea.description || '';
                 
+                // Also populate the free text area if we have content
+                if (idea.topic || idea.audience || idea.key_points) {
+                    const freeText = `Topic: ${idea.topic || ''}\nAudience: ${idea.audience || ''}\nKey Points: ${idea.key_points || ''}`;
+                    document.getElementById('freeTextIdea').value = freeText;
+                }
+                
+                // Load thumbnail if available
                 if (idea.assets?.thumbnail) {
+                    console.log('Loading thumbnail...');
                     thumbnailDataUrl = idea.assets.thumbnail;
-                    // Load thumbnail to canvas
                     const img = new Image();
                     img.onload = () => {
+                        console.log('Thumbnail loaded successfully');
                         const canvas = document.getElementById('thumbnailCanvas');
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        updateThumbnail(); // Refresh canvas
+                    };
+                    img.onerror = () => {
+                        console.error('Failed to load thumbnail image');
                     };
                     img.src = thumbnailDataUrl;
+                } else {
+                    console.log('No thumbnail found in assets:', idea.assets);
                 }
+                
+                console.log('Idea loaded successfully');
+                
             } catch (error) {
                 console.error('Error loading idea:', error);
+                alert(`Failed to load idea: ${error.message}`);
             }
         }
 

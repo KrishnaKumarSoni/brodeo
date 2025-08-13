@@ -154,11 +154,19 @@ def manage_idea(idea_id):
             idea = doc.to_dict()
             idea['id'] = doc.id
             
+            print(f"Retrieved idea from Firestore: {idea}")
+            
             # Restore thumbnail from memory store if available
             if 'assets' in idea and idea['assets'] and 'thumbnail_id' in idea['assets']:
                 thumbnail_id = idea['assets']['thumbnail_id']
+                print(f"Looking for thumbnail_id: {thumbnail_id}")
                 if thumbnail_id in thumbnail_store:
                     idea['assets']['thumbnail'] = thumbnail_store[thumbnail_id]
+                    print("Thumbnail restored successfully")
+                else:
+                    print(f"Thumbnail not found in store. Available keys: {list(thumbnail_store.keys())}")
+            else:
+                print("No thumbnail_id found in assets")
                     
             return jsonify(idea)
         return jsonify({'error': 'Idea not found'}), 404
