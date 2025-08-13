@@ -679,14 +679,25 @@
                     // Ensure thumbnail studio is expanded
                     const thumbnailStudio = document.getElementById('thumbnailStudio');
                     const thumbnailStudioContent = document.getElementById('thumbnailStudioContent');
-                    const thumbnailStudioToggle = thumbnailStudio.querySelector('button');
                     
-                    if (thumbnailStudioContent.classList.contains('hidden')) {
+                    if (thumbnailStudioContent && thumbnailStudioContent.classList.contains('hidden')) {
                         thumbnailStudioContent.classList.remove('hidden');
-                        const icon = thumbnailStudioToggle.querySelector('i');
-                        icon.classList.remove('fa-chevron-down');
-                        icon.classList.add('fa-chevron-up');
-                        document.querySelector('[data-section="thumbnailStudio"] .toggle-text').textContent = 'Click to collapse';
+                        
+                        // Update toggle button if it exists
+                        const thumbnailStudioToggle = thumbnailStudio ? thumbnailStudio.querySelector('button') : null;
+                        if (thumbnailStudioToggle) {
+                            const icon = thumbnailStudioToggle.querySelector('i');
+                            if (icon) {
+                                icon.classList.remove('fa-chevron-down');
+                                icon.classList.add('fa-chevron-up');
+                            }
+                        }
+                        
+                        // Update toggle text if it exists
+                        const toggleText = document.querySelector('[data-section="thumbnailStudio"] .toggle-text');
+                        if (toggleText) {
+                            toggleText.textContent = 'Click to collapse';
+                        }
                     }
                     
                     thumbnailDataUrl = idea.assets.thumbnail;
