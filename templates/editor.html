@@ -106,9 +106,8 @@
 
     <!-- Editor Content -->
     <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Panel - Input & AI Generation -->
-            <div class="lg:col-span-2 space-y-6">
+        <!-- Main Editor Content -->
+        <div class="space-y-6 mb-6">
                 <!-- AI-Powered Quick Input -->
                 <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
                     <h2 class="text-xl font-semibold mb-4 mohave text-red-500">AI-Powered Video Creator</h2>
@@ -233,11 +232,32 @@
                 </div>
             </div>
 
-            <!-- Right Panel - Thumbnail Studio -->
-            <div class="space-y-6">
-                <!-- Thumbnail Studio -->
-                <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
-                    <h3 class="text-lg font-semibold mb-4 mohave">Thumbnail Studio</h3>
+            <!-- Save Idea Button -->
+            <button onclick="saveIdea()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                <i class="ph ph-check-circle mr-2" style="font-size: 18px;"></i>Save Video Idea
+            </button>
+        </div>
+
+        <!-- Thumbnail Studio - Bottom Panel -->
+        <div class="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden">
+            <!-- Thumbnail Studio Header -->
+            <div class="bg-zinc-800 px-6 py-3 border-b border-zinc-700 flex items-center justify-between cursor-pointer" onclick="toggleThumbnailStudio()">
+                <div class="flex items-center space-x-3">
+                    <i class="ph ph-image text-xl text-red-500"></i>
+                    <h3 class="text-lg font-semibold mohave text-red-500">Advanced Thumbnail Studio</h3>
+                    <span class="text-xs bg-red-600 px-2 py-1 rounded-full">NEW</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-zinc-400" id="thumbnailStudioStatus">Click to expand</span>
+                    <i class="ph ph-caret-down text-zinc-400 transition-transform" id="thumbnailStudioCaret"></i>
+                </div>
+            </div>
+            
+            <!-- Thumbnail Studio Content -->
+            <div id="thumbnailStudioContent" class="hidden">
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Controls -->
+                    <div class="lg:col-span-1 space-y-4">
                     
                     <!-- Aspect Ratio -->
                     <div class="mb-4">

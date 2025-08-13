@@ -248,34 +248,44 @@
                 'low': 'text-green-500'
             };
             
+            const hasThumbnail = idea.assets?.thumbnail;
+            
             return `
-                <div class="kanban-card bg-zinc-800 rounded-lg p-4 cursor-move hover:bg-zinc-700 transition"
+                <div class="kanban-card bg-zinc-800 rounded-lg overflow-hidden cursor-move hover:bg-zinc-700 transition"
                      draggable="true"
                      ondragstart="dragCard(event, '${idea.id}')"
                      ondragend="dragEnd(event)">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="text-sm font-semibold line-clamp-2">${idea.title || 'Untitled'}</h4>
-                        <span class="${priorityColors[idea.priority || 'medium']}">
-                            <i class="fas fa-flag text-xs"></i>
-                        </span>
-                    </div>
-                    <p class="text-xs text-zinc-400 line-clamp-3 mb-3">${idea.description || 'No description'}</p>
-                    <div class="flex flex-wrap gap-1 mb-3">
-                        ${(idea.tags || []).map(tag => `
-                            <span class="inline-block px-2 py-1 text-xs bg-zinc-700 rounded-full">${tag}</span>
-                        `).join('')}
-                    </div>
-                    <div class="flex justify-between items-center">
-                        ${idea.schedule_date ? `
-                            <span class="text-xs text-zinc-400">
-                                <i class="fas fa-calendar-alt mr-1"></i>
-                                ${new Date(idea.schedule_date).toLocaleDateString()}
+                    ${hasThumbnail ? `
+                        <div class="relative h-32 bg-zinc-900 overflow-hidden">
+                            <img src="${idea.assets.thumbnail}" alt="Thumbnail" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent"></div>
+                        </div>
+                    ` : ''}
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-sm font-semibold line-clamp-2">${idea.title || 'Untitled'}</h4>
+                            <span class="${priorityColors[idea.priority || 'medium']}">
+                                <i class="fas fa-flag text-xs"></i>
                             </span>
-                        ` : '<span></span>'}
-                        <button onclick="window.location.href='/editor?id=${idea.id}'; event.stopPropagation();" 
-                                class="text-xs text-red-500 hover:text-red-400 transition">
-                            <i class="fas fa-arrow-right"></i> Edit
-                        </button>
+                        </div>
+                        <p class="text-xs text-zinc-400 line-clamp-2 mb-3">${idea.description || 'No description'}</p>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            ${(idea.tags || []).map(tag => `
+                                <span class="inline-block px-2 py-1 text-xs bg-zinc-700 rounded-full">${tag}</span>
+                            `).join('')}
+                        </div>
+                        <div class="flex justify-between items-center">
+                            ${idea.schedule_date ? `
+                                <span class="text-xs text-zinc-400">
+                                    <i class="fas fa-calendar-alt mr-1"></i>
+                                    ${new Date(idea.schedule_date).toLocaleDateString()}
+                                </span>
+                            ` : '<span></span>'}
+                            <button onclick="window.location.href='/editor?id=${idea.id}'; event.stopPropagation();" 
+                                    class="text-xs text-red-500 hover:text-red-400 transition">
+                                <i class="fas fa-arrow-right"></i> Edit
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;

@@ -51,7 +51,37 @@ except Exception as e:
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Simple in-memory store for thumbnails (temporary solution)
+# This will be replaced with proper Firestore storage
 thumbnail_store = {}
+
+def store_thumbnail_in_firestore(idea_id, thumbnail_data):
+    """Store thumbnail as a separate document to avoid size limits"""
+    try:
+        # Store thumbnail in a separate collection
+        thumbnail_doc = {
+            'idea_id': idea_id,
+            'data': thumbnail_data,
+            'created_at': firestore.SERVER_TIMESTAMP
+        }
+        db.collection('thumbnails').document(idea_id).set(thumbnail_doc)
+        return True
+    except Exception as e:
+        print(f"Error storing thumbnail: {e}")
+        # Fallback to memory store
+        thumbnail_store[idea_id] = thumbnail_data
+        return False
+
+def get_thumbnail_from_firestore(idea_id):
+    """Retrieve thumbnail from Firestore"""
+    try:
+        doc = db.collection('thumbnails').document(idea_id).get()
+        if doc.exists:
+            return doc.to_dict().get('data')
+    except Exception as e:
+        print(f"Error retrieving thumbnail: {e}")
+    
+    # Fallback to memory store
+    return thumbnail_store.get(idea_id)
 
 # Routes for pages
 @app.route('/')
@@ -86,17 +116,14 @@ def manage_ideas():
         
         # Handle assets separately to avoid Firestore size limits
         assets = data.get('assets', {})
-        thumbnail_id = None
+        thumbnail_data = None
         if assets and 'thumbnail' in assets and assets['thumbnail']:
-            # Store thumbnail in memory store and keep only reference in Firestore
+            # Store thumbnail separately
             thumbnail_data = assets['thumbnail']
-            if thumbnail_data:
-                import uuid
-                thumbnail_id = str(uuid.uuid4())
-                thumbnail_store[thumbnail_id] = thumbnail_data
-                # Replace thumbnail data with just the ID
-                assets['thumbnail_id'] = thumbnail_id
-                del assets['thumbnail']
+            # Mark that this idea has a thumbnail
+            assets['has_thumbnail'] = True
+            # Don't store the actual data in the idea document
+            del assets['thumbnail']
         
         idea = {
             'title': data.get('title', ''),
@@ -115,9 +142,20 @@ def manage_ideas():
         
         try:
             doc_ref = db.collection('ideas').add(idea)
+            idea_id = doc_ref[1].id
+            
+            # Store thumbnail separately if provided
+            if thumbnail_data:
+                store_thumbnail_in_firestore(idea_id, thumbnail_data)
+            
             # Return only serializable data, not SERVER_TIMESTAMP
             response_data = {k: v for k, v in idea.items() if k not in ['created_at', 'updated_at']}
-            response_data['id'] = doc_ref[1].id
+            response_data['id'] = idea_id
+            
+            # Include thumbnail in response
+            if thumbnail_data:
+                response_data['assets']['thumbnail'] = thumbnail_data
+                
             return jsonify(response_data), 201
         except Exception as e:
             # If still failing, remove assets entirely and try again
@@ -135,11 +173,11 @@ def manage_ideas():
         idea = doc.to_dict()
         idea['id'] = doc.id
         
-        # Restore thumbnail from memory store if available
-        if 'assets' in idea and idea['assets'] and 'thumbnail_id' in idea['assets']:
-            thumbnail_id = idea['assets']['thumbnail_id']
-            if thumbnail_id in thumbnail_store:
-                idea['assets']['thumbnail'] = thumbnail_store[thumbnail_id]
+        # Restore thumbnail if available
+        if 'assets' in idea and idea['assets'] and idea['assets'].get('has_thumbnail'):
+            thumbnail = get_thumbnail_from_firestore(doc.id)
+            if thumbnail:
+                idea['assets']['thumbnail'] = thumbnail
                 
         ideas.append(idea)
     return jsonify(ideas)
@@ -156,17 +194,17 @@ def manage_idea(idea_id):
             
             print(f"Retrieved idea from Firestore: {idea}")
             
-            # Restore thumbnail from memory store if available
-            if 'assets' in idea and idea['assets'] and 'thumbnail_id' in idea['assets']:
-                thumbnail_id = idea['assets']['thumbnail_id']
-                print(f"Looking for thumbnail_id: {thumbnail_id}")
-                if thumbnail_id in thumbnail_store:
-                    idea['assets']['thumbnail'] = thumbnail_store[thumbnail_id]
+            # Restore thumbnail if available
+            if 'assets' in idea and idea['assets'] and idea['assets'].get('has_thumbnail'):
+                print(f"Looking for thumbnail for idea: {doc.id}")
+                thumbnail = get_thumbnail_from_firestore(doc.id)
+                if thumbnail:
+                    idea['assets']['thumbnail'] = thumbnail
                     print("Thumbnail restored successfully")
                 else:
-                    print(f"Thumbnail not found in store. Available keys: {list(thumbnail_store.keys())}")
+                    print("No thumbnail found")
             else:
-                print("No thumbnail_id found in assets")
+                print("No thumbnail marker found in assets")
                     
             return jsonify(idea)
         return jsonify({'error': 'Idea not found'}), 404
@@ -175,22 +213,25 @@ def manage_idea(idea_id):
         data = request.json
         
         # Handle assets separately to avoid Firestore size limits
+        thumbnail_data = None
         if 'assets' in data:
             assets = data['assets']
             if assets and 'thumbnail' in assets and assets['thumbnail']:
                 thumbnail_data = assets['thumbnail']
-                if thumbnail_data:
-                    import uuid
-                    thumbnail_id = str(uuid.uuid4())
-                    thumbnail_store[thumbnail_id] = thumbnail_data
-                    # Replace thumbnail data with just the ID
-                    assets['thumbnail_id'] = thumbnail_id
-                    del assets['thumbnail']
+                # Mark that this idea has a thumbnail
+                assets['has_thumbnail'] = True
+                # Don't store the actual data in the idea document
+                del assets['thumbnail']
         
         data['updated_at'] = firestore.SERVER_TIMESTAMP
         
         try:
             doc_ref.update(data)
+            
+            # Store thumbnail separately if provided
+            if thumbnail_data:
+                store_thumbnail_in_firestore(idea_id, thumbnail_data)
+                
             return jsonify({'message': 'Idea updated successfully'})
         except Exception as e:
             # If still failing, remove assets and try again
