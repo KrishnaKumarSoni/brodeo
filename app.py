@@ -516,41 +516,35 @@ def generate_image_prompt():
 def generate_image():
     data = request.json
     prompt = data.get('prompt', '')
-    quality = data.get('quality', 'standard')  # standard, hd
+    quality = data.get('quality', 'standard')  # Frontend sends standard/hd
+    
+    # Map DALL-E 3 quality values to gpt-image-1 values
+    quality_mapping = {
+        'standard': 'medium',
+        'hd': 'high'
+    }
+    gpt_quality = quality_mapping.get(quality, 'medium')
     
     if not prompt:
         return jsonify({'error': 'No prompt provided'}), 400
     
     try:
         # Use GPT-4o native image generation (gpt-image-1) - latest model from 2025
+        # Organization must be verified to use this model
         response = client.images.generate(
             model="gpt-image-1",
             prompt=prompt,
-            size="1792x1024",  # 16:9 aspect ratio for YouTube thumbnails
-            quality=quality,   # standard or hd
+            size="1536x1024",  # Landscape format (closest to 16:9 for YouTube thumbnails)
+            quality=gpt_quality,   # low, medium, high, or auto
             n=1,
         )
         
-        # GPT-4o image generation returns URLs, convert to base64 for CORS safety
-        image_url = response.data[0].url
-        image_response = requests.get(image_url)
-        if image_response.status_code == 200:
-            image_base64 = base64.b64encode(image_response.content).decode('utf-8')
-            return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
-        else:
-            return jsonify({'image_url': image_url})
-            
-    except Exception as e:
-        # Fallback to DALL-E 3 if gpt-image-1 is not available
-        try:
-            response = client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                size="1792x1024",
-                quality=quality,
-                style="vivid",
-                n=1,
-            )
+        # GPT-4o image generation (gpt-image-1) returns base64 directly
+        if hasattr(response.data[0], 'b64_json') and response.data[0].b64_json:
+            # Direct base64 response from gpt-image-1
+            return jsonify({'image_url': f'data:image/png;base64,{response.data[0].b64_json}'})
+        elif hasattr(response.data[0], 'url'):
+            # Fallback to URL if provided (shouldn't happen with gpt-image-1)
             image_url = response.data[0].url
             image_response = requests.get(image_url)
             if image_response.status_code == 200:
@@ -558,8 +552,12 @@ def generate_image():
                 return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
             else:
                 return jsonify({'image_url': image_url})
-        except Exception as fallback_error:
-            return jsonify({'error': f'Image generation failed with gpt-image-1: {str(e)}. DALL-E 3 fallback error: {str(fallback_error)}'}), 500
+        else:
+            return jsonify({'error': 'Unexpected response format from gpt-image-1'}), 500
+            
+    except Exception as e:
+        # No fallback - only use gpt-image-1
+        return jsonify({'error': f'Image generation failed with gpt-image-1: {str(e)}. Please ensure your OpenAI organization is verified.'}), 500
 
 @app.route('/api/schedule', methods=['GET', 'POST', 'PUT'])
 def manage_schedule():
