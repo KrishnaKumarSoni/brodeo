@@ -448,7 +448,7 @@
                                 
                                 <button onclick="showImageConceptsModal()" id="generateImageBtn" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
                                     <i class="ph ph-image mr-1" style="font-size: 14px;" id="generateImageIcon"></i>
-                                    <span id="generateImageText">Generate with GPT-4o</span>
+                                    <span id="generateImageText">Generate with AI</span>
                                 </button>
                                 
                                 <div class="flex justify-between items-center mt-2">
@@ -471,11 +471,64 @@
 
     </div>
 
+    <!-- Style Selection Modal -->
+    <div id="styleSelectionModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 rounded-lg p-6 max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold mohave text-red-500">Choose Image Style</h3>
+                <button onclick="closeStyleSelectionModal()" class="text-zinc-400 hover:text-white">
+                    <i class="ph ph-x" style="font-size: 20px;"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button onclick="selectStyle('photography')" class="style-option group p-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg border-2 border-transparent hover:border-red-500 transition" data-style="photography">
+                    <div class="text-center">
+                        <i class="ph ph-camera text-3xl text-blue-400 mb-2 group-hover:text-red-400"></i>
+                        <h4 class="font-semibold text-sm mb-1">Photography</h4>
+                        <p class="text-xs text-zinc-400">Realistic, professional photos</p>
+                    </div>
+                </button>
+                
+                <button onclick="selectStyle('illustration')" class="style-option group p-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg border-2 border-transparent hover:border-red-500 transition" data-style="illustration">
+                    <div class="text-center">
+                        <i class="ph ph-palette text-3xl text-purple-400 mb-2 group-hover:text-red-400"></i>
+                        <h4 class="font-semibold text-sm mb-1">Illustration</h4>
+                        <p class="text-xs text-zinc-400">Artistic, drawn graphics</p>
+                    </div>
+                </button>
+                
+                <button onclick="selectStyle('graphic')" class="style-option group p-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg border-2 border-transparent hover:border-red-500 transition" data-style="graphic">
+                    <div class="text-center">
+                        <i class="ph ph-shapes text-3xl text-green-400 mb-2 group-hover:text-red-400"></i>
+                        <h4 class="font-semibold text-sm mb-1">Graphic</h4>
+                        <p class="text-xs text-zinc-400">Bold, modern designs</p>
+                    </div>
+                </button>
+                
+                <button onclick="selectStyle('mixed')" class="style-option group p-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg border-2 border-transparent hover:border-red-500 transition" data-style="mixed">
+                    <div class="text-center">
+                        <i class="ph ph-magic-wand text-3xl text-yellow-400 mb-2 group-hover:text-red-400"></i>
+                        <h4 class="font-semibold text-sm mb-1">Mixed</h4>
+                        <p class="text-xs text-zinc-400">Combination of styles</p>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-xs text-zinc-400 mb-4">AI will generate 3 unique concepts in your chosen style</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Image Concepts Modal -->
     <div id="imageConceptsModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold mohave">AI Image Concepts</h3>
+                <div>
+                    <h3 class="text-xl font-bold mohave text-red-500">AI Image Concepts</h3>
+                    <p class="text-sm text-zinc-400" id="selectedStyleText">Photography Style</p>
+                </div>
                 <button onclick="closeImageConceptsModal()" class="text-zinc-400 hover:text-white">
                     <i class="ph ph-x" style="font-size: 20px;"></i>
                 </button>
@@ -488,15 +541,32 @@
 
     <!-- Image Prompt Modal -->
     <div id="imagePromptModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-zinc-900 rounded-lg p-6 max-w-2xl w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold mohave">Review Image Prompt</h3>
+        <div class="bg-zinc-900 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-xl font-bold mohave text-red-500">Edit AI Prompt</h3>
+                    <p class="text-sm text-zinc-400">Customize the prompt before generating your image</p>
+                </div>
                 <button onclick="closeImagePromptModal()" class="text-zinc-400 hover:text-white">
                     <i class="ph ph-x" style="font-size: 20px;"></i>
                 </button>
             </div>
-            <div id="imagePromptContent" class="space-y-4">
-                <!-- Prompt content will be loaded here -->
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-zinc-300 mb-2">Image Prompt</label>
+                    <textarea id="editableImagePrompt" rows="8" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none resize-none text-sm" placeholder="Detailed image description..."></textarea>
+                    <p class="text-xs text-zinc-500 mt-1">Describe exactly what you want to see in your thumbnail image</p>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeImagePromptModal()" class="bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded-lg text-sm transition">
+                        Cancel
+                    </button>
+                    <button onclick="generateImageFromEditedPrompt()" id="generateFromPromptBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition flex items-center">
+                        <i class="ph ph-image mr-2"></i>Generate Image
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1533,20 +1603,179 @@
             }
         }
         
+        // Global variables for image generation
+        let selectedImageStyle = null;
+        let currentImageConcepts = null;
+        let currentGeneratedPrompt = null;
+
         async function showImageConceptsModal() {
+            // First show style selection modal
+            document.getElementById('styleSelectionModal').classList.remove('hidden');
+        }
+
+        function closeStyleSelectionModal() {
+            document.getElementById('styleSelectionModal').classList.add('hidden');
+        }
+
+        function selectStyle(style) {
+            selectedImageStyle = style;
+            closeStyleSelectionModal();
+            
+            // Now generate concepts with the selected style
+            generateImageConcepts(style);
+        }
+
+        async function generateImageConcepts(style) {
             // Show loading state on button
             const btn = document.getElementById('generateImageBtn');
             const icon = document.getElementById('generateImageIcon');
             const text = document.getElementById('generateImageText');
-            const originalBtnContent = btn.innerHTML;
             
             btn.disabled = true;
             btn.classList.add('opacity-75');
             icon.className = 'ph ph-circle-notch mr-1 animate-spin';
-            text.textContent = 'Analyzing Context...';
+            text.textContent = 'Generating...';
             
-            // Check if we need to generate concepts based on current input
-            if (!window.currentImageConcepts) {
+            // Check if we have content to work with
+            const titleEl = document.getElementById('selectedTitle');
+            const topicEl = document.getElementById('topic');
+            const audienceEl = document.getElementById('audience');
+            const descriptionEl = document.getElementById('selectedDescription');
+            const keyPointsEl = document.getElementById('keyPoints');
+            
+            const title = titleEl ? titleEl.value.trim() : '';
+            const topic = topicEl ? topicEl.value.trim() : '';
+            const audience = audienceEl ? audienceEl.value.trim() : '';
+            const description = descriptionEl ? descriptionEl.value.trim() : '';
+            const keyPoints = keyPointsEl ? keyPointsEl.value.trim() : '';
+            
+            if (!title && !topic && !description) {
+                alert('Please enter a video title, topic, or description first to generate thumbnail concepts');
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+                icon.className = 'ph ph-image mr-1';
+                text.textContent = 'Generate with AI';
+                return;
+            }
+
+            // Show full-screen loader with our design style
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'conceptsLoader';
+            loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center';
+            loadingDiv.innerHTML = `
+                <div class="bg-zinc-900 rounded-lg p-8 text-center max-w-md border border-zinc-700">
+                    <div class="mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-full mb-4 relative">
+                            <i class="ph ph-sparkle text-2xl text-white animate-pulse"></i>
+                            <div class="absolute inset-0 bg-red-600 rounded-full animate-ping opacity-25"></div>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2 mohave text-red-500">Creating AI Concepts</h3>
+                        <p class="text-sm text-zinc-400">Analyzing your content for ${style} style thumbnails...</p>
+                    </div>
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-2 h-2 bg-red-500 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-red-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-2 h-2 bg-red-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 bg-red-200 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+
+            try {
+                // Build rich context for AI
+                const contextParts = [];
+                if (title) contextParts.push(`Title: ${title}`);
+                if (topic) contextParts.push(`Topic: ${topic}`);
+                if (description) contextParts.push(`Description: ${description}`);
+                if (keyPoints) contextParts.push(`Key Points: ${keyPoints}`);
+                if (audience) contextParts.push(`Target Audience: ${audience}`);
+                
+                const fullContext = contextParts.join('\\n');
+                
+                // Generate style-specific concepts
+                const styleDescriptions = {
+                    'photography': 'realistic, professional photographs with dramatic lighting and composition',
+                    'illustration': 'artistic, hand-drawn or digital illustrations with creative visual storytelling',
+                    'graphic': 'bold, modern graphic design with clean typography and geometric elements', 
+                    'mixed': 'combination of photography, illustration, and graphic elements for unique visual impact'
+                };
+
+                const mainTopic = title || topic || description.substring(0, 50) || 'your video content';
+                
+                currentImageConcepts = [
+                    { 
+                        title: "Dynamic Focus", 
+                        description: `Eye-catching ${style} showing ${mainTopic} with ${styleDescriptions[style].split(',')[0]}`, 
+                        style: style 
+                    },
+                    { 
+                        title: "Concept Visualization", 
+                        description: `Visual representation of ${mainTopic} using ${styleDescriptions[style].split(',')[1] || styleDescriptions[style]}`, 
+                        style: style 
+                    },
+                    { 
+                        title: "Engaging Scene", 
+                        description: `Compelling ${style} scene that captures the essence of ${mainTopic} with ${styleDescriptions[style].split(',')[2] || 'striking visual elements'}`, 
+                        style: style 
+                    }
+                ];
+
+                // Simulate realistic loading time
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                document.body.removeChild(loadingDiv);
+                
+                // Show concepts modal
+                showGeneratedConcepts();
+                
+            } catch (error) {
+                console.error('Error generating concepts:', error);
+                document.body.removeChild(loadingDiv);
+                alert('Error generating concepts. Please try again.');
+            } finally {
+                // Reset button
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+                icon.className = 'ph ph-image mr-1';
+                text.textContent = 'Generate with AI';
+            }
+        }
+
+        function showGeneratedConcepts() {
+            // Update style text
+            document.getElementById('selectedStyleText').textContent = `${selectedImageStyle.charAt(0).toUpperCase() + selectedImageStyle.slice(1)} Style`;
+            
+            // Render concepts
+            const conceptsList = document.getElementById('imageConceptsList');
+            conceptsList.innerHTML = currentImageConcepts.map((concept, index) => `
+                <div class="bg-zinc-800 rounded-lg p-4 border border-zinc-700">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white mb-1">${concept.title}</h4>
+                            <p class="text-sm text-zinc-300 mb-2">${concept.description}</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-block px-2 py-1 text-xs rounded-full bg-${concept.style === 'photography' ? 'blue' : concept.style === 'illustration' ? 'purple' : concept.style === 'graphic' ? 'green' : 'yellow'}-600 text-white">
+                                    ${concept.style}
+                                </span>
+                            </div>
+                        </div>
+                        <button onclick="generatePromptFromConcept(${index})" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-xs transition flex items-center">
+                            <i class="ph ph-arrow-right mr-1"></i>Create Prompt
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Show modal
+            document.getElementById('imageConceptsModal').classList.remove('hidden');
+        }
+
+        function closeImageConceptsModal() {
+            document.getElementById('imageConceptsModal').classList.add('hidden');
+        }
+
+        async function generatePromptFromConcept(conceptIndex) {
                 // Get current values from form - get ALL available context
                 const titleEl = document.getElementById('selectedTitle');
                 const topicEl = document.getElementById('topic');
@@ -1599,38 +1828,131 @@
                     `;
                     document.body.appendChild(loadingDiv);
                     
-                    // Generate image concepts using rich context
-                    const conceptsPrompt = `Generate 3 thumbnail image concepts for this YouTube video:
+                    // Get the selected concept
+                    const selectedConcept = currentImageConcepts[conceptIndex];
                     
-                    ${fullContext}
-                    
-                    Each concept should be visually compelling and click-worthy, directly reflecting the specific content above.
-                    Return as JSON: {"concepts": [
-                        {"title": "Concept Name", "description": "Visual description", "style": "photography|illustration|graphic"},
-                        ...
-                    ]}`;
-                    
+                    // Generate detailed prompt using the concept and context
                     const response = await fetch('/api/generate/image-prompt', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            concept: { title: 'Custom', description: conceptsPrompt, style: 'photography' },
+                            concept: selectedConcept,
                             topic: fullContext,
                             has_reference_image: !!referenceImage
                         })
                     });
                     
-                    // For now, create context-aware default concepts
-                    const mainTopic = title || topic || 'your video content';
-                    window.currentImageConcepts = [
-                        { title: "Dynamic Portrait", description: `Eye-catching portrait showcasing ${mainTopic} with dramatic lighting`, style: "photography" },
-                        { title: "Concept Visualization", description: `Visual representation of ${mainTopic} with modern graphics and clear focus`, style: "illustration" },
-                        { title: "Action Scene", description: `Dynamic scene demonstrating ${mainTopic} in action with engaging elements`, style: "photography" }
-                    ];
-                    window.currentTopic = fullContext;
-                    window.currentReferenceImage = referenceImage;
+                    if (response.ok) {
+                        const data = await response.json();
+                        currentGeneratedPrompt = data.prompt;
+                        
+                        // Remove loading modal
+                        document.body.removeChild(loadingDiv);
+                        
+                        // Close concepts modal and show editable prompt modal
+                        closeImageConceptsModal();
+                        showEditablePromptModal(selectedConcept, data.prompt);
+                    } else {
+                        throw new Error('Failed to generate prompt');
+                    }
                     
+                } catch (error) {
+                    console.error('Error generating prompt:', error);
                     document.body.removeChild(loadingDiv);
+                    alert('Error generating prompt. Please try again.');
+                }
+        }
+        
+        function showEditablePromptModal(concept, generatedPrompt) {
+            document.getElementById('editableConceptTitle').textContent = concept.title;
+            document.getElementById('editableConceptDescription').textContent = concept.description;
+            document.getElementById('editableImagePrompt').value = generatedPrompt;
+            document.getElementById('imagePromptModal').classList.remove('hidden');
+        }
+        
+        function closeImagePromptModal() {
+            document.getElementById('imagePromptModal').classList.add('hidden');
+        }
+        
+        async function generateImageFromEditedPrompt() {
+            const prompt = document.getElementById('editableImagePrompt').value.trim();
+            
+            if (!prompt) {
+                alert('Please enter a prompt first');
+                return;
+            }
+            
+            const btn = document.getElementById('generateFromPromptBtn');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="ph ph-circle-notch mr-2 animate-spin"></i>Generating Image...';
+            btn.disabled = true;
+            
+            // Show loading modal
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
+            loadingDiv.innerHTML = `
+                <div class="bg-zinc-900 rounded-lg p-8 text-center max-w-md">
+                    <div class="mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-full mb-4 ai-loading-pulse">
+                            <i class="ph ph-image text-2xl text-white ai-loading-sparkle"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Creating Thumbnail</h3>
+                        <p class="text-sm text-zinc-400">AI is bringing your vision to life...</p>
+                    </div>
+                    <div class="flex items-center justify-center space-x-2">
+                        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        <div class="w-2 h-2 bg-red-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 bg-red-300 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+            
+            try {
+                const response = await fetch('/api/generate/image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        prompt: prompt,
+                        quality: 'standard'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Load generated image into canvas
+                const img = new Image();
+                img.onload = () => {
+                    uploadedImage = img;
+                    updateThumbnail();
+                    
+                    // Close modals and show success
+                    closeImagePromptModal();
+                    document.body.removeChild(loadingDiv);
+                    
+                    // Show thumbnail studio with generated image
+                    if (!thumbnailStudioExpanded) {
+                        toggleThumbnailStudio();
+                    }
+                };
+                img.onerror = () => {
+                    throw new Error('Failed to load generated image');
+                };
+                img.src = data.image_url;
+                
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Error generating image: ' + error.message);
+                document.body.removeChild(loadingDiv);
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
                     
                 } catch (error) {
                     console.error('Error generating concepts:', error);
@@ -1757,7 +2079,7 @@
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-full mb-4">
                             <i class="ph ph-image text-2xl text-white ai-loading-sparkle"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Generating Image with GPT-4o</h3>
+                        <h3 class="text-xl font-semibold mb-2">Generating Image with AI</h3>
                         <p class="text-sm text-zinc-400 mb-4">Using ${quality.toUpperCase()} quality • This may take 10-60 seconds</p>
                         ${referenceImage ? '<p class="text-xs text-purple-400">✨ Including your reference image</p>' : ''}
                     </div>
@@ -1789,7 +2111,7 @@
                 img.onload = () => {
                     uploadedImage = img;
                     updateThumbnail();
-                    alert(`✨ Image generated successfully with GPT-4o! \n\nConcept: ${conceptTitle}\nQuality: ${quality.toUpperCase()}`);
+                    alert(`✨ Image generated successfully with AI! \n\nConcept: ${conceptTitle}\nQuality: ${quality.toUpperCase()}`);
                 };
                 img.onerror = () => {
                     alert('Error loading generated image');

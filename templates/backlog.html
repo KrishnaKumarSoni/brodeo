@@ -383,16 +383,19 @@
                             ` : '<span></span>'}
                             <div class="flex space-x-2">
                                 <button onclick="viewIdeaDetails('${idea.id}'); event.stopPropagation();" 
-                                        class="text-xs text-blue-500 hover:text-blue-400 transition flex items-center">
-                                    <i class="fas fa-eye mr-1"></i>View
+                                        class="text-xs text-blue-500 hover:text-blue-400 transition p-1 rounded hover:bg-blue-500/10"
+                                        title="View Details">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                                 <button onclick="window.location.href='/editor?id=${idea.id}'; event.stopPropagation();" 
-                                        class="text-xs text-red-500 hover:text-red-400 transition flex items-center">
-                                    <i class="fas fa-edit mr-1"></i>Edit
+                                        class="text-xs text-red-500 hover:text-red-400 transition p-1 rounded hover:bg-red-500/10"
+                                        title="Edit">
+                                    <i class="fas fa-edit"></i>
                                 </button>
                                 <button onclick="deleteIdea('${idea.id}'); event.stopPropagation();" 
-                                        class="text-xs text-red-600 hover:text-red-400 transition flex items-center">
-                                    <i class="fas fa-trash mr-1"></i>
+                                        class="text-xs text-red-600 hover:text-red-400 transition p-1 rounded hover:bg-red-500/10"
+                                        title="Delete">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
@@ -475,11 +478,23 @@
             const thumbnailImg = document.getElementById('modalThumbnailImage');
             const thumbnailPlaceholder = document.getElementById('modalThumbnailPlaceholder');
             
+            console.log('Idea assets:', idea.assets);
+            console.log('Has thumbnail:', !!idea.assets?.thumbnail);
+            
             if (idea.assets?.thumbnail) {
+                console.log('Setting thumbnail src, data length:', idea.assets.thumbnail.length);
                 thumbnailImg.src = idea.assets.thumbnail;
                 thumbnailImg.classList.remove('hidden');
                 thumbnailPlaceholder.classList.add('hidden');
+                
+                // Add error handler to see if image fails to load
+                thumbnailImg.onerror = function() {
+                    console.error('Failed to load thumbnail image');
+                    thumbnailImg.classList.add('hidden');
+                    thumbnailPlaceholder.classList.remove('hidden');
+                };
             } else {
+                console.log('No thumbnail found in assets');
                 thumbnailImg.classList.add('hidden');
                 thumbnailPlaceholder.classList.remove('hidden');
             }
@@ -529,13 +544,16 @@
             }
             
             try {
+                console.log('Deleting idea:', ideaId);
                 const res = await fetch(`/api/ideas/${ideaId}`, {
                     method: 'DELETE'
                 });
                 
                 if (res.ok) {
-                    loadKanban(); // Reload the kanban board
+                    console.log('Idea deleted successfully, refreshing kanban board');
+                    await loadKanban(); // Reload the kanban board
                 } else {
+                    console.error('Delete failed with status:', res.status);
                     alert('Error deleting idea');
                 }
             } catch (error) {
@@ -552,18 +570,21 @@
             }
             
             try {
+                console.log('Deleting idea from modal:', currentModalIdeaId);
                 const res = await fetch(`/api/ideas/${currentModalIdeaId}`, {
                     method: 'DELETE'
                 });
                 
                 if (res.ok) {
+                    console.log('Idea deleted successfully from modal, closing modal and refreshing');
                     closeIdeaDetailsModal();
-                    loadKanban(); // Reload the kanban board
+                    await loadKanban(); // Reload the kanban board
                 } else {
+                    console.error('Delete from modal failed with status:', res.status);
                     alert('Error deleting idea');
                 }
             } catch (error) {
-                console.error('Error deleting idea:', error);
+                console.error('Error deleting idea from modal:', error);
                 alert('Error deleting idea');
             }
         }
