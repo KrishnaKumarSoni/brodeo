@@ -464,7 +464,7 @@ def generate_image_prompt():
     - Maintain the person's likeness while fitting the overall composition
     """
     
-    prompt = f"""Create a GPT-4o native image generation optimized prompt for a YouTube thumbnail image:
+    prompt = f"""Create a GPT-4o native image generation (gpt-image-1) optimized prompt for a YouTube thumbnail image:
 
     Topic: {topic}
     Concept: {concept.get('title', '')} - {concept.get('description', '')}
@@ -476,7 +476,7 @@ def generate_image_prompt():
     - ABSOLUTELY NO TEXT, WORDS, OR LETTERS in the image
     - NO typography, NO captions, NO labels, NO signs with text
     - Pure visual imagery only - text will be added separately later
-    - Ultra high-quality, professional cinematography
+    - Ultra high-quality, professional cinematography (up to 4096x4096 quality)
     - Dynamic composition with strong visual hierarchy
     - Bold, saturated colors that pop on screen
     - Dramatic lighting and shadows for depth
@@ -486,15 +486,16 @@ def generate_image_prompt():
     - Clean visual composition without any textual elements
     {reference_context}
     
-    Leverage GPT-4o's native image generation capabilities:
-    - Enhanced prompt following with contextual understanding
-    - Rich multimodal knowledge integration  
-    - Vivid, cinematic style generation with photorealistic quality
-    - Advanced compositional intelligence
+    Leverage GPT-4o's native image generation capabilities (gpt-image-1):
+    - Superior prompt following with advanced contextual understanding
+    - Rich multimodal knowledge integration from GPT-4o's training
+    - Advanced compositional intelligence and world knowledge
+    - High-fidelity rendering with accurate detail representation
+    - Enhanced creative interpretation while maintaining technical precision
     
     REMEMBER: Generate ONLY the visual image without any text whatsoever.
     
-    Return JSON: {{"prompt": "detailed GPT-4o optimized prompt with NO TEXT", "style_notes": "visual composition guidance"}}"""
+    Return JSON: {{"prompt": "detailed gpt-image-1 optimized prompt with NO TEXT", "style_notes": "visual composition guidance"}}"""
     
     try:
         response = client.chat.completions.create(
@@ -521,31 +522,26 @@ def generate_image():
         return jsonify({'error': 'No prompt provided'}), 400
     
     try:
-        # Use GPT-4o's native image generation (same as ChatGPT web app)
+        # Use GPT-4o native image generation (gpt-image-1) - latest model from 2025
         response = client.images.generate(
-            model="gpt-4o",
+            model="gpt-image-1",
             prompt=prompt,
             size="1792x1024",  # 16:9 aspect ratio for YouTube thumbnails
             quality=quality,   # standard or hd
-            style="vivid",     # vivid style for more dynamic images
             n=1,
         )
         
-        # GPT-image-1 returns base64 by default
-        if hasattr(response.data[0], 'b64_json') and response.data[0].b64_json:
-            return jsonify({'image_url': f'data:image/png;base64,{response.data[0].b64_json}'})
+        # GPT-4o image generation returns URLs, convert to base64 for CORS safety
+        image_url = response.data[0].url
+        image_response = requests.get(image_url)
+        if image_response.status_code == 200:
+            image_base64 = base64.b64encode(image_response.content).decode('utf-8')
+            return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
         else:
-            # Fallback to URL if available
-            image_url = response.data[0].url
-            image_response = requests.get(image_url)
-            if image_response.status_code == 200:
-                image_base64 = base64.b64encode(image_response.content).decode('utf-8')
-                return jsonify({'image_url': f'data:image/png;base64,{image_base64}'})
-            else:
-                return jsonify({'image_url': image_url})
+            return jsonify({'image_url': image_url})
             
     except Exception as e:
-        # Fallback to DALL-E 3 if GPT-image-1 is not available
+        # Fallback to DALL-E 3 if gpt-image-1 is not available
         try:
             response = client.images.generate(
                 model="dall-e-3",
@@ -563,7 +559,7 @@ def generate_image():
             else:
                 return jsonify({'image_url': image_url})
         except Exception as fallback_error:
-            return jsonify({'error': f'Image generation failed: {str(e)}. Fallback error: {str(fallback_error)}'}), 500
+            return jsonify({'error': f'Image generation failed with gpt-image-1: {str(e)}. DALL-E 3 fallback error: {str(fallback_error)}'}), 500
 
 @app.route('/api/schedule', methods=['GET', 'POST', 'PUT'])
 def manage_schedule():
