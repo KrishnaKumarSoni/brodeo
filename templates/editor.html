@@ -2126,6 +2126,7 @@
         }
         
         function startTextDrag(e) {
+            e.preventDefault();
             const canvas = document.getElementById('thumbnailCanvas');
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -2134,15 +2135,28 @@
             const mouseX = (e.clientX - rect.left) * scaleX;
             const mouseY = (e.clientY - rect.top) * scaleY;
             
-            // Check if we clicked on text area (approximate)
+            const thumbnailText = document.getElementById('thumbnailText').value;
+            if (!thumbnailText) return;
+            
+            // Calculate actual text dimensions
+            const ctx = canvas.getContext('2d');
+            const fontSize = parseInt(document.getElementById('fontSize').value);
+            ctx.font = `bold ${fontSize}px ${currentFont}`;
+            const textWidth = ctx.measureText(thumbnailText).width;
+            const textHeight = fontSize;
+            
+            // Check if we clicked on or near the text
             if (textX && textY) {
-                const textWidth = 200; // Approximate text width
-                const textHeight = 50; // Approximate text height
-                
-                if (mouseX >= textX - textWidth/2 && mouseX <= textX + textWidth/2 &&
-                    mouseY >= textY - textHeight/2 && mouseY <= textY + textHeight/2) {
+                const hitAreaPadding = 30; // Extra padding for easier clicking
+                if (mouseX >= textX - textWidth/2 - hitAreaPadding && mouseX <= textX + textWidth/2 + hitAreaPadding &&
+                    mouseY >= textY - textHeight/2 - hitAreaPadding && mouseY <= textY + textHeight/2 + hitAreaPadding) {
                     isDraggingText = true;
                     canvas.style.cursor = 'grabbing';
+                } else {
+                    // Click outside text - move text to new position
+                    textX = mouseX;
+                    textY = mouseY;
+                    updateThumbnail();
                 }
             } else {
                 // First time placing text
@@ -2156,6 +2170,7 @@
         function dragText(e) {
             if (!isDraggingText) return;
             
+            e.preventDefault();
             const canvas = document.getElementById('thumbnailCanvas');
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -2164,17 +2179,26 @@
             textX = (e.clientX - rect.left) * scaleX;
             textY = (e.clientY - rect.top) * scaleY;
             
-            // Keep text within canvas bounds
-            textX = Math.max(50, Math.min(canvas.width - 50, textX));
-            textY = Math.max(50, Math.min(canvas.height - 50, textY));
+            // Calculate text dimensions for better bounds checking
+            const ctx = canvas.getContext('2d');
+            const thumbnailText = document.getElementById('thumbnailText').value;
+            const fontSize = parseInt(document.getElementById('fontSize').value);
+            ctx.font = `bold ${fontSize}px ${currentFont}`;
+            const textWidth = ctx.measureText(thumbnailText).width;
+            
+            // Keep text within canvas bounds with proper margins
+            textX = Math.max(textWidth/2 + 10, Math.min(canvas.width - textWidth/2 - 10, textX));
+            textY = Math.max(fontSize/2 + 10, Math.min(canvas.height - fontSize/2 - 10, textY));
             
             updateThumbnail();
         }
         
-        function endTextDrag() {
-            isDraggingText = false;
-            const canvas = document.getElementById('thumbnailCanvas');
-            canvas.style.cursor = 'crosshair';
+        function endTextDrag(e) {
+            if (isDraggingText) {
+                e.preventDefault();
+                isDraggingText = false;
+                const canvas = document.getElementById('thumbnailCanvas');
+                canvas.style.cursor = 'move';
         }
         
         // Google Fonts search functionality

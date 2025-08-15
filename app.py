@@ -464,38 +464,49 @@ def generate_image_prompt():
     - Maintain the person's likeness while fitting the overall composition
     """
     
-    prompt = f"""Create a GPT-4o native image generation (gpt-image-1) optimized prompt for a YouTube thumbnail image:
+    # Modern 2025 ChatGPT-style prompt generation
+    style_guidelines = {
+        'photography': "hyperrealistic photography, cinematic lighting, professional DSLR quality, bokeh depth of field, 8K resolution, trending on ArtStation",
+        'illustration': "modern digital illustration, vibrant colors, clean vector style, trending on Behance, professional concept art quality",
+        'graphic': "contemporary graphic design, bold geometric shapes, minimalist composition, Swiss design principles, modern UI/UX aesthetic",
+        'mixed': "mixed media artwork, combining photorealistic elements with digital art, creative composite, trending visual style"
+    }
+    
+    modern_style = style_guidelines.get(concept.get('style', 'photography'), style_guidelines['photography'])
+    
+    prompt = f"""Generate a modern, high-impact YouTube thumbnail prompt for:
 
     Topic: {topic}
     Concept: {concept.get('title', '')} - {concept.get('description', '')}
-    Style: {concept.get('style', 'photography')}
-    {"Reference Image: A person should be included as specified in the reference" if has_reference else ""}
     
-    CRITICAL REQUIREMENTS:
-    - 16:9 aspect ratio YouTube thumbnail (1792x1024)  
-    - ABSOLUTELY NO TEXT, WORDS, OR LETTERS in the image
-    - NO typography, NO captions, NO labels, NO signs with text
-    - Pure visual imagery only - text will be added separately later
-    - Ultra high-quality, professional cinematography (up to 4096x4096 quality)
-    - Dynamic composition with strong visual hierarchy
-    - Bold, saturated colors that pop on screen
-    - Dramatic lighting and shadows for depth
-    - Clear focal point with engaging visual storytelling
-    - Modern, trending aesthetic suitable for social media
-    - Photorealistic quality with crisp details
-    - Clean visual composition without any textual elements
+    Create a prompt that will generate a {modern_style} image with:
+    
+    VISUAL STYLE (2025 Modern Aesthetic):
+    - Cinematic, movie poster quality composition
+    - Vibrant, saturated colors with high contrast
+    - Modern lighting: dramatic rim lighting, color grading, atmospheric haze
+    - Contemporary visual trends: depth blur, light leaks, lens flares where appropriate
+    - Professional studio quality with crisp 4K details
+    - Dynamic angle and perspective for visual impact
+    - Emotional and engaging visual storytelling
     {reference_context}
     
-    Leverage GPT-4o's native image generation capabilities (gpt-image-1):
-    - Superior prompt following with advanced contextual understanding
-    - Rich multimodal knowledge integration from GPT-4o's training
-    - Advanced compositional intelligence and world knowledge
-    - High-fidelity rendering with accurate detail representation
-    - Enhanced creative interpretation while maintaining technical precision
+    TECHNICAL REQUIREMENTS:
+    - 16:9 aspect ratio (1536x1024 for gpt-image-1)
+    - NO text, words, letters, numbers, or typography in the image
+    - Focus on visual elements only - text will be added separately
+    - Clear subject with strong focal point
+    - High visual clarity suitable for small thumbnail viewing
     
-    REMEMBER: Generate ONLY the visual image without any text whatsoever.
+    MODERN STYLE ELEMENTS TO INCLUDE:
+    - Contemporary color grading (teal/orange, moody blues, vibrant gradients)
+    - Modern compositional techniques (rule of thirds, leading lines, depth layers)
+    - Current visual trends (neon accents, glass morphism, 3D elements where relevant)
+    - Professional post-processing look (HDR effect, color pop, selective focus)
     
-    Return JSON: {{"prompt": "detailed gpt-image-1 optimized prompt with NO TEXT", "style_notes": "visual composition guidance"}}"""
+    Generate a concise, effective prompt that will create a stunning, modern thumbnail image.
+    
+    Return JSON: {{"prompt": "modern style prompt for gpt-image-1", "style_notes": "key visual elements"}}"""
     
     try:
         response = client.chat.completions.create(
@@ -649,39 +660,55 @@ def manage_settings():
 def get_google_fonts():
     """Get Google Fonts list"""
     try:
+        # Comprehensive list of popular Google Fonts - no API key needed
+        popular_fonts = [
+            # Sans-serif fonts
+            {'family': 'Roboto'}, {'family': 'Open Sans'}, {'family': 'Lato'}, {'family': 'Montserrat'},
+            {'family': 'Source Sans Pro'}, {'family': 'Raleway'}, {'family': 'PT Sans'}, {'family': 'Ubuntu'},
+            {'family': 'Nunito'}, {'family': 'Work Sans'}, {'family': 'Poppins'}, {'family': 'Inter'},
+            {'family': 'Fira Sans'}, {'family': 'Quicksand'}, {'family': 'Muli'}, {'family': 'Titillium Web'},
+            {'family': 'Dosis'}, {'family': 'Varela Round'}, {'family': 'Karla'}, {'family': 'Barlow'},
+            {'family': 'Catamaran'}, {'family': 'Exo'}, {'family': 'Cabin'}, {'family': 'Assistant'},
+            {'family': 'Mukti'}, {'family': 'Oxygen'}, {'family': 'Arimo'}, {'family': 'Heebo'},
+            
+            # Display/Heading fonts
+            {'family': 'Mohave'}, {'family': 'Bebas Neue'}, {'family': 'Anton'}, {'family': 'Oswald'},
+            {'family': 'Fjalla One'}, {'family': 'Russo One'}, {'family': 'Righteous'}, {'family': 'Bangers'},
+            {'family': 'Fredoka One'}, {'family': 'Archivo Black'}, {'family': 'Staatliches'}, {'family': 'Lobster'},
+            {'family': 'Pacifico'}, {'family': 'Dancing Script'}, {'family': 'Permanent Marker'},
+            {'family': 'Amatic SC'}, {'family': 'Comfortaa'}, {'family': 'Kalam'}, {'family': 'Alfa Slab One'},
+            
+            # Serif fonts
+            {'family': 'Playfair Display'}, {'family': 'Merriweather'}, {'family': 'Libre Baskerville'},
+            {'family': 'Crimson Text'}, {'family': 'Lora'}, {'family': 'Cormorant Garamond'},
+            {'family': 'Source Serif Pro'}, {'family': 'Vollkorn'}, {'family': 'Bitter'}, {'family': 'Arvo'},
+            {'family': 'PT Serif'}, {'family': 'Old Standard TT'}, {'family': 'Cardo'}, {'family': 'Neuton'},
+            
+            # Monospace fonts
+            {'family': 'Roboto Mono'}, {'family': 'Source Code Pro'}, {'family': 'Space Mono'},
+            {'family': 'Fira Code'}, {'family': 'JetBrains Mono'}, {'family': 'Inconsolata'},
+            
+            # Script/Handwriting fonts
+            {'family': 'Great Vibes'}, {'family': 'Allura'}, {'family': 'Sacramento'}, {'family': 'Alex Brush'},
+            {'family': 'Satisfy'}, {'family': 'Caveat'}, {'family': 'Indie Flower'}, {'family': 'Shadows Into Light'}
+        ]
+        
         google_fonts_api_key = os.getenv('GOOGLE_FONTS_API_KEY')
         if not google_fonts_api_key:
-            # Fallback to popular fonts
-            return jsonify({
-                'fonts': [
-                    {'family': 'Mohave'}, {'family': 'Inter'}, {'family': 'Roboto'}, 
-                    {'family': 'Open Sans'}, {'family': 'Montserrat'}, {'family': 'Poppins'},
-                    {'family': 'Bebas Neue'}, {'family': 'Anton'}, {'family': 'Oswald'},
-                    {'family': 'Source Sans Pro'}, {'family': 'Raleway'}, {'family': 'Lato'},
-                    {'family': 'PT Sans'}, {'family': 'Ubuntu'}, {'family': 'Playfair Display'},
-                    {'family': 'Merriweather'}, {'family': 'Nunito'}, {'family': 'Work Sans'},
-                    {'family': 'Quicksand'}, {'family': 'Muli'}, {'family': 'Fira Sans'},
-                    {'family': 'Crimson Text'}, {'family': 'Libre Baskerville'}, {'family': 'Titillium Web'}
-                ]
-            })
+            # Return comprehensive list without needing API key
+            return jsonify({'fonts': popular_fonts})
         
         url = f'https://www.googleapis.com/webfonts/v1/webfonts?key={google_fonts_api_key}&sort=popularity'
         response = requests.get(url, timeout=10)
         
         if response.status_code == 200:
             data = response.json()
-            # Return top 100 fonts to keep response size manageable
-            fonts = data.get('items', [])[:100]
+            # Return all fonts from API (no limit for full access)
+            fonts = data.get('items', [])
             return jsonify({'fonts': fonts})
         else:
-            # Fallback to static list
-            return jsonify({
-                'fonts': [
-                    {'family': 'Mohave'}, {'family': 'Inter'}, {'family': 'Roboto'}, 
-                    {'family': 'Open Sans'}, {'family': 'Montserrat'}, {'family': 'Poppins'},
-                    {'family': 'Bebas Neue'}, {'family': 'Anton'}, {'family': 'Oswald'}
-                ]
-            })
+            # Fallback to comprehensive static list
+            return jsonify({'fonts': popular_fonts})
             
     except Exception as e:
         print(f"Google Fonts API error: {e}")
