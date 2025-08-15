@@ -1776,91 +1776,91 @@
         }
 
         async function generatePromptFromConcept(conceptIndex) {
-                // Get current values from form - get ALL available context
-                const titleEl = document.getElementById('selectedTitle');
-                const topicEl = document.getElementById('topic');
-                const audienceEl = document.getElementById('audience');
-                const descriptionEl = document.getElementById('selectedDescription');
-                const keyPointsEl = document.getElementById('keyPoints');
-                
-                const title = titleEl ? titleEl.value.trim() : '';
-                const topic = topicEl ? topicEl.value.trim() : '';
-                const audience = audienceEl ? audienceEl.value.trim() : '';
-                const description = descriptionEl ? descriptionEl.value.trim() : '';
-                const keyPoints = keyPointsEl ? keyPointsEl.value.trim() : '';
-                
-                // Check if we have at least some content to work with
-                if (!title && !topic && !description) {
-                    alert('Please enter a video title, topic, or description first to generate thumbnail concepts');
-                    return;
-                }
-                
-                // Build rich context for AI
-                const contextParts = [];
-                if (title) contextParts.push(`Title: ${title}`);
-                if (topic) contextParts.push(`Topic: ${topic}`);
-                if (description) contextParts.push(`Description: ${description}`);
-                if (keyPoints) contextParts.push(`Key Points: ${keyPoints}`);
-                if (audience) contextParts.push(`Target Audience: ${audience}`);
-                
-                const fullContext = contextParts.join('\n');
-                
-                // Generate concepts on-the-fly
-                try {
-                    // Show loading state
-                    const loadingDiv = document.createElement('div');
-                    loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
-                    loadingDiv.innerHTML = `
-                        <div class="bg-zinc-900 rounded-lg p-8 text-center max-w-md">
-                            <div class="mb-6">
-                                <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-full mb-4">
-                                    <i class="ph ph-image text-2xl text-white ai-loading-sparkle"></i>
-                                </div>
-                                <h3 class="text-xl font-semibold mb-2">Generating Thumbnail Concepts</h3>
-                                <p class="text-sm text-zinc-400">Analyzing your full video context...</p>
+            // Get current values from form - get ALL available context
+            const titleEl = document.getElementById('selectedTitle');
+            const topicEl = document.getElementById('topic');
+            const audienceEl = document.getElementById('audience');
+            const descriptionEl = document.getElementById('selectedDescription');
+            const keyPointsEl = document.getElementById('keyPoints');
+            
+            const title = titleEl ? titleEl.value.trim() : '';
+            const topic = topicEl ? topicEl.value.trim() : '';
+            const audience = audienceEl ? audienceEl.value.trim() : '';
+            const description = descriptionEl ? descriptionEl.value.trim() : '';
+            const keyPoints = keyPointsEl ? keyPointsEl.value.trim() : '';
+            
+            // Check if we have at least some content to work with
+            if (!title && !topic && !description) {
+                alert('Please enter a video title, topic, or description first to generate thumbnail concepts');
+                return;
+            }
+            
+            // Build rich context for AI
+            const contextParts = [];
+            if (title) contextParts.push(`Title: ${title}`);
+            if (topic) contextParts.push(`Topic: ${topic}`);
+            if (description) contextParts.push(`Description: ${description}`);
+            if (keyPoints) contextParts.push(`Key Points: ${keyPoints}`);
+            if (audience) contextParts.push(`Target Audience: ${audience}`);
+            
+            const fullContext = contextParts.join('\n');
+            
+            // Generate concepts on-the-fly
+            try {
+                // Show loading state
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
+                loadingDiv.innerHTML = `
+                    <div class="bg-zinc-900 rounded-lg p-8 text-center max-w-md">
+                        <div class="mb-6">
+                            <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-full mb-4">
+                                <i class="ph ph-image text-2xl text-white ai-loading-sparkle"></i>
                             </div>
-                            <div class="flex items-center justify-center space-x-2">
-                                <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                                <div class="w-2 h-2 bg-purple-300 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Generating Thumbnail Concepts</h3>
+                            <p class="text-sm text-zinc-400">Analyzing your full video context...</p>
                         </div>
-                    `;
-                    document.body.appendChild(loadingDiv);
+                        <div class="flex items-center justify-center space-x-2">
+                            <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                            <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                            <div class="w-2 h-2 bg-purple-300 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(loadingDiv);
+                
+                // Get the selected concept
+                const selectedConcept = currentImageConcepts[conceptIndex];
+                
+                // Generate detailed prompt using the concept and context
+                const response = await fetch('/api/generate/image-prompt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        concept: selectedConcept,
+                        topic: fullContext,
+                        has_reference_image: !!referenceImage
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentGeneratedPrompt = data.prompt;
                     
-                    // Get the selected concept
-                    const selectedConcept = currentImageConcepts[conceptIndex];
-                    
-                    // Generate detailed prompt using the concept and context
-                    const response = await fetch('/api/generate/image-prompt', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            concept: selectedConcept,
-                            topic: fullContext,
-                            has_reference_image: !!referenceImage
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        currentGeneratedPrompt = data.prompt;
-                        
-                        // Remove loading modal
-                        document.body.removeChild(loadingDiv);
-                        
-                        // Close concepts modal and show editable prompt modal
-                        closeImageConceptsModal();
-                        showEditablePromptModal(selectedConcept, data.prompt);
-                    } else {
-                        throw new Error('Failed to generate prompt');
-                    }
-                    
-                } catch (error) {
-                    console.error('Error generating prompt:', error);
+                    // Remove loading modal
                     document.body.removeChild(loadingDiv);
-                    alert('Error generating prompt. Please try again.');
+                    
+                    // Close concepts modal and show editable prompt modal
+                    closeImageConceptsModal();
+                    showEditablePromptModal(selectedConcept, data.prompt);
+                } else {
+                    throw new Error('Failed to generate prompt');
                 }
+                
+            } catch (error) {
+                console.error('Error generating prompt:', error);
+                document.body.removeChild(loadingDiv);
+                alert('Error generating prompt. Please try again.');
+            }
         }
         
         function showEditablePromptModal(concept, generatedPrompt) {
@@ -1952,43 +1952,6 @@
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
             }
-        }
-                    
-                } catch (error) {
-                    console.error('Error generating concepts:', error);
-                    // Create context-aware fallback concepts
-                    const mainTopic = title || topic || 'your video content';
-                    window.currentImageConcepts = [
-                        { title: "Dynamic Portrait", description: `Eye-catching portrait showcasing ${mainTopic} with dramatic lighting`, style: "photography" },
-                        { title: "Concept Visualization", description: `Visual representation of ${mainTopic} with modern graphics`, style: "illustration" },
-                        { title: "Action Scene", description: `Dynamic scene demonstrating ${mainTopic} in action`, style: "photography" }
-                    ];
-                    window.currentTopic = fullContext;
-                }
-            }
-            
-            const modal = document.getElementById('imageConceptsModal');
-            const conceptsList = document.getElementById('imageConceptsList');
-            
-            conceptsList.innerHTML = window.currentImageConcepts.map((concept, index) => `
-                <div class="bg-zinc-800 rounded-lg p-4">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="text-lg font-semibold">${concept.title}</h4>
-                        <span class="text-xs px-2 py-1 bg-zinc-700 rounded">${concept.style}</span>
-                    </div>
-                    <p class="text-sm text-zinc-300 mb-4">${concept.description}</p>
-                    <button onclick="selectImageConcept(${index})" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-sm transition flex items-center">
-                        <i class="ph ph-arrow-right mr-2"></i>Generate This Image
-                    </button>
-                </div>
-            `).join('');
-            
-            modal.classList.remove('hidden');
-            
-            // Reset button state
-            btn.disabled = false;
-            btn.classList.remove('opacity-75');
-            btn.innerHTML = originalBtnContent;
         }
         
         function closeImageConceptsModal() {
