@@ -400,55 +400,82 @@
                         
                         <!-- Right AI Tools -->
                         <div class="lg:col-span-3 space-y-4">
-                            <!-- AI Image Generation -->
+                            <!-- Thumbnail Creation -->
                             <div>
-                                <label class="block text-sm font-medium mb-2">AI Image Generation</label>
+                                <label class="block text-sm font-medium mb-3">Thumbnail Creation</label>
                                 
-                                <!-- Upload Section - Shown conditionally -->
-                                <div id="uploadSection" class="bg-zinc-800 rounded-lg p-4 mb-4 hidden">
-                                    <label class="block text-sm font-medium mb-2 flex items-center">
-                                        <i class="ph ph-upload-simple mr-2 text-blue-400"></i>Upload Your Image
-                                    </label>
+                                <!-- Thumbnail Source Selection -->
+                                <div class="bg-zinc-800 rounded-lg p-4 mb-4">
                                     <div class="space-y-3">
-                                        <div>
-                                            <label class="block text-xs text-zinc-400 mb-1">Main Image</label>
-                                            <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs">
+                                        <!-- Option 1: Upload External Image -->
+                                        <div class="border border-zinc-700 rounded-lg p-3">
+                                            <label class="flex items-center cursor-pointer">
+                                                <input type="radio" name="thumbnailSource" value="upload" id="uploadSourceRadio" onchange="selectThumbnailSource('upload')" class="mr-3 text-red-600">
+                                                <div class="flex items-center">
+                                                    <i class="ph ph-upload-simple mr-2 text-blue-400"></i>
+                                                    <span class="font-medium">Upload External Image</span>
+                                                </div>
+                                            </label>
+                                            <div id="uploadOptions" class="mt-3 space-y-3 hidden">
+                                                <div>
+                                                    <input type="file" id="externalImageUpload" accept="image/*" onchange="handleExternalImageUpload(event)" class="w-full text-xs bg-zinc-700 border border-zinc-600 rounded px-3 py-2">
+                                                    <p class="text-xs text-zinc-400 mt-1">Upload your own thumbnail image (JPG, PNG, WebP)</p>
+                                                </div>
+                                                <div id="uploadPreview" class="hidden">
+                                                    <div class="aspect-video bg-zinc-900 rounded border border-zinc-600 overflow-hidden">
+                                                        <img id="uploadedImagePreview" class="w-full h-full object-cover" alt="Uploaded thumbnail">
+                                                    </div>
+                                                    <div class="flex gap-2 mt-2">
+                                                        <button onclick="useUploadedThumbnail()" class="flex-1 bg-green-600 hover:bg-green-700 px-3 py-2 rounded text-xs transition">
+                                                            <i class="ph ph-check mr-1"></i>Use This Image
+                                                        </button>
+                                                        <button onclick="clearUploadedImage()" class="flex-1 bg-zinc-600 hover:bg-zinc-700 px-3 py-2 rounded text-xs transition">
+                                                            <i class="ph ph-trash mr-1"></i>Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label class="block text-xs text-zinc-400 mb-1">Reference Image (for AI)</label>
-                                            <input type="file" id="referenceUpload" accept="image/*" onchange="handleReferenceUpload(event)" class="w-full text-xs">
-                                        </div>
-                                        <button onclick="removeBackground()" class="w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Remove Background for Text-Behind-Subject Effect">
-                                            <i class="ph ph-eraser mr-2"></i>Remove Background
-                                        </button>
-                                        <div class="text-xs text-zinc-400 leading-relaxed">
-                                            <strong>Why upload?</strong><br>
-                                            • Enable "Text Behind Subject" effect<br>
-                                            • Use as reference for AI generation<br>
-                                            • Add your face/logo to thumbnails
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-2">
-                                    <label class="block text-xs font-medium mb-1">Quality</label>
-                                    <div class="relative">
-                                        <button type="button" id="imageQualityButton" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('imageQuality')">
-                                            <span id="imageQualityValue">HD (Higher Quality)</span>
-                                            <i class="fas fa-chevron-down text-zinc-400"></i>
-                                        </button>
-                                        <div id="imageQualityDropdown" class="absolute z-50 w-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg hidden">
-                                            <div class="py-1">
-                                                <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectImageQuality('standard', 'Standard')">Standard</div>
-                                                <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-700 cursor-pointer" onclick="selectImageQuality('hd', 'HD (Higher Quality)')">HD (Higher Quality)</div>
+                                        
+                                        <!-- Option 2: Generate with AI -->
+                                        <div class="border border-zinc-700 rounded-lg p-3">
+                                            <label class="flex items-center cursor-pointer">
+                                                <input type="radio" name="thumbnailSource" value="generate" id="generateSourceRadio" onchange="selectThumbnailSource('generate')" class="mr-3 text-red-600" checked>
+                                                <div class="flex items-center">
+                                                    <i class="ph ph-magic-wand mr-2 text-purple-400"></i>
+                                                    <span class="font-medium">Generate with AI</span>
+                                                </div>
+                                            </label>
+                                            <div id="generateOptions" class="mt-3 space-y-3">
+                                                <div>
+                                                    <label class="block text-xs text-zinc-400 mb-1">Reference Image (Optional)</label>
+                                                    <input type="file" id="referenceUpload" accept="image/*" onchange="handleReferenceUpload(event)" class="w-full text-xs bg-zinc-700 border border-zinc-600 rounded px-3 py-2">
+                                                    <p class="text-xs text-zinc-400 mt-1">Upload your face/logo to include in AI generation</p>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-medium mb-1">Quality</label>
+                                                    <div class="relative">
+                                                        <button type="button" id="imageQualityButton" class="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-sm text-left focus:outline-none focus:border-red-500 flex items-center justify-between" onclick="toggleDropdown('imageQuality')">
+                                                            <span id="imageQualityValue">HD (Higher Quality)</span>
+                                                            <i class="fas fa-chevron-down text-zinc-400"></i>
+                                                        </button>
+                                                        <div id="imageQualityDropdown" class="absolute z-50 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded shadow-lg hidden">
+                                                            <div class="py-1">
+                                                                <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-600 cursor-pointer" onclick="selectImageQuality('standard', 'Standard')">Standard</div>
+                                                                <div class="dropdown-option px-3 py-2 text-sm hover:bg-zinc-600 cursor-pointer" onclick="selectImageQuality('hd', 'HD (Higher Quality)')">HD (Higher Quality)</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <button onclick="showImageConceptsModal()" id="generateImageBtn" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="Generate AI Image">
-                                    <i class="ph ph-image mr-1" style="font-size: 14px;" id="generateImageIcon"></i>
-                                    <span id="generateImageText">Generate with AI</span>
+                                <!-- Action Button -->
+                                <button onclick="executeSelectedThumbnailAction()" id="thumbnailActionBtn" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center">
+                                    <i class="ph ph-magic-wand mr-1" style="font-size: 14px;" id="thumbnailActionIcon"></i>
+                                    <span id="thumbnailActionText">Generate with AI</span>
                                 </button>
                                 
                                 <div class="flex justify-between items-center mt-2">
@@ -1401,6 +1428,7 @@
                 tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t),
                 assets: {
                     thumbnail: thumbnailDataUrl,
+                    thumbnailSource: thumbnailImageSource || 'none', // Track if uploaded or generated
                     textPosition: { x: textX, y: textY },
                     font: currentFont,
                     referenceImage: referenceImage ? referenceImage.src : null,
@@ -1612,6 +1640,115 @@
         let selectedImageStyle = null;
         let currentImageConcepts = null;
         let currentGeneratedPrompt = null;
+        let currentThumbnailSource = 'generate'; // 'upload' or 'generate'
+        let uploadedImageData = null;
+        let thumbnailImageSource = null; // Track if thumbnail came from upload or AI
+
+        // Thumbnail source selection functions
+        function selectThumbnailSource(source) {
+            currentThumbnailSource = source;
+            const uploadOptions = document.getElementById('uploadOptions');
+            const generateOptions = document.getElementById('generateOptions');
+            const actionBtn = document.getElementById('thumbnailActionBtn');
+            const actionIcon = document.getElementById('thumbnailActionIcon');
+            const actionText = document.getElementById('thumbnailActionText');
+            
+            if (source === 'upload') {
+                uploadOptions.classList.remove('hidden');
+                generateOptions.classList.add('hidden');
+                actionIcon.className = 'ph ph-upload-simple mr-1';
+                actionText.textContent = 'Choose File to Upload';
+                actionBtn.className = 'w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center';
+            } else {
+                uploadOptions.classList.add('hidden');
+                generateOptions.classList.remove('hidden');
+                actionIcon.className = 'ph ph-magic-wand mr-1';
+                actionText.textContent = 'Generate with AI';
+                actionBtn.className = 'w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center';
+            }
+        }
+        
+        function executeSelectedThumbnailAction() {
+            if (currentThumbnailSource === 'upload') {
+                document.getElementById('externalImageUpload').click();
+            } else {
+                showImageConceptsModal();
+            }
+        }
+        
+        function handleExternalImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image size must be less than 10MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageData = e.target.result;
+                
+                // Show preview
+                const preview = document.getElementById('uploadPreview');
+                const previewImg = document.getElementById('uploadedImagePreview');
+                previewImg.src = uploadedImageData;
+                preview.classList.remove('hidden');
+                
+                // Update action button
+                const actionBtn = document.getElementById('thumbnailActionBtn');
+                const actionIcon = document.getElementById('thumbnailActionIcon');
+                const actionText = document.getElementById('thumbnailActionText');
+                actionIcon.className = 'ph ph-check mr-1';
+                actionText.textContent = 'Use Uploaded Image';
+                actionBtn.onclick = useUploadedThumbnail;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function useUploadedThumbnail() {
+            if (!uploadedImageData) {
+                alert('No image uploaded');
+                return;
+            }
+            
+            // Load uploaded image into thumbnail studio
+            const img = new Image();
+            img.onload = () => {
+                uploadedImage = img;
+                thumbnailImageSource = 'uploaded';
+                updateThumbnail();
+                
+                // Show thumbnail studio if not expanded
+                if (!thumbnailStudioExpanded) {
+                    toggleThumbnailStudio();
+                }
+                
+                alert('✅ External image loaded successfully! You can now add text and customize your thumbnail.');
+            };
+            img.src = uploadedImageData;
+        }
+        
+        function clearUploadedImage() {
+            uploadedImageData = null;
+            document.getElementById('uploadPreview').classList.add('hidden');
+            document.getElementById('externalImageUpload').value = '';
+            
+            // Reset action button
+            const actionBtn = document.getElementById('thumbnailActionBtn');
+            const actionIcon = document.getElementById('thumbnailActionIcon');
+            const actionText = document.getElementById('thumbnailActionText');
+            actionIcon.className = 'ph ph-upload-simple mr-1';
+            actionText.textContent = 'Choose File to Upload';
+            actionBtn.onclick = executeSelectedThumbnailAction;
+        }
 
         async function showImageConceptsModal() {
             // First show style selection modal
@@ -1935,6 +2072,7 @@
                 const img = new Image();
                 img.onload = () => {
                     uploadedImage = img;
+                    thumbnailImageSource = 'generated';
                     updateThumbnail();
                     
                     // Close modals and show success
@@ -2199,6 +2337,7 @@
                 isDraggingText = false;
                 const canvas = document.getElementById('thumbnailCanvas');
                 canvas.style.cursor = 'move';
+            }
         }
         
         // Google Fonts search functionality
