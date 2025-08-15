@@ -481,8 +481,8 @@
                                                     </div>
                                                 </div>
                                                 <button onclick="showImageConceptsModal()" id="generateImageBtn" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center mt-3">
-                                                    <i class="ph ph-magic-wand mr-1" style="font-size: 14px;"></i>
-                                                    <span>Generate with AI</span>
+                                                    <i id="generateImageIcon" class="ph ph-magic-wand mr-1" style="font-size: 14px;"></i>
+                                                    <span id="generateImageText">Generate with AI</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -1795,10 +1795,16 @@
             const icon = document.getElementById('generateImageIcon');
             const text = document.getElementById('generateImageText');
             
-            btn.disabled = true;
-            btn.classList.add('opacity-75');
-            icon.className = 'ph ph-circle-notch mr-1 animate-spin';
-            text.textContent = 'Generating...';
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-75');
+            }
+            if (icon) {
+                icon.className = 'ph ph-circle-notch mr-1 animate-spin';
+            }
+            if (text) {
+                text.textContent = 'Generating...';
+            }
             
             // Check if we have content to work with
             const titleEl = document.getElementById('selectedTitle');
@@ -1815,10 +1821,16 @@
             
             if (!title && !topic && !description) {
                 alert('Please enter a video title, topic, or description first to generate thumbnail concepts');
-                btn.disabled = false;
-                btn.classList.remove('opacity-75');
-                icon.className = 'ph ph-image mr-1';
-                text.textContent = 'Generate with AI';
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75');
+                }
+                if (icon) {
+                    icon.className = 'ph ph-image mr-1';
+                }
+                if (text) {
+                    text.textContent = 'Generate with AI';
+                }
                 return;
             }
 
@@ -1899,10 +1911,16 @@
                 alert('Error generating concepts. Please try again.');
             } finally {
                 // Reset button
-                btn.disabled = false;
-                btn.classList.remove('opacity-75');
-                icon.className = 'ph ph-image mr-1';
-                text.textContent = 'Generate with AI';
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75');
+                }
+                if (icon) {
+                    icon.className = 'ph ph-image mr-1';
+                }
+                if (text) {
+                    text.textContent = 'Generate with AI';
+                }
             }
         }
 
