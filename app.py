@@ -340,6 +340,7 @@ def generate_thumbnail_text():
 def generate_everything():
     data = request.json
     free_text_idea = data.get('idea', '')
+    preferred_style = data.get('preferred_style', 'mixed')
     
     if not free_text_idea:
         return jsonify({'error': 'No idea provided'}), 400
@@ -413,10 +414,18 @@ def generate_everything():
         desc_data = json.loads(desc_response.choices[0].message.content)
         
         # Step 4: Generate image concepts
+        style_instructions = {
+            'photography': 'Focus exclusively on PHOTOGRAPHY concepts: real people, real objects, camera angles, lighting setups, photographic composition, depth of field, and realistic scenes that can be captured with a camera.',
+            'illustration': 'Focus exclusively on ILLUSTRATION concepts: hand-drawn or digitally illustrated scenes, artistic interpretations, stylized characters, creative visual metaphors, and artistic compositions that are clearly illustrated/drawn.',
+            'graphic': 'Focus exclusively on GRAPHIC DESIGN concepts: geometric shapes, abstract compositions, minimalist designs, bold typography-free layouts, and modern graphic design elements without photographic or illustrated elements.'
+        }
+        
         image_concepts_prompt = f"""Generate 3 modern, visually compelling thumbnail image concepts for this YouTube video:
         Topic: {structure_data.get('topic', '')}
         Audience: {structure_data.get('audience', '')}
         Key Points: {structure_data.get('key_points', '')}
+        
+        STYLE REQUIREMENT: {style_instructions.get(preferred_style, 'Create concepts in mixed styles.')}
         
         IMPORTANT REQUIREMENTS:
         - NO TEXT, typography, words, letters, or written elements should appear in the image concepts
@@ -426,9 +435,10 @@ def generate_everything():
         - Ensure concepts are click-worthy and attention-grabbing
         - Each description should be complete sentences with full details
         - Avoid truncated or incomplete descriptions
+        - ALL 3 concepts must be in the "{preferred_style}" style only
         
         Return as JSON: {{"concepts": [
-            {{"title": "Engaging Concept Name", "description": "Complete detailed visual description focusing on modern cinematography, lighting, composition, and visual elements without any text components. Describe the scene, colors, mood, and visual style in full sentences.", "style": "photography|illustration|graphic"}},
+            {{"title": "Engaging Concept Name", "description": "Complete detailed visual description focusing on modern cinematography, lighting, composition, and visual elements without any text components. Describe the scene, colors, mood, and visual style in full sentences.", "style": "{preferred_style}"}},
             ...
         ]}}"""
         
@@ -463,14 +473,26 @@ def generate_image_prompt():
     concept = data.get('concept', {})
     topic = data.get('topic', '')
     has_reference = data.get('has_reference_image', False)
+    include_face = data.get('include_face', False)
     
     reference_context = ""
-    if has_reference:
+    if has_reference and include_face:
         reference_context = """
-    - INCLUDE the person from the reference image as the main subject
-    - Ensure the person is prominently featured and recognizable
-    - Position the person in a way that complements the thumbnail concept
-    - Maintain the person's likeness while fitting the overall composition
+    - CRITICAL: Perform SUPER ACCURATE FACIAL RECONSTRUCTION of the person from the reference image
+    - The person from the reference image MUST be the main focal point of the thumbnail
+    - Ensure PHOTOREALISTIC facial details with precise feature matching
+    - Maintain exact facial structure, expressions, and characteristics from the reference
+    - Position the person prominently and dramatically in the composition
+    - Use professional portrait lighting to enhance facial features
+    - Ensure the face is clearly visible and takes up significant portion of the thumbnail
+    - Apply advanced facial reconstruction techniques for maximum accuracy
+    """
+    elif has_reference:
+        reference_context = """
+    - Reference image provided but face inclusion is disabled
+    - Use reference image for general composition inspiration only
+    - Do not focus specifically on recreating facial features
+    - Maintain overall aesthetic coherence with the reference style
     """
     
     # Modern 2025 ChatGPT-style prompt generation
