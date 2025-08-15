@@ -413,20 +413,29 @@ def generate_everything():
         desc_data = json.loads(desc_response.choices[0].message.content)
         
         # Step 4: Generate image concepts
-        image_concepts_prompt = f"""Generate 3 thumbnail image concepts for this YouTube video:
+        image_concepts_prompt = f"""Generate 3 modern, visually compelling thumbnail image concepts for this YouTube video:
         Topic: {structure_data.get('topic', '')}
         Audience: {structure_data.get('audience', '')}
+        Key Points: {structure_data.get('key_points', '')}
         
-        Each concept should be visually compelling and click-worthy.
+        IMPORTANT REQUIREMENTS:
+        - NO TEXT, typography, words, letters, or written elements should appear in the image concepts
+        - Focus purely on visual elements: objects, people, scenes, colors, lighting, composition
+        - Each concept should be modern, cinematic, and professionally designed
+        - Use contemporary visual trends: dramatic lighting, vibrant colors, dynamic compositions
+        - Ensure concepts are click-worthy and attention-grabbing
+        - Each description should be complete sentences with full details
+        - Avoid truncated or incomplete descriptions
+        
         Return as JSON: {{"concepts": [
-            {{"title": "Concept Name", "description": "Visual description", "style": "photography|illustration|graphic"}},
+            {{"title": "Engaging Concept Name", "description": "Complete detailed visual description focusing on modern cinematography, lighting, composition, and visual elements without any text components. Describe the scene, colors, mood, and visual style in full sentences.", "style": "photography|illustration|graphic"}},
             ...
         ]}}"""
         
         concepts_response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a YouTube thumbnail design expert."},
+                {"role": "system", "content": "You are a YouTube thumbnail design expert specializing in modern, text-free visual concepts. You create cinematic, attention-grabbing thumbnail ideas that rely purely on visual storytelling without any text elements. Focus on contemporary aesthetics, dramatic lighting, and compelling compositions."},
                 {"role": "user", "content": image_concepts_prompt}
             ],
             response_format={"type": "json_object"}

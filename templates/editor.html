@@ -1867,38 +1867,57 @@
                 if (keyPoints) contextParts.push(`Key Points: ${keyPoints}`);
                 if (audience) contextParts.push(`Target Audience: ${audience}`);
                 
-                const fullContext = contextParts.join('\\n');
+                const fullContext = contextParts.join('\n');
                 
-                // Generate style-specific concepts
-                const styleDescriptions = {
-                    'photography': 'realistic, professional photographs with dramatic lighting and composition',
-                    'illustration': 'artistic, hand-drawn or digital illustrations with creative visual storytelling',
-                    'graphic': 'bold, modern graphic design with clean typography and geometric elements', 
-                    'mixed': 'combination of photography, illustration, and graphic elements for unique visual impact'
-                };
-
-                const mainTopic = title || topic || description.substring(0, 50) || 'your video content';
+                // Generate AI concepts using the backend
+                const conceptsResponse = await fetch('/api/generate/everything', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        idea: fullContext
+                    })
+                });
                 
-                currentImageConcepts = [
-                    { 
-                        title: "Dynamic Focus", 
-                        description: `Eye-catching ${style} showing ${mainTopic} with ${styleDescriptions[style].split(',')[0]}`, 
-                        style: style 
-                    },
-                    { 
-                        title: "Concept Visualization", 
-                        description: `Visual representation of ${mainTopic} using ${styleDescriptions[style].split(',')[1] || styleDescriptions[style]}`, 
-                        style: style 
-                    },
-                    { 
-                        title: "Engaging Scene", 
-                        description: `Compelling ${style} scene that captures the essence of ${mainTopic} with ${styleDescriptions[style].split(',')[2] || 'striking visual elements'}`, 
-                        style: style 
-                    }
-                ];
-
-                // Simulate realistic loading time
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                if (!conceptsResponse.ok) {
+                    throw new Error('Failed to generate concepts');
+                }
+                
+                const conceptsData = await conceptsResponse.json();
+                
+                // Transform the AI-generated concepts into our format, ensuring no text elements
+                currentImageConcepts = (conceptsData.concepts || []).map(concept => ({
+                    title: concept.title,
+                    description: concept.description.replace(/\b(text|word|title|letter|typography|font)\b/gi, 'visual element'),
+                    style: concept.style || style
+                }));
+                
+                // If we don't get concepts from AI, create modern fallback concepts without text references
+                if (currentImageConcepts.length === 0) {
+                    const styleDescriptions = {
+                        'photography': 'cinematic composition with dramatic lighting, shallow depth of field, and professional color grading creating visual impact',
+                        'illustration': 'modern digital artwork featuring vibrant colors, clean vector aesthetics, and contemporary visual storytelling techniques',
+                        'graphic': 'bold geometric shapes, minimalist composition, dynamic color gradients, and Swiss design principles creating striking visual hierarchy', 
+                        'mixed': 'innovative blend of photorealistic elements with digital art techniques, creating unique contemporary visual compositions'
+                    };
+                    
+                    currentImageConcepts = [
+                        { 
+                            title: "Dynamic Visual Impact", 
+                            description: `Modern ${style} composition featuring ${styleDescriptions[style]}`, 
+                            style: style 
+                        },
+                        { 
+                            title: "Contemporary Aesthetic", 
+                            description: `Sleek ${style} design with vibrant color schemes, professional lighting, and cutting-edge visual techniques that capture audience attention`, 
+                            style: style 
+                        },
+                        { 
+                            title: "Engaging Composition", 
+                            description: `Compelling ${style} scene utilizing negative space, dynamic angles, and modern color theory to create visually striking thumbnails`, 
+                            style: style 
+                        }
+                    ];
+                }
                 
                 document.body.removeChild(loadingDiv);
                 
