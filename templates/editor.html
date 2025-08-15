@@ -553,6 +553,11 @@
             </div>
             
             <div class="space-y-4">
+                <div class="bg-zinc-800 rounded-lg p-4 border border-zinc-700">
+                    <h4 class="font-semibold text-white mb-1" id="editableConceptTitle">Concept Title</h4>
+                    <p class="text-sm text-zinc-300 mb-3" id="editableConceptDescription">Concept description will appear here</p>
+                </div>
+                
                 <div>
                     <label class="block text-sm font-medium text-zinc-300 mb-2">Image Prompt</label>
                     <textarea id="editableImagePrompt" rows="8" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:border-red-500 focus:outline-none resize-none text-sm" placeholder="Detailed image description..."></textarea>
@@ -1858,7 +1863,9 @@
                 
             } catch (error) {
                 console.error('Error generating prompt:', error);
-                document.body.removeChild(loadingDiv);
+                if (typeof loadingDiv !== 'undefined' && document.body.contains(loadingDiv)) {
+                    document.body.removeChild(loadingDiv);
+                }
                 alert('Error generating prompt. Please try again.');
             }
         }
