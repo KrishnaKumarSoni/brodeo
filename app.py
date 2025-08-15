@@ -341,6 +341,8 @@ def generate_everything():
     data = request.json
     free_text_idea = data.get('idea', '')
     preferred_style = data.get('preferred_style', 'mixed')
+    has_reference = data.get('has_reference_image', False)
+    include_face = data.get('include_face', False)
     
     if not free_text_idea:
         return jsonify({'error': 'No idea provided'}), 400
@@ -420,10 +422,32 @@ def generate_everything():
             'graphic': 'Focus exclusively on GRAPHIC DESIGN concepts: geometric shapes, abstract compositions, minimalist designs, bold typography-free layouts, and modern graphic design elements without photographic or illustrated elements.'
         }
         
+        # Add reference image context to concepts
+        reference_context_for_concepts = ""
+        if has_reference and include_face:
+            reference_context_for_concepts = """
+        
+        REFERENCE IMAGE CONTEXT:
+        - A reference image with a person's face has been uploaded
+        - ALL 3 concepts must prominently feature this person as the main subject
+        - Focus on creating concepts where the person from the reference image is clearly visible and recognizable
+        - Design compositions that highlight the person's face and make them the focal point
+        - Consider different angles and lighting scenarios that showcase the person effectively
+        """
+        elif has_reference:
+            reference_context_for_concepts = """
+        
+        REFERENCE IMAGE CONTEXT:
+        - A reference image has been uploaded for general inspiration
+        - Use the reference for overall aesthetic and composition ideas
+        - Do not focus specifically on recreating people or faces from the reference
+        """
+
         image_concepts_prompt = f"""Generate 3 modern, visually compelling thumbnail image concepts for this YouTube video:
         Topic: {structure_data.get('topic', '')}
         Audience: {structure_data.get('audience', '')}
         Key Points: {structure_data.get('key_points', '')}
+        {reference_context_for_concepts}
         
         STYLE REQUIREMENT: {style_instructions.get(preferred_style, 'Create concepts in mixed styles.')}
         

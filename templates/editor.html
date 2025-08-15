@@ -1880,6 +1880,13 @@
                 if (keyPoints) contextParts.push(`Key Points: ${keyPoints}`);
                 if (audience) contextParts.push(`Target Audience: ${audience}`);
                 
+                // Add reference image context if available
+                if (referenceImage && includeFaceInThumbnail) {
+                    contextParts.push(`Reference: Person/face from uploaded reference image should be prominently featured in thumbnail concepts`);
+                } else if (referenceImage) {
+                    contextParts.push(`Reference: Uploaded reference image available for general visual inspiration`);
+                }
+                
                 const fullContext = contextParts.join('\n');
                 
                 // Generate AI concepts using the backend
@@ -1888,7 +1895,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         idea: fullContext,
-                        preferred_style: style
+                        preferred_style: style,
+                        has_reference_image: !!referenceImage,
+                        include_face: includeFaceInThumbnail
                     })
                 });
                 
@@ -2535,6 +2544,11 @@
         }
 
         function toggleFaceInclusion() {
+            // Only allow toggle if reference image is uploaded
+            if (!referenceImage) {
+                alert('Please upload a reference image first before enabling face inclusion.');
+                return;
+            }
             includeFaceInThumbnail = !includeFaceInThumbnail;
             updateFaceToggleUI();
         }
