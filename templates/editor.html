@@ -289,6 +289,11 @@
                                 <label class="block text-sm font-medium mb-2">Thumbnail Text</label>
                                 <input type="text" id="thumbnailText" onkeyup="updateThumbnail()" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm mb-2" placeholder="Enter text...">
                                 
+                                <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center mb-2" title="AI Text Suggestions">
+                                    <i class="ph ph-lightbulb mr-1" style="font-size: 14px;"></i>AI Suggestions
+                                </button>
+                                <div id="thumbnailTextSuggestions" class="mb-3 space-y-1"></div>
+                                
                                 <!-- Font Size Control -->
                                 <div class="mb-2">
                                     <label class="block text-xs font-medium mb-1">Font Size</label>
@@ -297,11 +302,6 @@
                                         <span id="fontSizeValue" class="text-xs text-zinc-400 w-8">60px</span>
                                     </div>
                                 </div>
-                                
-                                <button onclick="generateThumbnailText()" class="w-full bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center" title="AI Text Suggestions">
-                                    <i class="ph ph-lightbulb mr-1" style="font-size: 14px;"></i>AI Suggestions
-                                </button>
-                                <div id="thumbnailTextSuggestions" class="mt-2 space-y-1"></div>
                             </div>
                             
                             <!-- Font Selection -->
@@ -341,32 +341,45 @@
                                 </div>
                             </div>
                             
-                            <!-- Border Controls -->
+                            <!-- Text Style -->
                             <div>
-                                <label class="block text-sm font-medium mb-2">Text Border</label>
-                                <div class="space-y-2">
-                                    <div>
-                                        <label class="block text-xs font-medium mb-1">Border Thickness</label>
-                                        <div class="flex items-center space-x-2">
-                                            <input type="range" id="borderThickness" min="0" max="8" value="2" oninput="updateThumbnail(); updateRangeDisplays()" onchange="updateThumbnail()" class="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
-                                            <span id="borderThicknessValue" class="text-xs text-zinc-400 w-6">2px</span>
-                                        </div>
+                                <label class="block text-sm font-medium mb-2">Text Style</label>
+                                <div class="grid grid-cols-3 gap-2 mb-3">
+                                    <!-- Border Toggle -->
+                                    <button onclick="toggleBorderStyle('outline')" id="outlineBtn" class="border-style-btn p-2 bg-zinc-800 hover:bg-zinc-700 rounded border border-zinc-600 transition flex flex-col items-center" title="Text Outline">
+                                        <i class="ph ph-text-aa text-lg mb-1"></i>
+                                        <span class="text-xs">Outline</span>
+                                    </button>
+                                    
+                                    <!-- Shadow Toggle -->
+                                    <button onclick="toggleBorderStyle('shadow')" id="shadowBtn" class="border-style-btn p-2 bg-zinc-800 hover:bg-zinc-700 rounded border border-zinc-600 transition flex flex-col items-center" title="Text Shadow">
+                                        <i class="ph ph-drop-shadow text-lg mb-1"></i>
+                                        <span class="text-xs">Shadow</span>
+                                    </button>
+                                    
+                                    <!-- Clean Toggle -->
+                                    <button onclick="toggleBorderStyle('clean')" id="cleanBtn" class="border-style-btn p-2 bg-red-600 border border-red-500 rounded transition flex flex-col items-center" title="Clean Text">
+                                        <i class="ph ph-text-t text-lg mb-1"></i>
+                                        <span class="text-xs">Clean</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- Style Controls (shown based on selection) -->
+                                <div id="borderControls" class="hidden">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <i class="ph ph-paint-brush text-zinc-400"></i>
+                                        <input type="color" id="borderColor" onchange="updateThumbnail()" class="w-8 h-6 rounded border border-zinc-600" value="#000000">
+                                        <input type="range" id="borderThickness" min="1" max="6" value="2" oninput="updateThumbnail()" class="flex-1 h-2 bg-zinc-700 rounded">
+                                        <span id="borderThicknessValue" class="text-xs text-zinc-400 w-6">2px</span>
                                     </div>
-                                    <div>
-                                        <label class="block text-xs font-medium mb-2">Border Color</label>
-                                        <div class="custom-color-picker">
-                                            <input type="color" id="borderColor" onchange="updateThumbnail(); updateColorDisplay('borderColor')" class="hidden" value="#000000">
-                                            <div onclick="document.getElementById('borderColor').click()" class="w-full h-8 rounded-lg border-2 border-zinc-600 cursor-pointer flex items-center justify-center hover:border-zinc-500 transition" style="background-color: #000000;">
-                                                <span class="text-xs font-medium" id="borderColorDisplay" style="color: #FFFFFF;">Border</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium mb-1">Border Radius</label>
-                                        <div class="flex items-center space-x-2">
-                                            <input type="range" id="borderRadius" min="0" max="20" value="0" oninput="updateThumbnail(); updateRangeDisplays()" onchange="updateThumbnail()" class="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
-                                            <span id="borderRadiusValue" class="text-xs text-zinc-400 w-6">0px</span>
-                                        </div>
+                                </div>
+                                
+                                <div id="shadowControls" class="hidden">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="ph ph-drop-shadow text-zinc-400"></i>
+                                        <input type="color" id="shadowColor" onchange="updateThumbnail()" class="w-8 h-6 rounded border border-zinc-600" value="#000000">
+                                        <input type="range" id="shadowIntensity" min="1" max="10" value="4" oninput="updateThumbnail()" class="flex-1 h-2 bg-zinc-700 rounded">
+                                        <span id="shadowIntensityValue" class="text-xs text-zinc-400 w-6">4px</span>
                                     </div>
                                 </div>
                             </div>
@@ -467,15 +480,19 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <button onclick="showImageConceptsModal()" id="generateImageBtn" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center mt-3">
+                                                    <i class="ph ph-magic-wand mr-1" style="font-size: 14px;"></i>
+                                                    <span>Generate with AI</span>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Action Button -->
-                                <button onclick="executeSelectedThumbnailAction()" id="thumbnailActionBtn" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center">
-                                    <i class="ph ph-magic-wand mr-1" style="font-size: 14px;" id="thumbnailActionIcon"></i>
-                                    <span id="thumbnailActionText">Generate with AI</span>
+                                <!-- Action Button for Upload -->
+                                <button onclick="executeSelectedThumbnailAction()" id="thumbnailActionBtn" class="w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center hidden">
+                                    <i class="ph ph-upload-simple mr-1" style="font-size: 14px;" id="thumbnailActionIcon"></i>
+                                    <span id="thumbnailActionText">Choose File to Upload</span>
                                 </button>
                                 
                                 <div class="flex justify-between items-center mt-2">
@@ -715,6 +732,7 @@
         let textY = null;
         let isDraggingText = false;
         let currentFont = 'Mohave';
+        let currentBorderStyle = 'clean'; // 'clean', 'outline', 'shadow'
         
         // Thumbnail studio state
         let thumbnailStudioExpanded = false;
@@ -1212,18 +1230,23 @@
             lines.forEach((line, i) => {
                 const y = startY + i * lineHeight;
                 
-                // Draw border if thickness > 0
-                if (borderThickness > 0) {
+                // Apply text style based on currentBorderStyle
+                if (currentBorderStyle === 'outline') {
+                    const borderThickness = parseInt(document.getElementById('borderThickness')?.value || 2);
+                    const borderColor = document.getElementById('borderColor')?.value || '#000000';
+                    
                     ctx.lineWidth = borderThickness;
                     ctx.strokeStyle = borderColor;
-                    
-                    // Add border radius effect by drawing multiple strokes
-                    if (borderRadius > 0) {
-                        ctx.lineJoin = 'round';
-                        ctx.lineCap = 'round';
-                    }
-                    
+                    ctx.lineJoin = 'round';
+                    ctx.lineCap = 'round';
                     ctx.strokeText(line, textX, y);
+                } else if (currentBorderStyle === 'shadow') {
+                    const shadowIntensity = parseInt(document.getElementById('shadowIntensity')?.value || 4);
+                    const shadowColor = document.getElementById('shadowColor')?.value || '#000000';
+                    
+                    // Draw shadow
+                    ctx.fillStyle = shadowColor;
+                    ctx.fillText(line, textX + shadowIntensity, y + shadowIntensity);
                 }
                 
                 // Draw main text
@@ -1656,15 +1679,14 @@
             if (source === 'upload') {
                 uploadOptions.classList.remove('hidden');
                 generateOptions.classList.add('hidden');
+                actionBtn.classList.remove('hidden');
                 actionIcon.className = 'ph ph-upload-simple mr-1';
                 actionText.textContent = 'Choose File to Upload';
                 actionBtn.className = 'w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center';
             } else {
                 uploadOptions.classList.add('hidden');
                 generateOptions.classList.remove('hidden');
-                actionIcon.className = 'ph ph-magic-wand mr-1';
-                actionText.textContent = 'Generate with AI';
-                actionBtn.className = 'w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg text-xs transition flex items-center justify-center';
+                actionBtn.classList.add('hidden');
             }
         }
         
@@ -2340,6 +2362,33 @@
             }
         }
         
+        // Text style functions
+        function toggleBorderStyle(style) {
+            currentBorderStyle = style;
+            
+            // Update button states
+            document.querySelectorAll('.border-style-btn').forEach(btn => {
+                btn.classList.remove('bg-red-600', 'border-red-500');
+                btn.classList.add('bg-zinc-800', 'border-zinc-600');
+            });
+            
+            const activeBtn = document.getElementById(style + 'Btn');
+            activeBtn.classList.remove('bg-zinc-800', 'border-zinc-600');
+            activeBtn.classList.add('bg-red-600', 'border-red-500');
+            
+            // Show/hide controls
+            document.getElementById('borderControls').classList.add('hidden');
+            document.getElementById('shadowControls').classList.add('hidden');
+            
+            if (style === 'outline') {
+                document.getElementById('borderControls').classList.remove('hidden');
+            } else if (style === 'shadow') {
+                document.getElementById('shadowControls').classList.remove('hidden');
+            }
+            
+            updateThumbnail();
+        }
+        
         // Google Fonts search functionality
         let googleFonts = [];
         async function loadGoogleFonts() {
@@ -2433,18 +2482,18 @@
                 fontSizeValue.textContent = fontSize.value + 'px';
             }
             
-            // Update border thickness display
+            // Update border thickness display (for outline style)
             const borderThickness = document.getElementById('borderThickness');
             const borderThicknessValue = document.getElementById('borderThicknessValue');
             if (borderThickness && borderThicknessValue) {
                 borderThicknessValue.textContent = borderThickness.value + 'px';
             }
             
-            // Update border radius display
-            const borderRadius = document.getElementById('borderRadius');
-            const borderRadiusValue = document.getElementById('borderRadiusValue');
-            if (borderRadius && borderRadiusValue) {
-                borderRadiusValue.textContent = borderRadius.value + 'px';
+            // Update shadow intensity display (for shadow style)
+            const shadowIntensity = document.getElementById('shadowIntensity');
+            const shadowIntensityValue = document.getElementById('shadowIntensityValue');
+            if (shadowIntensity && shadowIntensityValue) {
+                shadowIntensityValue.textContent = shadowIntensity.value + 'px';
             }
         }
         
